@@ -15,20 +15,26 @@ $CORE['info']['helpchans'] = "#chewybot @ Servers irc.chewynet.co.uk:6667 & Hell
 $CORE['info']['botauthoremail'] = "chewyb13@gmail.com";
 $CORE['info']['bugtracker'] = "http://code.google.com/p/chewybot-php/issues/list";
 $CORE['info']['sourcecode'] = "https://chewybot-php.googlecode.com/svn/trunk/ chewybot-php-read-only";
-$CORE['info']['version'] = "0.0.1.2";
+$CORE['info']['version'] = "0.0.1.3";
 $CORE['debug'] = true;
 // You really shouldn't need to edit anything below this point unless you are wanting to help with development
+if (php_uname('s') === "Windows NT") {
+	$CORE['os'] = 'WINDOWS';
+} else {
+	$CORE['OS'] = php_uname('s');
+}
 if (file_exists('./chewybot.pid')) {
 	$pid = getmypid();
 	$old = file_get_contents('./chewybot.pid');
 	$fp = fopen('./chewybot.pid','w');
-/*	if (exec('ps -p '.$old)) {
-		exec('kill -9 '.$old);
-		fwrite($fp,$pid);
-	} else {
-		fwrite($fp,$pid);
+	if ($CORE['os'] != 'WINDOWS') {
+		if (exec('ps -p '.$old)) {
+			exec('kill -9 '.$old);
+			fwrite($fp,$pid);
+		} else {
+			fwrite($fp,$pid);
+		}
 	}
-*/
 } else {
 	$pid = getmypid();
 	$fp = fopen('./chewybot.pid','w');
@@ -38,8 +44,7 @@ if ($CORE['debug'] == true) { error_reporting(E_ALL); }
 // | E_STRICT
 include('core.inc.php');
 $ch3wyb0t = new ChewyBot();
-$ch3wyb0t->check();
-$ch3wyb0t->checkdb();
+$ch3wyb0t->initsetup();
 $ch3wyb0t->startup();
 /*$irc = new Vhost();
 $irc->check();
@@ -49,6 +54,7 @@ function restart() {
 	$irc->reboot("Rebooting");
 	$dead = exec('chewybot.php &>/dev/null &');
 	exit;
+	}
 */
 
 ?>
