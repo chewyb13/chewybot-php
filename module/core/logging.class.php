@@ -2,10 +2,12 @@
 class log extends ChewyBot {
 
 	public function log($message="Init of Logging system",$dtype=null,$log=false) {
+		global $ch3wyb0t;
 		return $this->_sprint($message,$dtype,$log);
 	}
 	
 	protected function _screen($id,$type,$text) {
+		global $ch3wyb0t;
 		if ($type == 'in') {
 			$output = "-".$id."-> ".$text;
 		}
@@ -16,6 +18,7 @@ class log extends ChewyBot {
 	}
 
 	protected function _sprint($message,$dtype=null,$log=false) {
+		global $ch3wyb0t;
 		$output = '';
 		$htmloutput = '';
 		global $CORE;
