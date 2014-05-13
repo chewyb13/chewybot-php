@@ -57,47 +57,278 @@ class ChewyBot {
 		}
 	}
 	
-	private function _core_command_cmds($id,$type,$sender,$indata,$rawdata) {
-/*def commands(sock,type,user,incom,raw):
-	if ((type == 'CNOTE') or (type == 'CMSG')):
-		chan = rl(incom[2])
-	else:
-		chan = 'NULL'
-	if (len(incom) >= 4):
-		#debug("Enetered Private messages")
-		if ((type == 'PNOTE') and (incom[0] == mysockets[sock]['connectaddress'])):
-			#debug(sock,"Snotice: {0}".format(incom))
-			blarg = 1
-		elif ('\x01' in incom[3]):
-			ctcp = incom[3:]
-			stripcount = len(ctcp)
-			while (stripcount):
-				stripcount = stripcount - 1	
-				ctcp[stripcount] = ctcp[stripcount].strip('\x01')
-			if (ctcp[0].upper() == 'ACTION'):
-				debug(sock,"Got a Action {0}".format(ctcp[1:]))
-			elif (ctcp[0].upper() == 'VERSION'):
-				if (len(ctcp) >= 2):
-					debug(sock,"Got a CTCP VERSION Response {0}".format(ctcp[1:]))
-				else:
-					sts(sock,"NOTICE {0} :\x01VERSION Ch3wyB0t Version {1}\x01".format(user,version))
-			elif (ctcp[0].upper() == 'PING'):
-				if (len(ctcp) >= 2):
-					sts(sock,"NOTICE {0} :\x01PING {1}\x01".format(user,ctcp[1]))
-				else:
-					sts(sock,"NOTICE {0} :\x01PING\x01".format(user))
-			elif (ctcp[0].upper() == 'TIME'):
-				if (len(ctcp) >= 2):
-					debug(sock,"Got a CTCP TIME response {0}".format(ctcp[1:]))
-				else:
-					currenttime = datetime.datetime.now()
-					sts(sock,"NOTICE {0} :\x01TIME {1}\x01".format(user,currenttime.strftime("%a %b %d %I:%M:%S%p %Y")))
-			else:
-				debug(sock,"Got a unknown CTCP request {0}".format(ctcp))
-		elif (incom[3] == '?trigger'):
-			buildmsg(sock,'NORMAL',user,chan,'PRIV',"Channel: {0}{2} Private Message: {1}{2}".format(settings['chancom'],settings['pvtcom'],settings['signal']))
-		elif (((incom[3] == settings['chancom']+settings['signal']) and ((type == 'CMSG') or (type == 'CNOTE'))) or ((incom[3] == settings['pvtcom']+settings['signal']) and ((type == 'PMSG') or (type == 'PNOTE')))):
-			if (len(incom) >= 5):
+
+	
+	private function _core_command_cmds($id,$type,$user,$indata,$rawdata,$address) {
+		global $CORE;
+		if (($type == 'CNOTE') or ($type == 'CMSG')) {
+			$chan = $indata[2];
+		} 
+		else {
+			$chan = 'NULL';
+		}
+		if (count($indata) >= 4) {
+			#$this->_sprint($id." Entered Private Messages",'debug',false);
+			if (($type == 'PNOTE') and ($indata[0] == $this->sdata['cons'][$id]['connectaddress'])) {
+				#$this->_sprint($id." SNOTICE: ".print_r($indata,true),'debug',false);
+				$blarg = true;
+			} 
+			elseif (strstr($indata[3],chr(1))) { // '\x01'
+				$ctcp = $this->_core_array_rearrange($indata,3);
+				$ctcp = $this->_core_array_stripchr($ctcp,1);
+				if ($ctcp[0] == 'ACTION') {
+					$this->_sprint($id." Got a Action ".print_r($this->_core_array_rearrange($ctcp,1),true),'debug',false);
+				} 
+				elseif ($ctcp[0] == 'VERSION') {
+					if (count($ctcp) >= 2) {
+						$this->_sprint($id." Got a CTCP VERSION Response ".print_r($this->_core_array_rearrange($ctcp,1),true),'debug',false);
+					} 
+					else {
+						$this->_core_sts($id,"NOTICE ".$user." :".chr(1)."VERSION Ch3wyB0t Version ".$CORE['info']['version'].chr(1));
+					}
+				} 
+				elseif ($ctcp[0] == 'PING') {
+					if (count($ctcp) >= 2) {
+						$this->_core_sts($id,"NOTICE ".$user." :".chr(1)."PING ".$ctcp[1].chr(1));
+					} 
+					else {
+						$this->_core_sts($id,"NOTICE ".$user." :".chr(1)."PING".chr(1));
+					}
+				} 
+				elseif ($ctcp[0] == 'TIME') {
+					if (count($ctcp) >= 2) {
+						$this->_sprint($id." Got a CTCP TIME Response ".print_r($this->_core_array_rearrange($ctcp,1),true),'debug',false);
+					} 
+					else {
+						$this->_core_sts($id,"NOTICE ".$user." :".chr(1)."TIME ".date("D M d h:i:sA Y").chr(1));
+					}
+				} 
+				else {
+					$this->_sprint($id." Got a Unknown CTCP request ".print_r($this->_core_array_rearrange($ctcp,1),true),'debug',false);
+				}
+			} 
+			elseif ($indata[3] == '?trigger') {
+				$this->_core_buildmsg($id,'NORMAL',$user,$chan,'PRIV',"Channel :".$this->data['settings']['chancom'].$this->data['settings']['signal']." Private Message: ".$this->data['settings']['pvtcom'].$this->data['settings']['signal']);
+			} 
+			elseif ((($indata[3] == $this->data['settings']['chancom'].$this->data['settings']['signal']) and (($type == 'CMSG') or ($type == 'CNOTE'))) or (($indata[3] == $this->data['settings']['pvtcom'].$this->data['settings']['signal']) and (($type == 'PMSG') or ($type == 'PNOTE')))) {
+				if (count($indata) >= 5) {
+					switch(strtoupper($indata[4])) {
+					
+/*					
+		
+*/					
+						
+						
+						
+						case 'WHOIS': {
+							$passthrough = false;
+							if (($type == 'PMSG') or ($type == 'PNOTE')) {
+								if (count($indata) >= 6) {
+									$chan = $indata[5];
+									if (count($indata) >= 7) {
+										$uwho = $indata[6];
+										$passthrough = true;
+									} else {
+										$uwho = 'NULL';
+										$passthrough = true;
+									}
+								} else {
+									$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You didn't enter a channel");
+								}
+							}
+							if (($type == 'CMSG') or ($type == 'CNOTE')) {
+								if (count($indata) >= 6) {
+									$uwho = $indata[5];
+									$passthrough = true;
+								} else {
+									$uwho = 'NULL';
+									$passthrough = true;
+								}
+							}
+							if ($passthrough == true) {
+								$this->_core_get_whois($id,$user,$chan,'WHOIS',$uwho);
+							}
+							break;
+						}
+						case 'WHOAMI': {
+							$passthrough = false;
+							if (($type == 'PMSG') or ($type == 'PNOTE')) {
+								if (count($indata) >= 6) {
+									$chan = $indata[5];
+									$passthrough = true;
+								} else {
+									$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You didn't enter a channel");
+								}
+							}
+							if (($type == 'CMSG') or ($type == 'CNOTE')) {
+								$passthrough = true;
+							}
+							if ($passthrough == true) {
+								$this->_core_get_whois($id,$user,$chan,'WHOAMI','NULL');
+							}
+							break;
+						}
+						case 'LOGOUT': {
+							if ($this->_core_islogged($id,$user) == true) {
+								$this->_core_buildmsg($id,'NORMAL',$user,$chan,'PRIV',"You have been logged out of ".$this->sdata['cons'][$id]['loggedin'][$user]['username']);
+								unset($this->sdata['cons'][$id]['loggedin'][$user]);
+							} else {
+								$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOTLOGGED');
+							}
+							break;
+						}
+						case 'LOGIN': {
+							if (($type == 'PMSG') or ($type == 'PNOTE')) {
+								if ($this->_core_islogged($id,$user) == false) {
+									if (count($indata) >= 6) {
+										if (count($indata) >= 7) {
+											$tmpudata = $this->_core_pulluser($indata[5]);
+											if ($tmpudata != false) {
+												$tmppass = md5($indata[6]);
+												if ($tmpudata['password'] == $tmppass) {
+													$this->sdata['cons'][$id]['loggedin'][$user] = ['username'=>$tmpudata['username'],'msg'=>$tmpudata['msgtype'],'umask'=>$indata[0]];
+													$this->_core_buildmsg($id,'NORMAL',$user,$chan,'PRIV',"You have successfully logged in as ".strtolower($indata[5]));
+												} else {
+													$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You have failed to login");
+												}
+											} else {
+												$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You didn't enter a valid username");
+											}
+										} else {
+											$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You only entered a username, please enter a password as well");
+										}
+									} else {
+										$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You are missing <username> <password>");
+									}
+								} else {
+									$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You are already LOGGED In as ".$this->sdata['cons'][$id]['loggedin'][$user]['username']);
+								}
+							} else {
+								$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You can not log in via channel commands");
+							}
+							break;
+						}
+						case 'REGISTER': {
+							if (($type == 'PMSG') or ($type == 'PNOTE')) {
+								if ($this->_core_islogged($id,$user) == false) {
+									if (count($indata) >= 6) {
+										if (count($indata) >= 7) {
+											$tmpudata = $this->_core_pulluser($indata[5]);
+											if ($tmpudata == false) {
+												$tmppass = md5($indata[6]);
+												$this->sql->sql('insert',"INSERT INTO users (username, password, global, server, channel, msgtype) VALUES (".strtolower($indata[5]).", ".$tmppass.", NULL, NULL, NULL, msg)");
+												$this->sdata['cons'][$id]['loggedin'][$user] = ['username'=>strtolower($indata[5]),'msg'=>'msg','umask'=>$indata[0]];
+												$this->_core_buildmsg($id,'NORMAL',$user,$chan,'PRIV',"You have successfully registered as ".strtolower($indata[5])." and have been auto logged-in");
+											} else {
+												$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"The username you entered already exists");
+											}
+										} else {
+											$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You only entered a username, please enter a password as well");
+										}
+									} else {
+										$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You are missing <username> <password>");
+									}
+								} else {
+									$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','LOGIN');
+								}
+							} else {
+								$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You can not register via channel commands");
+							}
+							break;
+						}
+						case 'VERSION': {
+							$this->_core_buildmsg($id,'NORMAL',$user,$chan,'PRIV',"Ch3wyB0t Version ".$CORE['info']['version']);
+							break;
+						}
+						case 'HELP': {
+							if (($type == 'PMSG') or ($type == 'PNOTE')) {
+								if (count($indata) >= 6) {
+									$chan = $indata[5];
+								}
+							}
+							$this->_core_command_help($id,$user,$chan,$indata);
+							break;
+						}
+						case 'TESTCMD': {
+							if ($this->_core_get_access_logged($id,$user,$chan,'GLOBAL') >= 7) {
+								$this->_sprint($id." ".print_r($this->sdata,true),'debug',false);
+							} else {
+								$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESS');
+							}
+							break;
+						}
+						case 'TESTDATA': {
+							if ($this->_core_get_access_logged($id,$user,$chan,'GLOBAL') >= 7) {
+								$this->_sprint($id." ".print_r($this->data,true),'debug',false);
+							} else {
+								$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESS');
+							}
+							break;
+						}
+						case 'TEST': {
+							if ($this->_core_get_access_logged($id,$user,$chan,'GLOBAL') >= 7) {
+								#$this->_core_sts($id,"MODE :".$this->sdata['cons'][$id]['nick']);
+								$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"data blarg");
+							} else {
+								$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESS');
+							}
+							break;
+						}
+						default: {
+							$this->_sprint($id." c1 ".print_r($indata,true),'debug',false);
+							if (($type == 'CMSG') or ($type == 'CNOTE')) {
+								$this->_core_buildmsg($id,'ERROR',$user,$chan,'CHAN',"The command ".$indata[4]." doesn't exist at the momment");
+							}
+							if (($type == 'PMSG') or ($type == 'PNOTE')) {
+								$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"The command ".$indata[4]." doesn't exist at the momment");
+							}
+							break;
+						}
+					}
+/*
+				elif (incom[4].upper() == 'ACCOUNT'):
+					if ((type == 'PMSG') or (type == 'PNOTE')):
+						if (islogged(sock,user) == 'TRUE'):
+							if (len(incom) >= 6):
+								userdetails = pulluser(loggedin[sock][user]['username'])
+								if (incom[5].upper() == 'CHGPASS'):
+									if (len(incom) >= 7):
+										if (len(incom) >= 8):
+											tmppass = hashlib.md5()
+											tmppass.update(incom[6])
+											if (userdata['password'] == tmppass.hexdigest()):
+												tmppass2 = hashlib.md5()
+												tmppass2.update(incom[7])
+												sql = "UPDATE users SET password = '{0}' where id = '{1}'".format(tmppass2.hexdigest(),userdetails['id'])
+												vals = db.execute(sql)
+												buildmsg(sock,'NORMAL',user,chan,'PRIV',"You have successfully changed your password.")
+											else:
+												buildmsg(sock,'ERROR',user,chan,'PRIV',"You sure you entered your current password right")
+										else:
+											buildmsg(sock,'ERROR',user,chan,'PRIV',"Missing New Password")
+									else:
+										buildmsg(sock,'ERROR',user,chan,'PRIV',"Missing Current Password")
+								if (incom[5].upper() == 'MSGTYPE'):
+									if (len(incom) >= 7):
+										if (incom[6].lower() == 'notice'):
+											newtype = 'notice'
+										else:
+											newtype = 'msg'
+										sql = "UPDATE users SET msgtype = '{0}' where id = '{1}'".format(newtype,userdetails['id'])
+										vals = db.execute(sql)
+										loggedin[sock][user]['msgtype'] = newtype
+										buildmsg(sock,'NORMAL',user,chan,'PRIV',"You have successfully changed your message type to {0}".format(newtype))
+									else:
+										buildmsg(sock,'NORMAL',user,chan,'PRIV',"You have to enter a Message type")
+							else:
+								buildmsg(sock,'NORMAL',user,chan,'PRIV',"Your Account Details {0}({1})".format(user,loggedin[sock][user]['username']))
+								buildmsg(sock,'NORMAL',user,chan,'PRIV',"MSGTYPE: {0}".format(loggedin[sock][user]['msgtype']))
+						else:
+							buildmsg(sock,'ERROR',user,chan,'PRIV','NOTLOGGED')
+					else:
+						buildmsg(sock,'ERROR',user,chan,'PRIV',"You can not access your account via channel commands")
+						
+						
 				if (incom[4].upper() == 'EXIT'):
 					if (loggedgetaccess(sock,user,chan,'GLOBAL') >= 6):
 						if (len(incom) >= 6):
@@ -1056,186 +1287,41 @@ class ChewyBot {
 								sts(sock,"PRIVMSG {0} :\x01ACTION {1}\x01".format(chan,splitjoiner(data)))
 							else:
 								buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESS')
-				elif (incom[4].upper() == 'ACCOUNT'):
-					if ((type == 'PMSG') or (type == 'PNOTE')):
-						if (islogged(sock,user) == 'TRUE'):
-							if (len(incom) >= 6):
-								userdetails = pulluser(loggedin[sock][user]['username'])
-								if (incom[5].upper() == 'CHGPASS'):
-									if (len(incom) >= 7):
-										if (len(incom) >= 8):
-											tmppass = hashlib.md5()
-											tmppass.update(incom[6])
-											if (userdata['password'] == tmppass.hexdigest()):
-												tmppass2 = hashlib.md5()
-												tmppass2.update(incom[7])
-												sql = "UPDATE users SET password = '{0}' where id = '{1}'".format(tmppass2.hexdigest(),userdetails['id'])
-												vals = db.execute(sql)
-												buildmsg(sock,'NORMAL',user,chan,'PRIV',"You have successfully changed your password.")
-											else:
-												buildmsg(sock,'ERROR',user,chan,'PRIV',"You sure you entered your current password right")
-										else:
-											buildmsg(sock,'ERROR',user,chan,'PRIV',"Missing New Password")
-									else:
-										buildmsg(sock,'ERROR',user,chan,'PRIV',"Missing Current Password")
-								if (incom[5].upper() == 'MSGTYPE'):
-									if (len(incom) >= 7):
-										if (incom[6].lower() == 'notice'):
-											newtype = 'notice'
-										else:
-											newtype = 'msg'
-										sql = "UPDATE users SET msgtype = '{0}' where id = '{1}'".format(newtype,userdetails['id'])
-										vals = db.execute(sql)
-										loggedin[sock][user]['msgtype'] = newtype
-										buildmsg(sock,'NORMAL',user,chan,'PRIV',"You have successfully changed your message type to {0}".format(newtype))
-									else:
-										buildmsg(sock,'NORMAL',user,chan,'PRIV',"You have to enter a Message type")
-							else:
-								buildmsg(sock,'NORMAL',user,chan,'PRIV',"Your Account Details {0}({1})".format(user,loggedin[sock][user]['username']))
-								buildmsg(sock,'NORMAL',user,chan,'PRIV',"MSGTYPE: {0}".format(loggedin[sock][user]['msgtype']))
-						else:
-							buildmsg(sock,'ERROR',user,chan,'PRIV','NOTLOGGED')
-					else:
-						buildmsg(sock,'ERROR',user,chan,'PRIV',"You can not access your account via channel commands")
-				elif (incom[4].upper() == 'LOGOUT'):
-					if (islogged(sock,user) == 'TRUE'):
-						buildmsg(sock,'NORMAL',user,chan,'PRIV',"You have been logged out of {0}".format(loggedin[sock][user]['username']))
-						del loggedin[sock][user]
-					else:
-						buildmsg(sock,'ERROR',user,chan,'PRIV','NOTLOGGED')
-				elif (incom[4].upper() == 'LOGIN'):
-					if ((type == 'PMSG') or (type == 'PNOTE')):
-						if (islogged(sock,user) == 'FALSE'):
-							if (len(incom) >= 6):
-								if (len(incom) >= 7):
-									udata = pulluser(rl(incom[5]))
-									if (udata != 'FALSE'):
-										tmppass = hashlib.md5()
-										tmppass.update(incom[6])
-										if (udata['password'] == tmppass.hexdigest()):
-											loggedin[sock][user] = {'username': udata['username'], 'msgtype': udata['msgtype'], 'umask': incom[0]}
-											buildmsg(sock,'NORMAL',user,chan,'PRIV',"You have successfully logged in as {0}".format(incom[5]))
-										else:
-											buildmsg(sock,'ERROR',user,chan,'PRIV',"You have failed to login")
-									else:
-										buildmsg(sock,'ERROR',user,chan,'PRIV',"You didn't enter a valid username")
-								else:
-									buildmsg(sock,'ERROR',user,chan,'PRIV',"You only entered a username, please enter a password as well")
-							else:
-								buildmsg(sock,'ERROR',user,chan,'PRIV',"You are missing <username> <password>")
-						else:
-							buildmsg(sock,'ERROR',user,chan,'PRIV',"You are already LOGGED In as {0}".format(loggedin[sock][user]['username']))
-					else:
-						buildmsg(sock,'ERROR',user,chan,'PRIV',"You can not log in via channel commands")						
-				elif (incom[4].upper() == 'REGISTER'):
-					if ((type == 'PMSG') or (type == 'PNOTE')):
-						if (islogged(sock,user) == 'FALSE'):
-							if (len(incom) >= 6):
-								if (len(incom) >=7):
-									tmpudata = pulluser(rl(incom[5]))
-									if (tmpudata == 'FALSE'):
-										tmppass = hashlib.md5()
-										tmppass.update(incom[6])
-										sql = "INSERT INTO users (username, password, global, server, channel, msgtype) VALUES ('{0}', '{1}', '{2}', '{3}', '{4}', '{5}')".format(rl(incom[5]),tmppass.hexdigest(),'NULL','NULL','NULL','msg')
-										blarg = db.insert(sql)										
-										loggedin[sock][user] = {'username': rl(incom[5]), 'msgtype': 'msg', 'umask': incom[0]}
-										buildmsg(sock,'NORMAL',user,chan,'PRIV',"You have successfully registered as {0} and have been auto logged-in".format(incom[5]))
-									else:
-										buildmsg(sock,'ERROR',user,chan,'PRIV',"The username you entered already exists")
-								else:
-									buildmsg(sock,'ERROR',user,chan,'PRIV',"You only entered a username, please enter a password as well")
-							else:
-								buildmsg(sock,'ERROR',user,chan,'PRIV',"You are missing <username> <password>")
-						else:
-							buildmsg(sock,'ERROR',user,chan,'PRIV','LOGIN')				
-					else:
-						buildmsg(sock,'ERROR',user,chan,'PRIV',"You can not register via channel commands")
-				elif (incom[4].upper() == 'HELP'):
-					if ((type == 'PMSG') or (type == 'PNOTE')):
-						if (len(incom) >= 6):
-							chan = incom[5]
-					helpcmd(sock,user,chan,incom)
-				elif (incom[4].upper() == 'WHOIS'):
-					if ((type == 'PMSG') or (type == 'PNOTE')):
-						if (len(incom) >= 6):
-							chan = incom[5]
-							if (len(incom) >= 7):
-								uwho = incom[6]
-								passthrough = 1
-							else:
-								uwho = 'NULL'
-								passthrough = 1
-						else:
-							buildmsg(sock,'ERROR',user,chan,'PRIV',"You didn't enter a channel")
-					if ((type == 'CMSG') or (type == 'CNOTE')):
-						if (len(incom) >= 6):
-							uwho = incom[5]
-							passthrough = 1
-						else:
-							uwho = 'NULL'
-							passthrough = 1
-					if (passthrough == 1):
-						getwhois(sock,user,chan,'WHOIS',uwho)					
-				elif (incom[4].upper() == 'WHOAMI'):
-					if ((type == 'PMSG') or (type == 'PNOTE')):
-						if (len(incom) >= 6):
-							chan = rl(incom[5])
-							passthrough = 1
-						else:
-							buildmsg(sock,'ERROR',user,chan,'PRIV',"You didn't enter a channel")
-					if ((type == 'CMSG') or (type == 'CNOTE')):
-						passthrough = 1
-					if (passthrough == 1):	
-						getwhois(sock,user,chan,'WHOAMI','NULL')					
-				elif (incom[4].upper() == 'VERSION'):
-					buildmsg(sock,'NORMAL',user,chan,'PRIV',"Ch3wyB0t Version {0}".format(version))				
-				elif (incom[4].upper() == 'TESTCMD'):
-					if (loggedgetaccess(sock,user,chan,'GLOBAL') >= 7):
-						debug(sock,mysockets[sock])
-					else:
-						buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESS')
-				elif (incom[4].upper() == 'TESTDATA'):
-					if (loggedgetaccess(sock,user,chan,'GLOBAL') >= 7):
-						debug(sock,mysockets)
-					else:
-						buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESS')
-				elif (incom[4].upper() == 'TEST'):
-					if (loggedgetaccess(sock,user,chan,'GLOBAL') >= 7):
 
-						#sts(sock,"MODE :{0}".format(mysockets[sock]['nick']))
-						buildmsg(sock,'ERROR',user,chan,'PRIV',"data {0}".format('blarg'))
-					else:
-						buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESS')
-				else:
-					debug(sock,incom)
-					if ((type == 'CMSG') or (type == 'CNOTE')):
-						buildmsg(sock,'ERROR',user,chan,'CHAN',"The command {0} doesn't exist at the momment".format(incom[4]))
-					if ((type == 'PMSG') or (type == 'PNOTE')):
-						buildmsg(sock,'ERROR',user,chan,'PRIV',"The command {0} doesn't exist at the momment".format(incom[4]))
-		else:
-			if (type == 'PNOTE'):
-				if (user == 'NickServ'):
-					if (len(incom) >= 9):
-						if ((incom[6] == 'registered') and (incom[8] == 'protected.')):
-							if (mysockets[sock]['server']['nickservpass'] != 'NULL'):
-								mysockets[sock]['nickserv'] = '1ST'
-						elif ((incom[6] == 'NickServ') and (incom[7] == 'IDENTIFY')):
-							if ((mysockets[sock]['server']['nickservpass'] != 'NULL') and (mysockets[sock]['nickserv'] == '1ST')):
-								del mysockets[sock]['nickserv']
-								sts(sock,"PRIVMSG NickServ :IDENTIFY {0}".format(mysockets[sock]['server']['nickservpass']))
-								mysockets[sock]['identified'] = 'TRUE'
-								autojoinchannels(sock)
-				else:
-					debug(sock,incom)
-			else:
-				#buildmsg(sock,'NORMAL',user,chan,'PRIV',output) #types are NORMAL, HELP, ERROR  mtype are PRIV, CHAN
-				debug(sock,incom)
-	else:
-		#blarg = 'TRUE'
-		#buildmsg(sock,'ERROR',user,chan,'PRIV',"The command {0} doesn't exist at the momment".format(incom[3]))
-		debug(sock,incom)
-*/
-
+*/				
+				}
+			} 
+			else {
+				if ($type == 'PNOTE') {
+					if ($user == 'NickServ') {
+						if (count($indata) >= 9) {
+							if (($indata[6] == 'registered') and ($indata[8] == 'protected.')) {
+								if ($this->data['data'][$id]['server']['nickservpass'] != 'NULL') {
+									$this->sdata['cons'][$id]['identified'] = 1;
+								}
+							} elseif (($indata[6] == 'NickServ') and ($indata[7] == 'IDENTIFY')) {
+								if (($this->data['data'][$id]['server']['nickservpass'] != 'NULL') and ($this->sdata['cons'][$id]['identified'] == 1)) {
+									$this->sdata['cons'][$id]['identified'] = 2;
+									$this->_core_sts($id,"PRIVMSG NickServ :IDENTIFY ".$this->data['data'][$id]['server']['nickservpass']);
+									$this->_core_autojoinchans($id);
+								}
+							}
+						}
+					} 
+					else {
+						$this->_sprint($id." n1 ".print_r($indata,true),'debug',false);
+					}
+				}
+				else {
+					#$this->_core_buildmsg($id,'NORMAL',$user,$chan,'PRIV',$output) #types are NORMAL,HELP,ERROR, mtype are PRIV,CHAN
+					$this->_sprint($id." b1 ".print_r($indata,true),'debug',false);
+				}
+			}
+		} 
+		else {
+			#$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"The command ".$indata[3]." doesn't exist at the momment");
+			$this->_sprint($id." d1 ".print_r($indata,true),'debug',false);
+		}
 	}
 	
 	private function _core_command_help($id,$sender,$chan,$indata) {
@@ -1660,7 +1746,8 @@ def helpcmd(sock,user,chan,incom):
 		$indata = explode(" ",$data);
 		$rawdata = explode(" ",$data);
 		$indata = str_replace(":","",$indata);
-		$sender = explode("!",$indata[0]);
+		$address = explode("!",$indata[0]);
+		$sender = $address[0];
 		if ($indata[0] == 'PING') {
 			$this->_core_sts($id,"PONG :".$indata[1]);
 			$this->sdata['cons'][$id]['lastping'] = time();
@@ -1678,7 +1765,6 @@ def helpcmd(sock,user,chan,incom):
 				//Start the numerics
 				case '001': {
 					//$this->_sprint($id." Numeric 001 - Welcome to server",'debug',false);
-					$this->sdata['cons'][$id]['connection']['address'] = $indata[3];
 					$this->sdata['cons'][$id]['networkname'] = $indata[6];
 					$this->sdata['cons'][$id]['connectumask'] = $indata[9];
 					$this->_core_sts($id,"MODE ".$this->sdata['cons'][$id]['nick']." +B");
@@ -1698,6 +1784,7 @@ def helpcmd(sock,user,chan,incom):
 				}
 				case '004': {
 					//$this->_sprint($id." Numeric 004 - server var usermode charmod");
+					$this->sdata['cons'][$id]['connection']['address'] = $indata[3];
 					$this->sdata['cons'][$id]['connectaddress'] = $indata[3];
 					$this->sdata['cons'][$id]['sversion'] = $indata[4];
 					$this->sdata['cons'][$id]['connectumodes'] = $indata[5];
@@ -1707,27 +1794,157 @@ def helpcmd(sock,user,chan,incom):
 				}
 				case '005': {
 					//$this->_sprint($id." Numeric 005 - map",'debug',false);
-					/*			#debug(sock,"Numeric 005 - map")
-					i = 0
-					while (i < len(incom)):
-						tmpdata = incom[i].split('=')
-						#if (tmpdata[0] == 'UHNAMES'):
-						if (tmpdata[0] == 'MAXCHANNELS'): mysockets[sock]['maxchannels'] = int(tmpdata[1])
-						elif (tmpdata[0] == 'CHANLIMIT'): mysockets[sock]['chanlimit'] = tmpdata[1]
-						elif (tmpdata[0] == 'MAXLIST'): mysockets[sock]['maxlist'] = tmpdata[1]
-						elif (tmpdata[0] == 'NICKLEN'): mysockets[sock]['nicklen'] = int(tmpdata[1])
-						elif (tmpdata[0] == 'CHANNELLEN'): mysockets[sock]['channellen'] = int(tmpdata[1])
-						elif (tmpdata[0] == 'TOPICLEN'): mysockets[sock]['topiclen'] = int(tmpdata[1])
-						elif (tmpdata[0] == 'KICKLEN'): mysockets[sock]['kicklen'] = int(tmpdata[1])
-						elif (tmpdata[0] == 'AWAYLEN'): mysockets[sock]['awaylen'] = int(tmpdata[1])
-						elif (tmpdata[0] == 'MAXTARGETS'): mysockets[sock]['maxtargets'] = int(tmpdata[1])
-						elif (tmpdata[0] == 'MODES'): mysockets[sock]['modespl'] = int(tmpdata[1])
-						elif (tmpdata[0] == 'CHANTYPES'): mysockets[sock]['chantypes'] = tmpdata[1]
-						elif (tmpdata[0] == 'PREFIX'): mysockets[sock]['prefix'] = tmpdata[1]
-						elif (tmpdata[0] == 'CHANMODES'): mysockets[sock]['chanmodes'] = tmpdata[1]
-						elif (tmpdata[0] == 'EXTBAN'): mysockets[sock]['extban'] = tmpdata[1]
-						else: blarg = 1
-						i = i + 1*/
+					$i = 0;
+					while ($i < count($indata)) {
+						$tmpdata = explode("=",$indata[$i]);
+						switch ($tmpdata[0]) {
+							case '005': {
+								break;
+							}
+							case 'are': {
+								break;
+							}
+							case 'supported': {
+								break;
+							}
+							case 'by': {
+								break;
+							}
+							case 'this': {
+								break;
+							}
+							case 'server': {
+								break;
+							}
+							case $this->sdata['cons'][$id]['nick']: {
+								break;
+							}
+							case $this->sdata['cons'][$id]['connection']['address']: {
+								break;
+							}
+							case 'UHNAMES': {
+								$this->sdata['cons'][$id]['uhnames'] = true;
+								break;
+							}
+							case 'MAXCHANNELS': {
+								$this->sdata['cons'][$id]['maxchannels'] = $tmpdata[1];
+								break;
+							}
+							case 'CHANLIMIT': {
+								$this->sdata['cons'][$id]['chanlimit'] = $tmpdata[1];
+								break;
+							}
+							case 'MAXLIST': {
+								$this->sdata['cons'][$id]['maxlist'] = $tmpdata[1];
+								break;
+							}
+							case 'NICKLEN': {
+								$this->sdata['cons'][$id]['nicklen'] = $tmpdata[1];
+								break;
+							}
+							case 'CHANNELLEN': {
+								$this->sdata['cons'][$id]['channellen'] = $tmpdata[1];
+								break;
+							}
+							case 'TOPICLEN': {
+								$this->sdata['cons'][$id]['topiclen'] = $tmpdata[1];
+								break;
+							}
+							case 'KICKLEN': {
+								$this->sdata['cons'][$id]['kicklen'] = $tmpdata[1];
+								break;
+							}
+							case 'AWAYLEN': {
+								$this->sdata['cons'][$id]['awaylen'] = $tmpdata[1];
+								break;
+							}
+							case 'MAXTARGETS': {
+								$this->sdata['cons'][$id]['maxtargets'] = $tmpdata[1];
+								break;
+							}
+							case 'MODES': {
+								$this->sdata['cons'][$id]['modespl'] = $tmpdata[1];
+								break;
+							}
+							case 'CHANTYPES': {
+								$this->sdata['cons'][$id]['chantypes'] = $tmpdata[1];
+								break;
+							}
+							case 'PREFIX': {
+								$this->sdata['cons'][$id]['prefix'] = $tmpdata[1];
+								break;
+							}
+							case 'CHANMODES': {
+								$this->sdata['cons'][$id]['chanmodes'] = $tmpdata[1];
+								break;
+							}
+							case 'EXTBAN': {
+								$this->sdata['cons'][$id]['extban'] = $tmpdata[1];
+								break;
+							}
+							case 'WATCH': {
+								$this->sdata['cons'][$id]['watch'] = $tmpdata[1];
+								break;
+							}
+							case 'WATCHOPTS': {
+								$this->sdata['cons'][$id]['watchopts'] = $tmpdata[1];
+								break;
+							}
+							case 'NAMESX': {
+								$this->sdata['cons'][$id]['namesx'] = true;
+								break;
+							}
+							case 'SAFELIST': {
+								$this->sdata['cons'][$id]['safelist'] = true;
+								break;
+							}
+							case 'HCN': {
+								$this->sdata['cons'][$id]['hcn'] = true;
+								break;
+							}
+							case 'WALLCHOPS': {
+								$this->sdata['cons'][$id]['wallchops'] = true;
+								break;
+							}
+							case 'SILENCE': {
+								$this->sdata['cons'][$id]['silence'] = $tmpdata[1];
+								break;
+							}
+							case 'NETWORK': {
+								$this->sdata['cons'][$id]['network'] = $tmpdata[1];
+								break;
+							}
+							case 'CASEMAPPING': {
+								$this->sdata['cons'][$id]['casemapping'] = $tmpdata[1];
+								break;
+							}
+							case 'ELIST': {
+								$this->sdata['cons'][$id]['elist'] = $tmpdata[1];
+								break;
+							}
+							case 'STATUSMSG': {
+								$this->sdata['cons'][$id]['statusmsg'] = $tmpdata[1];
+								break;
+							}
+							case 'EXCEPTS': {
+								$this->sdata['cons'][$id]['excepts'] = true;
+								break;
+							}
+							case 'INVEX': {
+								$this->sdata['cons'][$id]['invex'] = true;
+								break;
+							}
+							case 'CMDS': {
+								$this->sdata['cons'][$id]['cmds'] = $tmpdata[1];
+								break;
+							}
+							default: {
+								$this->_sprint($id." Numeric 005 unknown ".print_r($tmpdata,true),'debug',false);
+								break;
+							}
+						}
+						$i += 1;
+					}
 					break;
 				}
 				
@@ -1789,7 +2006,7 @@ def helpcmd(sock,user,chan,incom):
 				
 				case '221': {
 					if ($indata[2] == $this->sdata['cons'][$id]['nick']) {
-						//$this->_core_modeprocessor_user($id,'umode',$indata[3]);
+						$this->_core_modeprocessor_user($id,'umode',$indata[3]);
 					}
 					break;
 				}
@@ -1816,7 +2033,7 @@ def helpcmd(sock,user,chan,incom):
 				}
 				case '243': {
 					if ($indata[6] == $this->data['data'][$id]['server']['botoper']) {
-						//$this->_core_modeprocessor_user($id,'oflags','+'.$indata[7]);
+						$this->_core_modeprocessor_user($id,'oflags','+'.$indata[7]);
 					}
 					break;
 				}
@@ -2016,10 +2233,10 @@ def helpcmd(sock,user,chan,incom):
 					break;
 				}
 				case '324': {
-					//$this->_core_modeprocessor_chan($id,$sender,$indata[3],$indata[4]);
-					//if (chanmodes($id,$indata[3])) != 'NULL') {
-					//	$this->_core_sts($id,"MODE ".$indata[3]." ".chanmodes($id,$indata[3]));
-					//}
+					$this->_core_modeprocessor_chan($id,$sender,$indata[3],$indata[4]);
+					if ($this->_core_chanmodes($id,$indata[3]) != 'NULL') {
+						$this->_core_sts($id,"MODE ".$indata[3]." ".$this->_core_chanmodes($id,$indata[3]));
+					}
 					break;
 				}
 				
@@ -2586,7 +2803,7 @@ def helpcmd(sock,user,chan,incom):
 					} else {
 						$this->_sprint("Another user was kicked from ".$indata[2]." on ".$this->data['data'][$id]['server']['servername'],'debug',false);
 					}
-					unset($this->sdata['cons'][$id]['chans'][$indata[2]]['users'][$indata[3]);
+					unset($this->sdata['cons'][$id]['chans'][$indata[2]]['users'][$indata[3]]);
 					break;
 				}
 				case 'TOPIC': {
@@ -2603,12 +2820,12 @@ def helpcmd(sock,user,chan,incom):
 				}
 				case 'MODE': {
 					if ($indata[2] == $this->sdata['cons'][$id]['nick']) {
-						//$this->_core_modeprocessor_user($id,'umode',$indata[3]);
+						$this->_core_modeprocessor_user($id,'umode',$indata[3]);
 					} else {
-						//$this->_core_modeprocessor_chan($id,$indata[2],$indata[3]);
-						//if ($this->_core_chanmodes($id,$indata[2],$indata[3]) != 'NULL') {
-						//	$this->_core_sts($id,"MODE ".$indata[2]." ".$this->_core_chanmodes($id,$indata[2]));
-						//}
+						$this->_core_modeprocessor_chan($id,$sender,$indata[2],$indata[3]);
+						if ($this->_core_chanmodes($id,$indata[2],$indata[3]) != 'NULL') {
+							$this->_core_sts($id,"MODE ".$indata[2]." ".$this->_core_chanmodes($id,$indata[2]));
+						}
 					}
 					break;
 				}
@@ -2645,17 +2862,17 @@ def helpcmd(sock,user,chan,incom):
 				}
 				case 'NOTICE': {
 					if ($indata[2] == $this->sdata['cons'][$id]['nick']) {
-						$this->_core_command_cmds($id,'PNOTE',$sender,$indata,$rawdata);
+						$this->_core_command_cmds($id,'PNOTE',$sender,$indata,$rawdata,$address);
 					} else {
-						$this->_core_command_cmds($id,'CNOTE',$sender,$indata,$rawdata);
+						$this->_core_command_cmds($id,'CNOTE',$sender,$indata,$rawdata,$address);
 					}
 					break;
 				}
 				case 'PRIVMSG': {
 					if ($indata[2] == $this->sdata['cons'][$id]['nick']) {
-						$this->_core_command_cmds($id,'PMSG',$sender,$indata,$rawdata);
+						$this->_core_command_cmds($id,'PMSG',$sender,$indata,$rawdata,$address);
 					} else {
-						$this->_core_command_cmds($id,'CMSG',$sender,$indata,$rawdata);
+						$this->_core_command_cmds($id,'CMSG',$sender,$indata,$rawdata,$address);
 					}
 					break;
 				}
@@ -2670,7 +2887,6 @@ def helpcmd(sock,user,chan,incom):
 		}
 		return;
 /*
-		
 def splitjoiner(data):
 	outcounti = 0
 	output = ''
@@ -2679,38 +2895,88 @@ def splitjoiner(data):
 		outcounti = outcounti + 1
 	output = output.rstrip()
 	return output
-		
-def buildmsg(sock,type,user,chan,uctype,message):
-	#sock = server($1) type = messagetype($4) uctype = priv/chan($2) user/chan = sendto($3) message = message($5-)
-	if (uctype == 'PRIV'): 
-		sendto = user
-		if (islogged(sock,user) == 'TRUE'):
-			userdata = pulluser(loggedin[sock][user]['username'])
-			msgtype = userdata['msgtype']
-		else: msgtype = "msg"
-	else: 
-		sendto = chan
-		msgtype = "msg"
-	if (msgtype == "msg"): msgoutput = "PRIVMSG"
-	if (msgtype == "notice"): msgoutput = "NOTICE"
-	if (type == 'RAW'): mtoutput = "-(RAW)-"
-	elif (type == 'BLOG'): mtoutput = "-(CBOT)-(LOG)-"
-	elif (type == 'ELOG'): mtoutput = "-(CBOT)-(ERROR-LOG)-"
-	elif (type == 'RELAY'): mtoutput = "*"
-	elif (type == 'NORMAL'): mtoutput = "-(CBOT)-"
-	elif (type == 'HELP'): mtoutput = "-(CBOT)-(HELP)-"
-	elif (type == 'ERROR'): 
-		mtoutput = "-(CBOT)-(ERROR)-"
-		if (message == 'LOGIN'): message = "You are already Logged in."
-		elif (message == 'PASSPROB'): message = "There was a problem with changing your password"
-		elif (message == 'LOGGED'):	message = "You are Logged in."
-		elif (message == 'NOTLOGGED'): message = "You are not Logged in."
-		elif (message == 'NOACCESS'): message = "You either have no access to this command or you are not Logged in."
-		elif (message == 'NOACCESSHELP'): message = "You do not have access to read help on this command."
-		else: message = message
-	else: mtoutput = "-(CBOT)-"
-	sts(sock,"{0} {1} :{2}4,1{3}{2} {4}".format(msgoutput,sendto,chr(3),mtoutput,message))			
+def massmodes(sock,user,chan,modes):
+	modespl = mysockets[sock]['modespl']
+	tmpusers = deque()
+	if (len(mysockets[sock]['channels'][chan]['users']) > 0):
+		tmplogged = 'FALSE'
+		tmpkeys = mysockets[sock]['channels'][chan]['users'].keys()
+		for tmpkey in tmpkeys:
+			if (modes[2] == 'ALL'):
+				tmpusers.append(tmpkey)
+			elif (modes[2] == 'BC'):
+				if (modes[0] == 'ADD'):	tmpusers.append(tmpkey)
+				else:
+					if (tmpkey == user): tmplogged = 'TRUE'
+					elif (tmpkey == mysockets[sock]['nick']): tmplogged = 'TRUE'
+					else: tmpusers.append(tmpkey)
+			else:
+				for tmpmode in modes[2]:
+					if (tmpkey == tmpmode): tmpusers.append(tmpkey)
+			
+	i = 0
+	outputmode = ''
+	while (i != modespl):
+		outputmode = outputmode+modes[1]
+		i = i + 1
+	outputmode = outputmode.rstrip()
+	if (modes[0] == 'ADD'): omode = '+'
+	else: omode = '-'
+	i = l = 0
+	output = ''
+	length = len(tmpusers)
+	while (i != length):
+		output = output+tmpusers.popleft()+" "
+		l = l + 1
+		if (l == modespl):
+			output = output.rstrip()
+			sts(sock,"MODE {0} {1}{2} {3}".format(chan,omode,outputmode,output))
+			output = ''
+			l = 0
+		i = i + 1
+	output = output.rstrip()
+	sts(sock,"MODE {0} {1}{2} {3}".format(chan,omode,outputmode,output))		
+*/		
+	}
 
+	private function _core_array_stripchr($in,$chr) {
+		$stripcount = count($in);
+		while ($stripcount) {
+			$stripcount -= 1;
+			$in[$stripcount] = str_replace(chr($chr),'',$in[$stripcount]);
+		}
+		return $in;
+	}
+	
+	private function _core_array_rearrange($in,$o) {
+		$i = 0;
+		$out = array();
+		while ($o < count($in)) {
+			$out[$i] = $in[$o];
+			$o += 1;
+			$i += 1;
+		}
+		return $out;
+	}
+	
+	private function _core_chanmodes($id,$chan) {
+		$foutput = '';
+		foreach ($this->data['data'][$id]['chans'] as $t1 => $t2) {
+			if ($t2['channel'] == $chan) {
+				if ($this->data['data'][$id]['chans'][$chan]['chanmodes'] != 'NULL') {
+					//$tmpimodes 
+				
+				
+				
+				
+				} else {
+					return 'NULL';
+				}
+			}
+		}
+		return 'NULL';
+	
+	/*
 def chanmodes(sock,chan):
 	channels = mysockets[sock]['chans'].keys()
 	foutput = ''
@@ -2789,167 +3055,278 @@ def chanmodes(sock,chan):
 					return 'NULL'
 			else:
 				return 'NULL'
-	return 'NULL'		
-def massmodes(sock,user,chan,modes):
-	modespl = mysockets[sock]['modespl']
-	tmpusers = deque()
-	if (len(mysockets[sock]['channels'][chan]['users']) > 0):
-		tmplogged = 'FALSE'
-		tmpkeys = mysockets[sock]['channels'][chan]['users'].keys()
-		for tmpkey in tmpkeys:
-			if (modes[2] == 'ALL'):
-				tmpusers.append(tmpkey)
-			elif (modes[2] == 'BC'):
-				if (modes[0] == 'ADD'):	tmpusers.append(tmpkey)
-				else:
-					if (tmpkey == user): tmplogged = 'TRUE'
-					elif (tmpkey == mysockets[sock]['nick']): tmplogged = 'TRUE'
-					else: tmpusers.append(tmpkey)
-			else:
-				for tmpmode in modes[2]:
-					if (tmpkey == tmpmode): tmpusers.append(tmpkey)
-			
-	i = 0
-	outputmode = ''
-	while (i != modespl):
-		outputmode = outputmode+modes[1]
-		i = i + 1
-	outputmode = outputmode.rstrip()
-	if (modes[0] == 'ADD'): omode = '+'
-	else: omode = '-'
-	i = l = 0
-	output = ''
-	length = len(tmpusers)
-	while (i != length):
-		output = output+tmpusers.popleft()+" "
-		l = l + 1
-		if (l == modespl):
-			output = output.rstrip()
-			sts(sock,"MODE {0} {1}{2} {3}".format(chan,omode,outputmode,output))
-			output = ''
-			l = 0
-		i = i + 1
-	output = output.rstrip()
-	sts(sock,"MODE {0} {1}{2} {3}".format(chan,omode,outputmode,output))		
-		
-def modeprocessor_chan(sock,user,chan,data):
-	try: mysockets[sock]['channels'][chan]['modes']
-	except: mysockets[sock]['channels'][chan]['modes'] = dict()
-	i = 0
-	pos = 1
-	mode = 'SUB'
-	while (i < len(data[0])):
-		if ((data[0][i] == '+') or (data[0][i] == '-') or (data[0][i] == '(') or (data[0][i] == ')')):
-			if (data[0][i] == '+'): mode = 'ADD'
-			else: mode = 'SUB'
-		else:
-			if (data[0][i] == 'q'): tmpmode = 'FOP'
-			elif (data[0][i] == 'a'): tmpmode = 'SOP'
-			elif (data[0][i] == 'o'): tmpmode = 'OP'
-			elif (data[0][i] == 'h'): tmpmode = 'HOP'
-			elif (data[0][i] == 'v'): tmpmode = 'VOICE'
-			elif (data[0][i] == 'e'): tmpmode = 'EXCEPT'
-			elif (data[0][i] == 'I'): tmpmode = 'INVEX'
-			elif (data[0][i] == 'b'): tmpmode = 'BAN'
-			elif (data[0][i] == 'l'): tmpmode = 'LIMIT'
-			elif (data[0][i] == 'k'): tmpmode = 'CHANPASS'
-			elif (data[0][i] == 'f'): tmpmode = 'FLOOD'
-			elif (data[0][i] == 'j'): tmpmode = 'JOIN'
-			elif (data[0][i] == 'L'): tmpmode = 'LINK'
-			elif (data[0][i] == 'B'): tmpmode = 'BANLINK'	
-			else: tmpmode = data[0][i]
-			if (mode == 'ADD'):
-				if ((tmpmode == 'FOP') or (tmpmode == 'SOP') or (tmpmode == 'OP') or (tmpmode == 'HOP') or (tmpmode == 'VOICE') or (tmpmode == 'EXCEPT') or (tmpmode == 'INVEX') or (tmpmode == 'BAN') or (tmpmode == 'LIMIT') or (tmpmode == 'LINK') or (tmpmode == 'BANLINK') or (tmpmode == 'CHANPASS') or (tmpmode == 'FLOOD') or (tmpmode == 'JOIN')):
-					if ((tmpmode == 'FOP') or (tmpmode == 'SOP') or (tmpmode == 'OP') or (tmpmode == 'HOP') or (tmpmode == 'VOICE')):
-						try: mysockets[sock]['channels'][chan]['users'][data[pos]]
-						except:	mysockets[sock]['channels'][chan]['users'][data[pos]] = dict()
-						mysockets[sock]['channels'][chan]['users'][data[pos]][tmpmode] = 'TRUE'
-					else:
-						try: mysockets[sock]['channels'][chan][tmpmode]
-						except:	mysockets[sock]['channels'][chan][tmpmode] = dict()
-						if ((tmpmode == 'BAN') or (tmpmode == 'EXCEPT') or (tmpmode == 'INVEX')): mysockets[sock]['channels'][chan][tmpmode][data[pos]] = 'TRUE'
-						else: mysockets[sock]['channels'][chan][tmpmode] = data[pos]
-					pos = pos + 1
-				else:
-					try: mysockets[sock]['channels'][chan]['modes']
-					except:	mysockets[sock]['channels'][chan]['modes'] = dict()
-					mysockets[sock]['channels'][chan]['modes'][tmpmode] = 'TRUE'
-			if (mode == 'SUB'):
-				if ((tmpmode == 'FOP') or (tmpmode == 'SOP') or (tmpmode == 'OP') or (tmpmode == 'HOP') or (tmpmode == 'VOICE') or (tmpmode == 'EXCEPT') or (tmpmode == 'INVEX') or (tmpmode == 'BAN') or (tmpmode == 'LIMIT') or (tmpmode == 'LINK') or (tmpmode == 'BANLINK') or (tmpmode == 'CHANPASS') or (tmpmode == 'FLOOD') or (tmpmode == 'JOIN')):
-					if ((tmpmode == 'FOP') or (tmpmode == 'SOP') or (tmpmode == 'OP') or (tmpmode == 'HOP') or (tmpmode == 'VOICE')):
-						try: mysockets[sock]['channels'][chan]['users'][data[pos]]
-						except:	mysockets[sock]['channels'][chan]['users'][data[pos]] = dict()
-						mysockets[sock]['channels'][chan]['users'][data[pos]][tmpmode] = 'FALSE'
-					else:
-						try: mysockets[sock]['channels'][chan][tmpmode]
-						except:	mysockets[sock]['channels'][chan][tmpmode] = dict()
-						if ((tmpmode == 'BAN') or (tmpmode == 'EXCEPT') or (tmpmode == 'INVEX')): del mysockets[sock]['channels'][chan][tmpmode][data[pos]] 
-						else: del mysockets[sock]['channels'][chan][tmpmode]
-					pos = pos + 1
-				else:
-					try: mysockets[sock]['channels'][chan]['modes']
-					except: mysockets[sock]['channels'][chan]['modes'] = dict()
-					mysockets[sock]['channels'][chan]['modes'][tmpmode] = 'FALSE'
-		i = i + 1	
-		
-def modeprocessor_user(sock,type,data):
-	i = 0
-	mode = 'SUB'
-	while (i < len(data)):
-		#debug(sock,incom[3][i])
-		if ((data[i] == '+') or (data[i] == '-') or (data[i] == '(') or (data[i] == ')')):
-			if (data[i] == '+'): mode = 'ADD'
-			else: mode = 'SUB'
-		else:
-			if (mode == 'ADD'):
-				try: mysockets[sock][type]
-				except:	mysockets[sock][type] = dict()
-				mysockets[sock][type][data[i]] = 'TRUE'
-			if (mode == 'SUB'):
-				try: mysockets[sock][type]
-				except:	mysockets[sock][type] = dict()
-				mysockets[sock][type][data[i]] = 'FALSE'
-		i = i + 1		
-
-def getwhois(sock,user,chan,mode,otheruser):
-	if (otheruser == 'NULL'):
-		if (islogged(sock,user) == 'TRUE'): userdata = pulluser(loggedin[sock][user]['username'])
-		else: userdata = pulluser(user)
-		tmpuinfo = user
-	else:
-		if (islogged(sock,otheruser) == 'TRUE'): userdata = pulluser(loggedin[sock][otheruser]['username'])
-		else: userdata = pulluser(otheruser)
-		tmpuinfo = otheruser
-	if (userdata == 'FALSE'): 
-		tmpusername = "GUEST"
-		tmpglobaccess = 0
-		tmpservaccess = 0
-		tmpchanaccess = 0
-		tmpmsgtype = "msg"
-	else:
-		tmpusername = userdata['username']
-		tmpglobaccess = getglobaccess(userdata)
-		tmpservaccess = getservaccess(sock,userdata)
-		tmpchanaccess = getchanaccess(sock,chan,userdata)
-		tmpmsgtype = userdata['msgtype']
-	if (mode == 'WHOIS'):
-		buildmsg(sock,'NORMAL',user,chan,'PRIV',"Your Bot Whois on {0}".format(tmpuinfo))
-		buildmsg(sock,'NORMAL',user,chan,'PRIV',"Nick(Username): {0} ({1})".format(tmpuinfo,tmpusername))
-		buildmsg(sock,'NORMAL',user,chan,'PRIV',"Global: {0} Server: {1} Channel: {2}".format(wordaccess(tmpglobaccess),wordaccess(tmpservaccess),wordaccess(tmpchanaccess)))
-		buildmsg(sock,'NORMAL',user,chan,'PRIV',"End of Your Bot Whois on {0}".format(tmpuinfo))
-	if (mode == 'WHOAMI'):
-		buildmsg(sock,'NORMAL',user,chan,'PRIV',"Your Bot Whois")
-		buildmsg(sock,'NORMAL',user,chan,'PRIV',"Nick(Username): {0} ({1})".format(tmpuinfo,tmpusername))
-		buildmsg(sock,'NORMAL',user,chan,'PRIV',"Your Global Access: {0}".format(wordaccess(tmpglobaccess)))
-		buildmsg(sock,'NORMAL',user,chan,'PRIV',"Your Server Access: {0}".format(wordaccess(tmpservaccess)))
-		buildmsg(sock,'NORMAL',user,chan,'PRIV',"Your Channel Access: {0}".format(wordaccess(tmpchanaccess)))
-		buildmsg(sock,'NORMAL',user,chan,'PRIV',"Your Current MsgType: {0}".format(tmpmsgtype))
-		buildmsg(sock,'NORMAL',user,chan,'PRIV',"End of Your Bot Whois")	
-
-
-
-*/		
+	return 'NULL'				
+	*/
+	}
 	
+	private function _core_modeprocessor_chan($id,$user,$chan,$data) {
+		$i = 0;
+		$pos = 1;
+		$mode = 'SUB';
+		while ($i < strlen($data[0])) {
+			if (($data[0][$i] == '+') or ($data[0][$i] == '-') or ($data[0][$i] == '(') or ($data[0][$i] == ')')) {
+				if ($data[0][$i] == '+') {
+					$mode = 'ADD';
+				} else {
+					$mode = 'SUB';
+				}
+			} else {
+				switch ($data[0][$i]) {
+					case 'q': {
+						$tmpmode = 'FOP';
+						break;
+					}
+					case 'a': {
+						$tmpmode = 'SOP';
+						break;
+					}
+					case 'o': {
+						$tmpmode = 'OP';
+						break;
+					}
+					case 'h': {
+						$tmpmode = 'HOP';
+						break;
+					}
+					case 'v': {
+						$tmpmode = 'VOICE';
+						break;
+					}
+					case 'e': {
+						$tmpmode = 'EXCEPT';
+						break;
+					}
+					case 'I': {
+						$tmpmode = 'INVEX';
+						break;
+					}
+					case 'b': {
+						$tmpmode = 'BAN';
+						break;
+					}
+					case 'l': {
+						$tmpmode = 'LIMIT';
+						break;
+					}
+					case 'k': {
+						$tmpmode = 'CHANPASS';
+						break;
+					}
+					case 'f': {
+						$tmpmode = 'FLOOD';
+						break;
+					}
+					case 'j': {
+						$tmpmode = 'JOIN';
+						break;
+					}
+					case 'L': {
+						$tmpmode = 'LINK';
+						break;
+					}
+					case 'B': {
+						$tmpmode = 'BANLINK';
+						break;
+					}
+					default: {
+						$tmpmode = $data[0][$i];
+						break;
+					}
+				}
+				if ($mode == 'ADD') {
+					if (($tmpmode == 'FOP') or ($tmpmode == 'SOP') or ($tmpmode == 'OP') or ($tmpmode == 'HOP') or ($tmpmode == 'VOICE') or ($tmpmode == 'EXCEPT') or ($tmpmode == 'INVEX') or ($tmpmode == 'BAN') or ($tmpmode == 'LIMIT') or ($tmpmode == 'LINK') or ($tmpmode == 'BANLINK') or ($tmpmode == 'CHANPASS') or ($tmpmode == 'FLOOD') or ($tmpmode == 'JOIN')) {
+						if (($tmpmode == 'FOP') or ($tmpmode == 'SOP') or ($tmpmode == 'OP') or ($tmpmode == 'HOP') or ($tmpmode == 'VOICE')) {
+							$this->sdata['cons'][$id]['chans'][$chan]['users'][$data[$pos]][$tmpmode] = true;
+						} else {
+							if (($tmpmode == 'BAN') or ($tmpmode == 'EXCEPT') or ($tmpmode == 'INVEX')) {
+								$this->sdata['cons'][$id]['chans'][$chan][$tmpmode][$data[$pos]] = true;
+							} else {
+								$this->sdata['cons'][$id]['chans'][$chan][$tmpmode] = $data[$pos];
+							}
+						}
+						$pos = $pos + 1;
+					} else {
+						$this->sdata['cons'][$id]['chans'][$chan]['modes'][$tmpmode] = true;
+					}
+				}
+				if ($mode == 'SUB') {
+					if (($tmpmode == 'FOP') or ($tmpmode == 'SOP') or ($tmpmode == 'OP') or ($tmpmode == 'HOP') or ($tmpmode == 'VOICE') or ($tmpmode == 'EXCEPT') or ($tmpmode == 'INVEX') or ($tmpmode == 'BAN') or ($tmpmode == 'LIMIT') or ($tmpmode == 'LINK') or ($tmpmode == 'BANLINK') or ($tmpmode == 'CHANPASS') or ($tmpmode == 'FLOOD') or ($tmpmode == 'JOIN')) {
+						if (($tmpmode == 'FOP') or ($tmpmode == 'SOP') or ($tmpmode == 'OP') or ($tmpmode == 'HOP') or ($tmpmode == 'VOICE')) {
+							$this->sdata['cons'][$id]['chans'][$chan]['users'][$data[$pos]][$tmpmode] = false;
+						} else {
+							if (($tmpmode == 'BAN') or ($tmpmode == 'EXCEPT') or ($tmpmode == 'INVEX')) {
+								unset($this->sdata['cons'][$id]['chans'][$chan][$tmpmode][$data[$pos]]);
+							} else {
+								unset($this->sdata['cons'][$id]['chans'][$chan][$tmpmode]);
+							}
+						}
+						$pos = $pos + 1;
+					} else {
+						$this->sdata['cons'][$id]['chans'][$chan]['modes'][$tmpmode] = false;
+					}
+				}
+			}
+			$i = $i + 1;
+		}
+	}
+	
+	private function _core_modeprocessor_user($id,$type,$data) {
+		$i = 0;
+		$mode = 'SUB';
+		while ($i < strlen($data)) {
+			#debug(sock,incom[3][i])
+			if (($data[$i] == '+') or ($data[$i] == '-') or ($data[$i] == '(') or ($data[$i] == ')')) {
+				if ($data[$i] == '+') { 
+					$mode = 'ADD';
+				} else {
+					$mode = 'SUB';
+				}
+			} else {
+				if ($mode == 'ADD') {
+					$this->sdata['cons'][$id][$type][$data[$i]] = true;
+				}
+				if ($mode == 'SUB') {
+					$this->sdata['cons'][$id][$type][$data[$i]] = false;
+				}
+			}
+			$i = $i + 1;
+		}
+	
+	}
+	
+	private function _core_get_whois($id,$user,$chan,$mode,$otheruser='NULL') {
+		global $ch3wyb0t;
+		if ($otheruser == 'NULL') {
+			if ($this->_core_islogged($id,$user) == true) {
+				$userdata = $this->_core_pulluser($this->sdata['cons'][$id]['loggedin'][$user]['username']);
+			} else {
+				$userdata = $this->_core_pulluser($user);
+			}
+			$tmpuinfo = $user;
+		} else {
+			if ($this->_core_islogged($id,$otheruser) == true) {
+				$userdata = $this->_core_pulluser($this->sdata['cons'][$id]['loggedin'][$otheruser]['username']);
+			} else {
+				$userdata = $this->_core_pulluser($otheruser);
+			}
+			$tmpuinfo = $otheruser;
+		}
+		if ($userdata == false) {
+			$tmpusername = "GUEST";
+			$tmpglobaccess = 0;
+			$tmpservaccess = 0;
+			$tmpchanaccess = 0;
+			$tmpoverallaccess = 0;
+			$tmpmsgtype = "msg";
+		} else {
+			$tmpusername = $userdata['username'];
+			$tmpglobaccess = $this->_core_get_access_global($userdata);
+			$tmpservaccess = $this->_core_get_access_server($id,$userdata);
+			$tmpchanaccess = $this->_core_get_access_channel($id,$chan,$userdata);
+			$tmpoverallaccess = $this->_core_get_access($id,$tmpusername,$chan,'CHANNEL');
+			$tmpmsgtype = $userdata['msgtype'];
+		}
+		if ($mode == 'WHOIS') {
+			$this->_core_buildmsg($id,'NORMAL',$user,$chan,'PRIV',"Your Bot Whois on ".$tmpuinfo);
+			$this->_core_buildmsg($id,'NORMAL',$user,$chan,'PRIV',"Nick(Username): ".$tmpuinfo." (".$tmpusername.")");
+			$this->_core_buildmsg($id,'NORMAL',$user,$chan,'PRIV',"Global: ".$this->_core_wordaccess($tmpglobaccess)." Server: ".$this->_core_wordaccess($tmpservaccess)." Channel: ".$this->_core_wordaccess($tmpchanaccess));
+			$this->_core_buildmsg($id,'NORMAL',$user,$chan,'PRIV',"Over-All Access in ".$chan." is ".$this->_core_wordaccess($tmpoverallaccess));
+			$this->_core_buildmsg($id,'NORMAL',$user,$chan,'PRIV',"End of Your Bot Whois on ".$tmpuinfo);
+		}
+		if ($mode == 'WHOAMI') {
+			$this->_core_buildmsg($id,'NORMAL',$user,$chan,'PRIV',"Your Bot Whois");
+			$this->_core_buildmsg($id,'NORMAL',$user,$chan,'PRIV',"Nick(Username): ".$tmpuinfo." (".$tmpusername.")");
+			$this->_core_buildmsg($id,'NORMAL',$user,$chan,'PRIV',"Your Global Access: ".$this->_core_wordaccess($tmpglobaccess));
+			$this->_core_buildmsg($id,'NORMAL',$user,$chan,'PRIV',"Your Server Access: ".$this->_core_wordaccess($tmpservaccess));
+			$this->_core_buildmsg($id,'NORMAL',$user,$chan,'PRIV',"Your Channel Access: ".$this->_core_wordaccess($tmpchanaccess));
+			$this->_core_buildmsg($id,'NORMAL',$user,$chan,'PRIV',"Over-All Access in ".$chan." is ".$this->_core_wordaccess($tmpoverallaccess));
+			$this->_core_buildmsg($id,'NORMAL',$user,$chan,'PRIV',"Your Current MsgType: ".$tmpmsgtype);
+			$this->_core_buildmsg($id,'NORMAL',$user,$chan,'PRIV',"End of Your Bot Whois");
+		}
+	}
+	
+	private function _core_buildmsg($id,$type,$user,$chan,$uctype,$message) {
+		global $ch3wyb0t;
+		#sock = server($1) type = messagetype(4) uctype = priv/chan($2) user/chan = sendto($3) message = message($5-)
+		if ($uctype == 'PRIV') {
+			$sendto = $user;
+			if ($this->_core_islogged($id,$user) == true) {
+				$userdata = $this->_core_pulluser($this->sdata['cons'][$id]['loggedin'][$user]['username']);
+				$msgtype = $userdata['msgtype'];
+			} else {
+				$msgtype = 'msg';
+			}
+		} else {
+			$sendto = $chan;
+			$msgtype = 'msg';
+		}
+		if ($msgtype == 'msg') { $msgoutput = "PRIVMSG"; }
+		if ($msgtype == 'notice') { $msgoutput = "NOTICE"; }
+		switch ($type) {
+			case 'RAW': {
+				$mtoutput = "-(RAW)-";
+				break;
+			}
+			case 'BLOG': {
+				$mtoutput = "-(CBOT)-(LOG)-";
+				break;
+			}
+			case 'ELOG': {
+				$mtoutput = "-(CBOT)-(ERROR-LOG)-";
+				break;
+			}
+			case 'RELAY': {
+				$mtoutput = "*";
+				break;
+			}
+			case 'NORMAL': {
+				$mtoutput = "-(CBOT)-";
+				break;
+			}
+			case 'HELP': {
+				$mtoutput = "-(CBOT)-(HELP)-";
+				break;
+			}
+			case 'ERROR': {
+				$mtoutput = "-(CBOT)-(ERROR)-";
+				switch($message) {
+					case 'LOGIN': {
+						$message = "You are already Logged in.";
+						break;
+					}
+					case 'PASSPROB': {
+						$message = "There was a problem with changing your password";
+						break;
+					}
+					case 'LOGGED': {
+						$message = "You are Logged in.";
+						break;
+					}
+					case 'NOTLOGGED': {
+						$message = "You are not Logged in.";
+						break;
+					}
+					case 'NOACCESS': {
+						$message = "You either have no access to this command or you are not Logged in.";
+						break;
+					}
+					case 'NOACCESSHELP': {
+						$message = "You do not have access to read help on this command.";
+						break;
+					}
+					default: {
+						$message = $message;
+						break;
+					}
+				}
+				break;
+			}
+			default: {
+				$mtoutput = "-(CBOT)-";
+				break;
+			}
+		}
+		$this->_core_sts($id,$msgoutput." ".$sendto." :".chr(3)."4,1".$mtoutput."".chr(3)." ".$message);	
 	}
 	
 	private function _core_get_access($id,$user,$chan,$type) {
@@ -2989,26 +3366,22 @@ def getwhois(sock,user,chan,mode,otheruser):
 		#Channel ServerName|ChannelName~Access|ChannelName~Access%ServerName|ChannelName~Access|ChannelName~Access
 		if ($udata['channel'] != 'NULL') {
 			$tmpdata = $udata['channel'];
-		
-		
-		
+			$tmpdata = explode(chr(37),$tmpdata);
+			foreach ($tmpdata as $t1 => $t2) {
+				$t2 = explode(chr(124),$t2);
+				if ($t2[0] == $this->data['data'][$id]['server']['servername']) {
+					foreach ($t2 as $t3 => $t4) {
+						$t4 = explode(chr(126),$t4);
+						if ($t4[0] == $chan) {
+							$return = $t4[1];
+						}					
+					}
+				}
+			}
 		} else {
 			$return = 0;
 		}
 		return $return;
-	/*
-	def getchanaccess(sock,chan,data):
-	if (data['channel'] != 'NULL'):
-		tmpdata = data['channel']
-		tmpdata = tmpdata.split(chr(37))
-		for tmpdata2 in tmpdata:
-			tmpdata2 = tmpdata2.split(chr(124))
-			if (tmpdata2[0] == mysockets[sock]['server']['servername']):
-				tmpdata3 = tmpdata2[1:]
-				for tmpdata4 in tmpdata3:
-					tmpdata4 = tmpdata4.split(chr(126))
-					if (tmpdata4[0] == chan): tmpchanaccess = tmpdata4[1]
-	*/
 	}
 
 	private function _core_get_access_server($id,$udata) {
@@ -3062,15 +3435,16 @@ def getwhois(sock,user,chan,mode,otheruser):
 	}
 	
 	private function _core_pulluser($user) {
+		$return = false;
+		$user = strtolower($user);
 		$tempsql = "SELECT * FROM users WHERE username = '".$user."'";
-		$tempuser = $this->sql->sql('select',$tempsql);
+		$tempudata = $this->sql->sql('select',$tempsql);
+		$tempuser = $tempudata->fetchArray();
 		if (count($tempuser) == 0) {
 			$return = false;
 		} else {
-			foreach ($tempuser as $t1 => $t2) {
-				$return = {'id'=>$t2['id'],'username'=>$t2['username'],'password'=>$t2['password'],'global'=>$t2['global'],'server'=>$t2['server'],'channel'=>$t2['channel'],'msgtype'=>$t2['msgtype']};
-				$this->data['user'][$t2['username']] = {'id'=>$t2['id'],'username'=>$t2['username'],'password'=>$t2['password'],'global'=>$t2['global'],'server'=>$t2['server'],'channel'=>$t2['channel'],'msgtype'=>$t2['msgtype']};
-			}
+			$return = ['id'=>$tempuser['id'],'username'=>$tempuser['username'],'password'=>$tempuser['password'],'global'=>$tempuser['global'],'server'=>$tempuser['server'],'channel'=>$tempuser['channel'],'msgtype'=>$tempuser['msgtype']];
+			$this->data['user'][$tempuser['username']] = ['id'=>$tempuser['id'],'username'=>$tempuser['username'],'password'=>$tempuser['password'],'global'=>$tempuser['global'],'server'=>$tempuser['server'],'channel'=>$tempuser['channel'],'msgtype'=>$tempuser['msgtype']];
 		}
 		return $return;
 	}
@@ -3206,7 +3580,11 @@ def getwhois(sock,user,chan,mode,otheruser):
 	}
 	
 	private function _core_send($id,$data) {
-		socket_write($this->sdata['cons'][$id]['socket'],$data);
+		@socket_write($this->sdata['cons'][$id]['socket'],$data);
+		/*if (socket_last_error($this->sdata['cons'][$id]['socket'])) {
+			$this->_sprint("Couldn't send data to ".$this->data['data'][$id]['server']['servername']." Error String: ".socket_strerror(socket_last_error($this->sdata['cons'][$id]['socket'])),'error',false);
+			socket_clear_error($this->sdata['cons'][$id]['socket']);
+		}*/
 		return;
 	}
 	
@@ -3252,8 +3630,23 @@ def getwhois(sock,user,chan,mode,otheruser):
 		}
 		$this->sdata['cons'][$id]['isoper'] = false;
 		$this->sdata['cons'][$id]['lastping'] = time();
-		$this->sdata['cons'][$id]['socket'] = socket_create(AF_INET,SOCK_STREAM,SOL_TCP);
-		socket_connect($this->sdata['cons'][$id]['socket'],$this->sdata['cons'][$id]['connection']['address'],$this->sdata['cons'][$id]['connection']['port']);
+		$this->sdata['cons'][$id]['socket'] = @socket_create(AF_INET,SOCK_STREAM,SOL_TCP);
+		if (socket_last_error($this->sdata['cons'][$id]['socket'])) {
+			$this->_sprint("Couldn't create socket for ".$this->data['data'][$id]['server']['servername']." Error String: ".socket_strerror(socket_last_error($this->sdata['cons'][$id]['socket'])),'error',false);
+			socket_clear_error($this->sdata['cons'][$id]['socket']);
+		}
+		if ($CORE['conf']['bindip'] == true) {
+			socket_bind($this->sdata['cons'][$id]['socket'],$CORE['conf']['bindedip']);
+			if (socket_last_error($this->sdata['cons'][$id]['socket'])) {
+				$this->_sprint("Couldn't bind socket for ".$this->data['data'][$id]['server']['servername']." Error String: ".socket_strerror(socket_last_error($this->sdata['cons'][$id]['socket'])),'error',false);
+				socket_clear_error($this->sdata['cons'][$id]['socket']);
+			}
+		}
+		@socket_connect($this->sdata['cons'][$id]['socket'],$this->sdata['cons'][$id]['connection']['address'],$this->sdata['cons'][$id]['connection']['port']);
+		if (socket_last_error($this->sdata['cons'][$id]['socket'])) {
+			$this->_sprint("Couldn't connect to ".$this->data['data'][$id]['server']['servername']." Error String: ".socket_strerror(socket_last_error($this->sdata['cons'][$id]['socket'])),'error',false);
+			socket_clear_error($this->sdata['cons'][$id]['socket']);
+		}
 		socket_set_nonblock($this->sdata['cons'][$id]['socket']);
 		//timeout setting here
 		if ($this->data['data'][$id]['server']['serverpass'] != 'NULL') {
@@ -3289,6 +3682,7 @@ def getwhois(sock,user,chan,mode,otheruser):
 	}
 	
 	private function _core_main_process() {
+		global $ch3wyb0t;
 		while (true) {
 			$numsocks = 0;
 			$numdisabled = 0;
@@ -3304,7 +3698,7 @@ def getwhois(sock,user,chan,mode,otheruser):
 					if (count($this->sdata['cons'][$t2['id']]['queue']['data']) != 0) { $this->_core_run_queue($t2['id']); }
 					if (count($this->sdata['cons'][$t2['id']]['timer']['data']) != 0) { $this->_core_run_timer($t2['id']); }
 					//$this->_sprint("Before data read",'debug',false);
-					$tempdata = socket_read($this->sdata['cons'][$t2['id']]['socket'],10240);
+					$tempdata = @socket_read($this->sdata['cons'][$t2['id']]['socket'],10240);
 					//$this->_sprint("After data read",'debug',false);
 					if (strlen($tempdata) >= 1) {
 						$tempdata = str_replace("\r","",$tempdata);
@@ -3331,6 +3725,7 @@ def getwhois(sock,user,chan,mode,otheruser):
 	
 	public function startup() {
 		global $CORE;
+		global $ch3wyb0t;
 		//connect to sql db
 		if (!$this->sql->db) {
 			$this->sql->sql('database_connect',null);
@@ -3351,20 +3746,9 @@ def getwhois(sock,user,chan,mode,otheruser):
 		print_r($this->sdata);
 	}
 	
-/*	public function _func($function,$val1=null,$val2=null,$val3=null,$val4=null,$val5=null,$val6=null) {
-		switch ($function) {
-			case 'logging':
-				$return = $this->log->_sprint($val1,$val2,$val3);
-				break;
-			case 'sql':
-				$return = $this->sql->sql($val1,$val2);
-				break;
-			default:
-				$return = $this->_func('logging',"Unknown Function",'error',false);
-				break;
-		}
-		return $return;
-	}*/
+	protected function _sql($type,$val) {
+		return $this->sql->sql($type,$val);
+	}
 	protected function _sprint($message,$dtype=null,$log=false) {
 		return $this->log->_sprint($message,$dtype,$log);
 	}

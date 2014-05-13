@@ -3,10 +3,11 @@ class sql extends ChewyBot {
 	public $db = false;
 	
 	public function sql($type,$sqlstmt) {
+		global $ch3wyb0t;
 		switch ($type) {
 			case 'init':
 				$return = false;
-				$this-> log = new log("Init of Logging system for sql",null,false);
+				//$this-> log = new log("Init of Logging system for sql",null,false);
 				break;
 			case 'database_check_structure':
 				$return = $this->_db_structure();
@@ -38,7 +39,7 @@ class sql extends ChewyBot {
 				$return = $this->db->exec($sqlstmt);
 				break;
 			default:
-				$this->_sprint("Database command Error",'error',false);
+				$ch3wyb0t->_sprint("Database command Error",'error',false);
 				$return = false;
 				break;
 		}
@@ -47,6 +48,7 @@ class sql extends ChewyBot {
 
 
 	private function _db_structure() {
+		global $ch3wyb0t;
 		/*if (!$this->db)
 		{
 			$this->_db_Connect();
@@ -55,23 +57,25 @@ class sql extends ChewyBot {
 		//otherwise we could have a problem with the pre-built sql statements when they are called, gonna so have to
 		//use a seperate table in the database to keep track of all insert and updates, not like I'm gonna be programming
 		//any delete sql statements into the script for this bot.
-		$this->_sprint("Database Structure Check complete, gonna check if database needs to update",'regular',false);
+		$ch3wyb0t->_sprint("Database Structure Check complete, gonna check if database needs to update",'regular',false);
 		$return = $this->_db_update();
 		return $return;
 	}
 	
 	private function _db_update() {
+		global $ch3wyb0t;
 		/*if (!$this->db)
 		{
 			$this->_db_Connect();
 		}*/
 		//function for when the database structure changes, if there is ever gonna be any that is!!!
-		$this->_sprint("Database update check complete, Continuing to loading the bot system",'regular',false);
+		$ch3wyb0t->_sprint("Database update chekc complete, Continuing to loading the bot system",'regular',false);
 		$return = true;
 		return $return;
 	}
 	
 	private function _cmdpromptask($questiontoask,$checkifempty=false) {
+		global $ch3wyb0t;
 		$blarg = false;
 		$value = 'NULL';
 		while ($blarg == false) {
@@ -94,17 +98,18 @@ class sql extends ChewyBot {
 	}
 	
 	private function _db_Builddatabase() {
+		global $ch3wyb0t;
 		/*if (!$this->db)
 		{
 			$this->_db_Connect();
 		}*/
 		//Long process of building the database from scratch which will take a good while to do as it's gonna make me go crazy with the stupid amount of lines it will need, gonna paste the rough structure here into the file so i can more easily convert it over
-		$this->_sprint("Okay since we gotta build the database from scratch",'regular',false);
-		$this->_sprint("I have to ask you a few questions to be able to",'regular',false);
-		$this->_sprint("generate the database",'regular',false);
-		$this->_sprint("Questions with a * can't be empty, otherwise",'regular',false);
-		$this->_sprint("they can be a empty response as the field can be",'regular',false);
-		$this->_sprint("a NULL value in the database",'regular',false);
+		$ch3wyb0t->_sprint("Okay since we gotta build the database from scratch",'regular',false);
+		$ch3wyb0t->_sprint("I have to ask you a few questions to be able to",'regular',false);
+		$ch3wyb0t->_sprint("generate the database",'regular',false);
+		$ch3wyb0t->_sprint("Questions with a * can't be empty, otherwise",'regular',false);
+		$ch3wyb0t->_sprint("they can be a empty response as the field can be",'regular',false);
+		$ch3wyb0t->_sprint("a NULL value in the database",'regular',false);
 		//prefill some default values for the temp array for settings
 		$tempvals = ['settings' => ['botname' => 'NULL', 'chancom' => 'NULL', 'pvtcom' => 'NULL', 'dcccom' => 'NULL'], 'server' => ['name' => 'NULL', 'address' => 'NULL', 'port' => 'NULL', 'pass' => 'NULL', 'nick' => 'NULL', 'bnick' => 'NULL'], 'channel' => ['server' => 'NULL',	'channel' => 'NULL', 'chanmods' => '+nt'], 'user' => ['username' => 'NULL',	'password' => 'NULL']];
 		$tempvals['settings']['botname'] = $this->_cmdpromptask("Enter The Bot's Name *:",true);
@@ -160,6 +165,7 @@ class sql extends ChewyBot {
 	
 	private function _db_Connect() {
 		global $CORE;
+		global $ch3wyb0t;
 		$this->db = new SQLite3($CORE['conf']['db']);
 	}
 }
