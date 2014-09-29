@@ -7,6 +7,7 @@
 	As most if not all settings will be stored in the database
 	You will need in your php.ini the following extensions
 	extension=php_sqlite3.dll
+	extension=php_sockets.dll
 */
 $CORE['conf']['db'] = './database/chewydb.db';
 $CORE['conf']['bindip'] = false;
@@ -17,8 +18,9 @@ $CORE['info']['helpchans'] = "#chewybot @ Servers irc.chewynet.co.uk:6667 & Hell
 $CORE['info']['botauthoremail'] = "chewyb13@gmail.com";
 $CORE['info']['bugtracker'] = "http://code.google.com/p/chewybot-php/issues/list";
 $CORE['info']['sourcecode'] = "https://chewybot-php.googlecode.com/svn/trunk/ chewybot-php-read-only";
-$CORE['info']['version'] = "0.0.1.4";
+$CORE['info']['version'] = "0.0.1.7";
 $CORE['debug'] = true;
+require ("./module/core/defines.inc.php");
 // You really shouldn't need to edit anything below this point unless you are wanting to help with development
 if (php_uname('s') === "Windows NT") {
 	$CORE['OS'] = 'WINDOWS';
@@ -44,7 +46,7 @@ if (file_exists('./chewybot.pid')) {
 }
 if ($CORE['debug'] == true) { error_reporting(E_ALL); }
 // | E_STRICT
-include('core.inc.php');
+require ('core.inc.php');
 $ch3wyb0t = new ChewyBot();
 $ch3wyb0t->initsetup();
 $ch3wyb0t->startup();

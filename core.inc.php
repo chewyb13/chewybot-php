@@ -11,10 +11,16 @@ class ChewyBot {
 	private function _loadCoreFiles() {
 		include ('./module/core/logging.class.php');
 		include ('./module/core/sql.class.php');
+		include ('./module/core/funcs.class.php');
+		include ('./module/core/timers.class.php');
+		include ('./module/core/queue.class.php');
+		include ('./module/core/error.class.php');
+		$this->funcs = new funcs();
 		$this->log = new log("Init of Logging system for main",null,false);
 		$this->sql = new sql('init',null);
 		$log = $this->log;
 		$sql = $this->sql;
+		$funcs = $this->funcs;
 	}	
 	
 	public function initsetup() {
@@ -115,11 +121,60 @@ class ChewyBot {
 					switch(strtoupper($indata[4])) {
 					
 /*					
-		
+								if (incom[5].upper() == 'CHGPASS'):
+									if (len(incom) >= 7):
+										if (len(incom) >= 8):
+											tmppass = hashlib.md5()
+											tmppass.update(incom[6])
+											if (userdata['password'] == tmppass.hexdigest()):
+												tmppass2 = hashlib.md5()
+												tmppass2.update(incom[7])
+												sql = "UPDATE users SET password = '{0}' where id = '{1}'".format(tmppass2.hexdigest(),userdetails['id'])
+												vals = db.execute(sql)
+												buildmsg(sock,'NORMAL',user,chan,'PRIV',"You have successfully changed your password.")
+											else:
+												buildmsg(sock,'ERROR',user,chan,'PRIV',"You sure you entered your current password right")
+										else:
+											buildmsg(sock,'ERROR',user,chan,'PRIV',"Missing New Password")
+									else:
+										buildmsg(sock,'ERROR',user,chan,'PRIV',"Missing Current Password")
 */					
 						
 						
-						
+						case 'ACCOUNT': {
+							if (($type == 'PMSG') or ($type == 'PNOTE')) {
+								if ($this->_core_islogged($id,$user) == true) {
+									if (count($indata) >= 6) {
+										$userdetail = $this->_core_pulluser($this->sdata['cons'][$id]['loggedin'][$user]['username']);
+										if (strtoupper($indata[5]) == 'CHGPASS') {
+										
+										
+										}
+										if (strtoupper($indata[5]) == 'MSGTYPE') {
+											if (count($indata) >= 7) {
+												if (strtolower($indata[6]) == 'notice') {
+													$newtype = 'notice';
+												} else {
+													$newtype = 'msg';
+												}
+												$this->sql->sql('update',"UPDATE users SET msgtype = '".$newtype."' where id = '".$userdetail['id']."'");
+												$this->sdata['cons'][$id]['loggedin'][$user]['msgtype'] = $newtype;
+												$this->_core_buildmsg($id,'NORMAL',$user,$chan,'PRIV',"You have successfully changed your message type to ".$newtype);
+											} else {
+												$this->_core_buildmsg($id,'NORMAL',$user,$chan,'PRIV',"You have to enter a Message type");
+											}
+										}
+									} else {
+										$this->_core_buildmsg($id,'NORMAL',$user,$chan,'PRIV',"Your account details ".$user."(".$this->sdata['cons'][$id]['loggedin'][$user]['username'].")");
+										$this->_core_buildmsg($id,'NORMAL',$user,$chan,'PRIV',"MSGTYPE: ".$this->sdata['cons'][$id]['loggedin'][$user]['msgtype']);
+									}
+								} else {
+									$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOTLOGGED');
+								}
+							} else {
+								$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You can not access your account via channel commands");
+							}
+						}
 						case 'WHOIS': {
 							$passthrough = false;
 							if (($type == 'PMSG') or ($type == 'PNOTE')) {
@@ -286,49 +341,7 @@ class ChewyBot {
 						}
 					}
 /*
-				elif (incom[4].upper() == 'ACCOUNT'):
-					if ((type == 'PMSG') or (type == 'PNOTE')):
-						if (islogged(sock,user) == 'TRUE'):
-							if (len(incom) >= 6):
-								userdetails = pulluser(loggedin[sock][user]['username'])
-								if (incom[5].upper() == 'CHGPASS'):
-									if (len(incom) >= 7):
-										if (len(incom) >= 8):
-											tmppass = hashlib.md5()
-											tmppass.update(incom[6])
-											if (userdata['password'] == tmppass.hexdigest()):
-												tmppass2 = hashlib.md5()
-												tmppass2.update(incom[7])
-												sql = "UPDATE users SET password = '{0}' where id = '{1}'".format(tmppass2.hexdigest(),userdetails['id'])
-												vals = db.execute(sql)
-												buildmsg(sock,'NORMAL',user,chan,'PRIV',"You have successfully changed your password.")
-											else:
-												buildmsg(sock,'ERROR',user,chan,'PRIV',"You sure you entered your current password right")
-										else:
-											buildmsg(sock,'ERROR',user,chan,'PRIV',"Missing New Password")
-									else:
-										buildmsg(sock,'ERROR',user,chan,'PRIV',"Missing Current Password")
-								if (incom[5].upper() == 'MSGTYPE'):
-									if (len(incom) >= 7):
-										if (incom[6].lower() == 'notice'):
-											newtype = 'notice'
-										else:
-											newtype = 'msg'
-										sql = "UPDATE users SET msgtype = '{0}' where id = '{1}'".format(newtype,userdetails['id'])
-										vals = db.execute(sql)
-										loggedin[sock][user]['msgtype'] = newtype
-										buildmsg(sock,'NORMAL',user,chan,'PRIV',"You have successfully changed your message type to {0}".format(newtype))
-									else:
-										buildmsg(sock,'NORMAL',user,chan,'PRIV',"You have to enter a Message type")
-							else:
-								buildmsg(sock,'NORMAL',user,chan,'PRIV',"Your Account Details {0}({1})".format(user,loggedin[sock][user]['username']))
-								buildmsg(sock,'NORMAL',user,chan,'PRIV',"MSGTYPE: {0}".format(loggedin[sock][user]['msgtype']))
-						else:
-							buildmsg(sock,'ERROR',user,chan,'PRIV','NOTLOGGED')
-					else:
-						buildmsg(sock,'ERROR',user,chan,'PRIV',"You can not access your account via channel commands")
-						
-						
+
 				if (incom[4].upper() == 'EXIT'):
 					if (loggedgetaccess(sock,user,chan,'GLOBAL') >= 6):
 						if (len(incom) >= 6):
@@ -2304,40 +2317,46 @@ def helpcmd(sock,user,chan,incom):
 				}
 				case '353': {
 					//$this->_sprint($id." Numeric 353 - Names",'debug',false);
-					/*
-						try: mysockets[sock]['channels'][rl(incom[4])]
-						except: mysockets[sock]['channels'][rl(incom[4])] = dict()
-						tmpdata = incom[5:]
-						#debug(sock,tmpdata)
-						i = 0
-						while (i < len(tmpdata)):
-							if (tmpdata[i] == ''): break
-							try: mysockets[sock]['channels'][rl(incom[4])]['users']
-							except:	mysockets[sock]['channels'][rl(incom[4])]['users'] = dict()
-							if (tmpdata[i][0] == '~'):
-								tmpuser = tmpdata[i][1:]
-								tmpmode = 'FOP'
-							elif (tmpdata[i][0] == '&'):
-								tmpuser = tmpdata[i][1:]
-								tmpmode = 'SOP'
-							elif (tmpdata[i][0] == '@'):
-								tmpuser = tmpdata[i][1:]
-								tmpmode = 'OP'
-							elif (tmpdata[i][0] == '%'):
-								tmpuser = tmpdata[i][1:]
-								tmpmode = 'HOP'
-							elif (tmpdata[i][0] == '+'):
-								tmpuser = tmpdata[i][1:]
-								tmpmode = 'VOICE'
-							else:
-								tmpuser = tmpdata[i]
-								tmpmode = 'REGULAR'
-							try: mysockets[sock]['channels'][rl(incom[4])]['users'][tmpuser]
-							except: mysockets[sock]['channels'][rl(incom[4])]['users'][tmpuser] = dict()
-							mysockets[sock]['channels'][rl(incom[4])]['users'][tmpuser]['inchan'] = 'TRUE'
-							mysockets[sock]['channels'][rl(incom[4])]['users'][tmpuser][tmpmode] = 'TRUE'
-							i = i + 1
-					*/
+					$tmpdata = array_slice($indata,5);
+					$i = 0;
+					while ($i < count($tmpdata)) {
+						if ($tmpdata[$i] == '') { break; }
+						switch ($tmpdata[$i][0]) {
+							case '~': {
+								$tmpuser = substr($tmpdata[$i],1);
+								$tmpmode = 'FOP';
+								break;
+							}
+							case '&': {
+								$tmpuser = substr($tmpdata[$i],1);
+								$tmpmode = 'SOP';
+								break;
+							}
+							case '@': {
+								$tmpuser = substr($tmpdata[$i],1);
+								$tmpmode = 'OP';
+								break;
+							}
+							case '%': {
+								$tmpuser = substr($tmpdata[$i],1);
+								$tmpmode = 'HOP';
+								break;
+							}
+							case '+': {
+								$tmpuser = substr($tmpdata[$i],1);
+								$tmpmode = 'VOICE';
+								break;
+							}
+							default: {
+								$tmpuser = $tmpdata[$i];
+								$tmpmode = 'REGULAR';
+								break;
+							}
+						}
+						$this->sdata['cons'][$id]['chans'][$indata[4]]['users'][$tmpuser]['inchan'] = true;
+						$this->sdata['cons'][$id]['chans'][$indata[4]]['users'][$tmpuser][$tmpmode] = true;
+						$i += 1;
+					}
 					break;
 				}
 				
@@ -2737,6 +2756,7 @@ def helpcmd(sock,user,chan,incom):
 							$this->_core_sts($id,"MODE ".$indata[2]." +b");
 							$this->_core_sts($id,"MODE ".$indata[2]." +e");
 							$this->_core_sts($id,"MODE ".$indata[2]." +I");
+							$this->_core_sts($id,"NAMES ".$indata[2]);
 						}
 						
 					} else {
@@ -2877,7 +2897,7 @@ def helpcmd(sock,user,chan,incom):
 					break;
 				}
 				default: {
-					$this->_sprint($id." ".print_r($indata),'debug',false);
+					$this->_sprint($id." ".print_r($indata,true),'debug',false);
 					$this->_sprint($id." Unknown feature at this momment",'debug',false);
 					break;
 				}
@@ -3743,7 +3763,7 @@ def chanmodes(sock,chan):
 		$this->_sprint("Test of Notice Output",'notice');
 		$this->_sprint("Test of Debug Output",'debug');
 		$this->_sprint("Test of Regular Output",'regular');*/
-		print_r($this->sdata);
+		//print_r($this->sdata);
 	}
 	
 	protected function _sql($type,$val) {
