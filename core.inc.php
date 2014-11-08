@@ -119,290 +119,104 @@ class ChewyBot {
 			elseif ((($indata[3] == $this->data['settings']['chancom'].$this->data['settings']['signal']) and (($type == 'CMSG') or ($type == 'CNOTE'))) or (($indata[3] == $this->data['settings']['pvtcom'].$this->data['settings']['signal']) and (($type == 'PMSG') or ($type == 'PNOTE')))) {
 				if (count($indata) >= 5) {
 					switch(strtoupper($indata[4])) {
+						case 'USERLIST': {
+							if ($this->_core_get_access_logged($id,$user,$chan,'SERVER') >= 4) {
+								$records = $this->sql->sql('select',"SELECT * FROM users");
+								$this->_core_buildmsg($id,'NORMAL',$user,$chan,'PRIV',"Displaying user list, only showing Usernames atm, do note may be a big ammount of information");
+								while ($row = $records->fetchArray()) {
+									$this->_core_buildmsg($id,'NORMAL',$user,$chan,'PRIV',"Username: ".$row['username']);
+									//$this->_sprint(print_r($row),true);
+								}
+							} else {
+								$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESS');
+							}
+							break;
+						}
+						case 'EXIT': {
+							if ($this->_core_get_access_logged($id,$user,$chan,'GLOBAL') >= 6) {
+								if (count($indata) >= 6) {
+									$tmpoutput = $this->_core_array_join($indata,5," ");
+									$quitmsg = "QUIT ".$tmpoutput;
+								} else { 
+									$quitmsg = "QUIT Ch3wyB0t Version ".$CORE['info']['version']." Quitting";
+								}
+								foreach ($this->sdata['cons'] as $t1 => $t2) {
+									if ($t2['enabled'] == 'enabled') {
+										$this->sdata['cons'][$t2['id']]['lastcmd'] = 'EXIT';
+										$this->_core_sts($id,$quitmsg);
+									}
+								}
+							} else {
+								$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESS');
+							}
+							break;
+						}
+						case 'RELOAD': {
+							if ($this->_core_get_access_logged($id,$user,$chan,'GLOBAL') >= 6) {
+								foreach ($this->sdata['cons'] as $t1 => $t2) {
+									if ($t2['enabled'] == 'enabled') {
+										$this->sdata['cons'][$t2['id']]['lastcmd'] = 'RELOAD';
+										$this->_core_sts($id,"QUIT Ch3wyB0t Version ".$CORE['info']['version']." Reloading");
+									}
+								}
+							} else {
+								$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESS');
+							}
+							break;
+						}
+						case 'RAW': {
+							if ($this->_core_get_access_logged($id,$user,$chan,'GLOBAL') >= 7) {
+								if (count($indata) >= 6) {
+									$tmpoutput = $this->_core_array_join($rawdata,5," ");
+									$this->_core_sts($id,$tmpoutput);
+									$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"Sent ".$tmpoutput." to Server");
+								} else {
+									$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You didn't enter what you want to send to the bot");
+								}
+							} else {
+								$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESS');
+							}
+							break;
+						}
+						case 'RAWDB': {
+							if ($this->_core_get_access_logged($id,$user,$chan,'GLOBAL') >= 7) {
+								if (count($indata) >= 6) {
+									$tmpoutput = $this->_core_array_join($rawdata,5," ");
+									//$this->sql->sql('execute',$tmpoutput);
+									$this->_core_buildmsg($id,'RAW',$user,$chan,'PRIV',"Sent ".$tmpoutput." to the database");
+								} else {
+									$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You didn't enter what you want to send to the database");
+								}
+							} else {
+								$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESS');
+							}
+							break;
+						}
+						case 'QUIT': {
+							if ($this->_core_get_access_logged($id,$user,$chan,'SERVER') >= 6) {
+								$this->sdata['cons'][$id]['lastcmd'] = 'QUIT';
+								if (count($indata) >= 6) {
+									$this->_core_sts($id,"QUIT ".$this->_core_array_join($indata,5," "));
+								} else {
+									$this->_core_sts($id,"QUIT Ch3wyB0t Version ".$CORE['info']['version']." Quitting");
+								}
+							} else {
+								$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESS');
+							}
+							break;
+						}
+						case 'REHASH': {
+							if ($this->_core_get_access_logged($id,$user,$chan,'GLOBAL') >= 6) {
+								$this->_core_buildmsg($id,'NORMAL',$user,$chan,'PRIV',"Rehashing...");
+								$this->_core_cmd_rehash();
+								$this->_core_buildmsg($id,'NORMAL',$user,$chan,'PRIV',"Rehashing Complete...");
+							} else {
+								$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESS');
+							}
+							break;
+						}
 					
 /*					
-								if (incom[5].upper() == 'CHGPASS'):
-									if (len(incom) >= 7):
-										if (len(incom) >= 8):
-											tmppass = hashlib.md5()
-											tmppass.update(incom[6])
-											if (userdata['password'] == tmppass.hexdigest()):
-												tmppass2 = hashlib.md5()
-												tmppass2.update(incom[7])
-												sql = "UPDATE users SET password = '{0}' where id = '{1}'".format(tmppass2.hexdigest(),userdetails['id'])
-												vals = db.execute(sql)
-												buildmsg(sock,'NORMAL',user,chan,'PRIV',"You have successfully changed your password.")
-											else:
-												buildmsg(sock,'ERROR',user,chan,'PRIV',"You sure you entered your current password right")
-										else:
-											buildmsg(sock,'ERROR',user,chan,'PRIV',"Missing New Password")
-									else:
-										buildmsg(sock,'ERROR',user,chan,'PRIV',"Missing Current Password")
-*/					
-						
-						
-						case 'ACCOUNT': {
-							if (($type == 'PMSG') or ($type == 'PNOTE')) {
-								if ($this->_core_islogged($id,$user) == true) {
-									if (count($indata) >= 6) {
-										$userdetail = $this->_core_pulluser($this->sdata['cons'][$id]['loggedin'][$user]['username']);
-										if (strtoupper($indata[5]) == 'CHGPASS') {
-										
-										
-										}
-										if (strtoupper($indata[5]) == 'MSGTYPE') {
-											if (count($indata) >= 7) {
-												if (strtolower($indata[6]) == 'notice') {
-													$newtype = 'notice';
-												} else {
-													$newtype = 'msg';
-												}
-												$this->sql->sql('update',"UPDATE users SET msgtype = '".$newtype."' where id = '".$userdetail['id']."'");
-												$this->sdata['cons'][$id]['loggedin'][$user]['msgtype'] = $newtype;
-												$this->_core_buildmsg($id,'NORMAL',$user,$chan,'PRIV',"You have successfully changed your message type to ".$newtype);
-											} else {
-												$this->_core_buildmsg($id,'NORMAL',$user,$chan,'PRIV',"You have to enter a Message type");
-											}
-										}
-									} else {
-										$this->_core_buildmsg($id,'NORMAL',$user,$chan,'PRIV',"Your account details ".$user."(".$this->sdata['cons'][$id]['loggedin'][$user]['username'].")");
-										$this->_core_buildmsg($id,'NORMAL',$user,$chan,'PRIV',"MSGTYPE: ".$this->sdata['cons'][$id]['loggedin'][$user]['msgtype']);
-									}
-								} else {
-									$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOTLOGGED');
-								}
-							} else {
-								$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You can not access your account via channel commands");
-							}
-						}
-						case 'WHOIS': {
-							$passthrough = false;
-							if (($type == 'PMSG') or ($type == 'PNOTE')) {
-								if (count($indata) >= 6) {
-									$chan = $indata[5];
-									if (count($indata) >= 7) {
-										$uwho = $indata[6];
-										$passthrough = true;
-									} else {
-										$uwho = 'NULL';
-										$passthrough = true;
-									}
-								} else {
-									$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You didn't enter a channel");
-								}
-							}
-							if (($type == 'CMSG') or ($type == 'CNOTE')) {
-								if (count($indata) >= 6) {
-									$uwho = $indata[5];
-									$passthrough = true;
-								} else {
-									$uwho = 'NULL';
-									$passthrough = true;
-								}
-							}
-							if ($passthrough == true) {
-								$this->_core_get_whois($id,$user,$chan,'WHOIS',$uwho);
-							}
-							break;
-						}
-						case 'WHOAMI': {
-							$passthrough = false;
-							if (($type == 'PMSG') or ($type == 'PNOTE')) {
-								if (count($indata) >= 6) {
-									$chan = $indata[5];
-									$passthrough = true;
-								} else {
-									$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You didn't enter a channel");
-								}
-							}
-							if (($type == 'CMSG') or ($type == 'CNOTE')) {
-								$passthrough = true;
-							}
-							if ($passthrough == true) {
-								$this->_core_get_whois($id,$user,$chan,'WHOAMI','NULL');
-							}
-							break;
-						}
-						case 'LOGOUT': {
-							if ($this->_core_islogged($id,$user) == true) {
-								$this->_core_buildmsg($id,'NORMAL',$user,$chan,'PRIV',"You have been logged out of ".$this->sdata['cons'][$id]['loggedin'][$user]['username']);
-								unset($this->sdata['cons'][$id]['loggedin'][$user]);
-							} else {
-								$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOTLOGGED');
-							}
-							break;
-						}
-						case 'LOGIN': {
-							if (($type == 'PMSG') or ($type == 'PNOTE')) {
-								if ($this->_core_islogged($id,$user) == false) {
-									if (count($indata) >= 6) {
-										if (count($indata) >= 7) {
-											$tmpudata = $this->_core_pulluser($indata[5]);
-											if ($tmpudata != false) {
-												$tmppass = md5($indata[6]);
-												if ($tmpudata['password'] == $tmppass) {
-													$this->sdata['cons'][$id]['loggedin'][$user] = ['username'=>$tmpudata['username'],'msg'=>$tmpudata['msgtype'],'umask'=>$indata[0]];
-													$this->_core_buildmsg($id,'NORMAL',$user,$chan,'PRIV',"You have successfully logged in as ".strtolower($indata[5]));
-												} else {
-													$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You have failed to login");
-												}
-											} else {
-												$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You didn't enter a valid username");
-											}
-										} else {
-											$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You only entered a username, please enter a password as well");
-										}
-									} else {
-										$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You are missing <username> <password>");
-									}
-								} else {
-									$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You are already LOGGED In as ".$this->sdata['cons'][$id]['loggedin'][$user]['username']);
-								}
-							} else {
-								$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You can not log in via channel commands");
-							}
-							break;
-						}
-						case 'REGISTER': {
-							if (($type == 'PMSG') or ($type == 'PNOTE')) {
-								if ($this->_core_islogged($id,$user) == false) {
-									if (count($indata) >= 6) {
-										if (count($indata) >= 7) {
-											$tmpudata = $this->_core_pulluser($indata[5]);
-											if ($tmpudata == false) {
-												$tmppass = md5($indata[6]);
-												$this->sql->sql('insert',"INSERT INTO users (username, password, global, server, channel, msgtype) VALUES (".strtolower($indata[5]).", ".$tmppass.", NULL, NULL, NULL, msg)");
-												$this->sdata['cons'][$id]['loggedin'][$user] = ['username'=>strtolower($indata[5]),'msg'=>'msg','umask'=>$indata[0]];
-												$this->_core_buildmsg($id,'NORMAL',$user,$chan,'PRIV',"You have successfully registered as ".strtolower($indata[5])." and have been auto logged-in");
-											} else {
-												$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"The username you entered already exists");
-											}
-										} else {
-											$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You only entered a username, please enter a password as well");
-										}
-									} else {
-										$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You are missing <username> <password>");
-									}
-								} else {
-									$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','LOGIN');
-								}
-							} else {
-								$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You can not register via channel commands");
-							}
-							break;
-						}
-						case 'VERSION': {
-							$this->_core_buildmsg($id,'NORMAL',$user,$chan,'PRIV',"Ch3wyB0t Version ".$CORE['info']['version']);
-							break;
-						}
-						case 'HELP': {
-							if (($type == 'PMSG') or ($type == 'PNOTE')) {
-								if (count($indata) >= 6) {
-									$chan = $indata[5];
-								}
-							}
-							$this->_core_command_help($id,$user,$chan,$indata);
-							break;
-						}
-						case 'TESTCMD': {
-							if ($this->_core_get_access_logged($id,$user,$chan,'GLOBAL') >= 7) {
-								$this->_sprint($id." ".print_r($this->sdata,true),'debug',false);
-							} else {
-								$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESS');
-							}
-							break;
-						}
-						case 'TESTDATA': {
-							if ($this->_core_get_access_logged($id,$user,$chan,'GLOBAL') >= 7) {
-								$this->_sprint($id." ".print_r($this->data,true),'debug',false);
-							} else {
-								$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESS');
-							}
-							break;
-						}
-						case 'TEST': {
-							if ($this->_core_get_access_logged($id,$user,$chan,'GLOBAL') >= 7) {
-								#$this->_core_sts($id,"MODE :".$this->sdata['cons'][$id]['nick']);
-								$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"data blarg");
-							} else {
-								$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESS');
-							}
-							break;
-						}
-						default: {
-							$this->_sprint($id." c1 ".print_r($indata,true),'debug',false);
-							if (($type == 'CMSG') or ($type == 'CNOTE')) {
-								$this->_core_buildmsg($id,'ERROR',$user,$chan,'CHAN',"The command ".$indata[4]." doesn't exist at the momment");
-							}
-							if (($type == 'PMSG') or ($type == 'PNOTE')) {
-								$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"The command ".$indata[4]." doesn't exist at the momment");
-							}
-							break;
-						}
-					}
-/*
-
-				if (incom[4].upper() == 'EXIT'):
-					if (loggedgetaccess(sock,user,chan,'GLOBAL') >= 6):
-						if (len(incom) >= 6):
-							output = splitjoiner(incom[5:])
-							tempsocks = mysockets.keys()
-							for tempsock in tempsocks:
-								mysockets[tempsock]['lastcmd'] = 'EXIT'
-								sts(tempsock,"QUIT {0}".format(output))
-						else:
-							tempsocks = mysockets.keys()
-							for tempsock in tempsocks:
-								mysockets[tempsock]['lastcmd'] = 'EXIT'
-								sts(tempsock,"QUIT Ch3wyB0t Version {0} Quitting".format(version))
-					else:
-						buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESS')
-				elif (incom[4].upper() == 'RELOAD'):
-					if (loggedgetaccess(sock,user,chan,'GLOBAL') >= 6):
-						tempsocks = mysockets.keys()
-						debug('NULL',"Value {0} value".format(fulltemp))
-						for tempsock in tempsocks:
-							mysockets[tempsock]['lastcmd'] = 'RELOAD'
-							sts(tempsock,"QUIT Ch3wyB0t Version {0} Reloading".format(version))
-					else:
-						buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESS')
-				elif (incom[4].upper() == 'RAW'):
-					if (loggedgetaccess(sock,user,chan,'GLOBAL') >= 7):
-						if (len(incom) >= 6):
-							output = splitjoiner(raw[5:])
-							sts(sock,"{0}".format(output))
-							buildmsg(sock,'RAW',user,chan,'PRIV',"Sent {0} to Server".format(output))
-						else:
-							buildmsg(sock,'ERROR',user,chan,'PRIV',"You didn't enter what you want to send from the bot")
-					else:
-						buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESS')
-				elif (incom[4].upper() == 'RAWDB'):
-					if (loggedgetaccess(sock,user,chan,'GLOBAL') >= 7):
-						if (len(incom) >= 6):
-							output = splitjoiner(raw[5:])
-							vals = db.execute(output)
-							buildmsg(sock,'RAW',user,chan,'PRIV',"Sent {0} to the database".format(output))
-						else:
-							buildmsg(sock,'ERROR',user,chan,'PRIV',"You didn't enter what you want to send to the database")
-					else:
-						buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESS')
-				elif (incom[4].upper() == 'QUIT'):
-					if (loggedgetaccess(sock,user,chan,'SERVER') >= 6):
-						if (len(incom) >= 6):
-							mysockets[sock]['lastcmd'] = 'QUIT'
-							sts(sock,"QUIT {0}".format(splitjoiner(incom[5:])))
-						else:
-							mysockets[sock]['lastcmd'] = 'QUIT'
-							sts(sock,"QUIT Ch3wyB0t Version {0} Quitting".format(version))
-					else:
-						buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESS')
-				elif (incom[4].upper() == 'REHASH'):
-					if (loggedgetaccess(sock,user,chan,'GLOBAL') >= 6):
-						buildmsg(sock,'NORMAL',user,chan,'PRIV',"Rehashing...")
-						rehash()
-						buildmsg(sock,'NORMAL',user,chan,'PRIV',"Rehashing Complete...")
-					else:
-						buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESS')
 				elif (incom[4].upper() == 'SETTINGS'):
 					if ((type == 'PMSG') or (type == 'PNOTE')):
 						if (loggedgetaccess(sock,user,chan,'GLOBAL') >= 6):
@@ -593,715 +407,1205 @@ class ChewyBot {
 						buildmsg(sock,'ERROR',user,chan,'PRIV',"You can not access users via channel commands")
 				elif (incom[4].upper() == 'ACCESS'):
 					blarg = 1
-				elif (incom[4].upper() == 'USERLIST'):	
-					if (loggedgetaccess(sock,user,chan,'SERVER') >= 4):
-						sql = "SELECT * FROM users"
-						records = db.select(sql)
-						buildmsg(sock,'NORMAL',user,chan,'PRIV',"Displaying user list, only showing Usernames atm, do note may be a big ammount of infomation")
-						for record in records:
-							buildmsg(sock,'NORMAL',user,chan,'PRIV',"Username: {0}".format(record[1]))
-					else:
-						buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESS')
-						
-						
-				elif (incom[4].upper() == 'MOWNER'):
-					if (islogged(sock,user) == 'FALSE'):
-						buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESS')
-					else:
-						if ((type == 'PMSG') or (type == 'PNOTE')):
-							if (len(incom) >= 6):
-								chan = rl(incom[5])
-								passthrough = 1
-							else:
-								passthrough = 0
-								buildmsg(sock,'ERROR',user,chan,'PRIV',"You didn't enter a channel")
-						if ((type == 'CMSG') or (type == 'CNOTE')):
-							passthrough = 1
-						if (passthrough == 1):
-							if (getaccess(sock,loggedin[sock][user]['username'],chan,'CHANNEL') >= 5):
-								massmodes(sock,user,chan,['ADD','q','ALL'])
-							else:
-								buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESS')
-				elif (incom[4].upper() == 'OWNER'):
-					if (islogged(sock,user) == 'FALSE'):
-						buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESS')
-					else:
-						if ((type == 'PMSG') or (type == 'PNOTE')):
-							if (len(incom) >= 6):
-								chan = rl(incom[5])
-								if (len(incom) >= 7):
-									data = incom[6:]
-									passthrough = 1
-								else:
-									passthrough = 0
-									buildmsg(sock,'ERROR',user,chan,'PRIV',"You didn't enter any nicks")
-							else:
-								passthrough = 0
-								buildmsg(sock,'ERROR',user,chan,'PRIV',"You didn't enter a channel")
-						if ((type == 'CMSG') or (type == 'CNOTE')):
-							if (len(incom) >= 6):
-								data = incom[5:]
-								passthrough = 1
-							else:
-								passthrough = 0
-								buildmsg(sock,'ERROR',user,chan,'PRIV',"You didn't enter any nicks")
-						if (passthrough == 1):
-							if (getaccess(sock,loggedin[sock][user]['username'],chan,'CHANNEL') >= 5):
-								massmodes(sock,user,chan,['ADD','q',data])
-							else:
-								buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESS')
-				elif (incom[4].upper() == 'MDEOWNER'):
-					if (islogged(sock,user) == 'FALSE'):
-						buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESS')
-					else:
-						if ((type == 'PMSG') or (type == 'PNOTE')):
-							if (len(incom) >= 6):
-								chan = rl(incom[5])
-								passthrough = 1
-							else:
-								passthrough = 0
-								buildmsg(sock,'ERROR',user,chan,'PRIV',"You didn't enter a channel")
-						if ((type == 'CMSG') or (type == 'CNOTE')):
-							passthrough = 1
-						if (passthrough == 1):
-							if (getaccess(sock,loggedin[sock][user]['username'],chan,'CHANNEL') >= 5):
-								massmodes(sock,user,chan,['REM','q','BC'])
-							else:
-								buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESS')
-				elif (incom[4].upper() == 'DEOWNER'):
-					if (islogged(sock,user) == 'FALSE'):
-						buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESS')
-					else:
-						if ((type == 'PMSG') or (type == 'PNOTE')):
-							if (len(incom) >= 6):
-								chan = rl(incom[5])
-								if (len(incom) >= 7):
-									data = incom[6:]
-									passthrough = 1
-								else:
-									passthrough = 0
-									buildmsg(sock,'ERROR',user,chan,'PRIV',"You didn't enter any nicks")
-							else:
-								passthrough = 0
-								buildmsg(sock,'ERROR',user,chan,'PRIV',"You didn't enter a channel")
-						if ((type == 'CMSG') or (type == 'CNOTE')):
-							if (len(incom) >= 6):
-								data = incom[5:]
-								passthrough = 1
-							else:
-								passthrough = 0
-								buildmsg(sock,'ERROR',user,chan,'PRIV',"You didn't enter any nicks")
-						if (passthrough == 1):
-							if (getaccess(sock,loggedin[sock][user]['username'],chan,'CHANNEL') >= 5):
-								massmodes(sock,user,chan,['REM','q',data])
-							else:
-								buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESS')
-				elif (incom[4].upper() == 'OWNERME'):
-					if (islogged(sock,user) == 'FALSE'):
-						buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESS')
-					else:
-						if ((type == 'PMSG') or (type == 'PNOTE')):
-							if (len(incom) >= 6):
-								chan = rl(incom[5])
-								passthrough = 1
-							else:
-								passthrough = 0
-								buildmsg(sock,'ERROR',user,chan,'PRIV',"You didn't enter a channel")
-						if ((type == 'CMSG') or (type == 'CNOTE')):
-							passthrough = 1
-						if (passthrough == 1):
-							if (getaccess(sock,loggedin[sock][user]['username'],chan,'CHANNEL') >= 5):
-								massmodes(sock,user,chan,['ADD','q',user]) #can be ADD or REM
-							else:
-								buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESS')
-				elif (incom[4].upper() == 'DEOWNERME'):
-					if (islogged(sock,user) == 'FALSE'):
-						buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESS')
-					else:
-						if ((type == 'PMSG') or (type == 'PNOTE')):
-							if (len(incom) >= 6):
-								chan = rl(incom[5])
-								passthrough = 1
-							else:
-								passthrough = 0
-								buildmsg(sock,'ERROR',user,chan,'PRIV',"You didn't enter a channel")
-						if ((type == 'CMSG') or (type == 'CNOTE')):
-							passthrough = 1
-						if (passthrough == 1):
-							if (getaccess(sock,loggedin[sock][user]['username'],chan,'CHANNEL') >= 5):
-								massmodes(sock,user,chan,['REM','q',user])
-							else:
-								buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESS')
-				elif (incom[4].upper() == 'MPROTECT'):
-					if (islogged(sock,user) == 'FALSE'):
-						buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESS')
-					else:
-						if ((type == 'PMSG') or (type == 'PNOTE')):
-							if (len(incom) >= 6):
-								chan = rl(incom[5])
-								passthrough = 1
-							else:
-								passthrough = 0
-								buildmsg(sock,'ERROR',user,chan,'PRIV',"You didn't enter a channel")
-						if ((type == 'CMSG') or (type == 'CNOTE')):
-							passthrough = 1
-						if (passthrough == 1):
-							if (getaccess(sock,loggedin[sock][user]['username'],chan,'CHANNEL') >= 5):
-								massmodes(sock,user,chan,['ADD','a','ALL'])
-							else:
-								buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESS')
-				elif (incom[4].upper() == 'PROTECT'):
-					if (islogged(sock,user) == 'FALSE'):
-						buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESS')
-					else:
-						if ((type == 'PMSG') or (type == 'PNOTE')):
-							if (len(incom) >= 6):
-								chan = rl(incom[5])
-								if (len(incom) >= 7):
-									data = incom[6:]
-									passthrough = 1
-								else:
-									passthrough = 0
-									buildmsg(sock,'ERROR',user,chan,'PRIV',"You didn't enter any nicks")
-							else:
-								passthrough = 0
-								buildmsg(sock,'ERROR',user,chan,'PRIV',"You didn't enter a channel")
-						if ((type == 'CMSG') or (type == 'CNOTE')):
-							if (len(incom) >= 6):
-								data = incom[5:]
-								passthrough = 1
-							else:
-								passthrough = 0
-								buildmsg(sock,'ERROR',user,chan,'PRIV',"You didn't enter any nicks")
-						if (passthrough == 1):
-							if (getaccess(sock,loggedin[sock][user]['username'],chan,'CHANNEL') >= 5):
-								massmodes(sock,user,chan,['ADD','a',data])
-							else:
-								buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESS')
-				elif (incom[4].upper() == 'MDEPROTECT'):
-					if (islogged(sock,user) == 'FALSE'):
-						buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESS')
-					else:
-						if ((type == 'PMSG') or (type == 'PNOTE')):
-							if (len(incom) >= 6):
-								chan = rl(incom[5])
-								passthrough = 1
-							else:
-								passthrough = 0
-								buildmsg(sock,'ERROR',user,chan,'PRIV',"You didn't enter a channel")
-						if ((type == 'CMSG') or (type == 'CNOTE')):
-							passthrough = 1
-						if (passthrough == 1):
-							if (getaccess(sock,loggedin[sock][user]['username'],chan,'CHANNEL') >= 5):
-								massmodes(sock,user,chan,['REM','a','BC'])
-							else:
-								buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESS')
-				elif (incom[4].upper() == 'DEPROTECT'):
-					if (islogged(sock,user) == 'FALSE'):
-						buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESS')
-					else:
-						if ((type == 'PMSG') or (type == 'PNOTE')):
-							if (len(incom) >= 6):
-								chan = rl(incom[5])
-								if (len(incom) >= 7):
-									data = incom[6:]
-									passthrough = 1
-								else:
-									passthrough = 0
-									buildmsg(sock,'ERROR',user,chan,'PRIV',"You didn't enter any nicks")
-							else:
-								passthrough = 0
-								buildmsg(sock,'ERROR',user,chan,'PRIV',"You didn't enter a channel")
-						if ((type == 'CMSG') or (type == 'CNOTE')):
-							if (len(incom) >= 6):
-								data = incom[5:]
-								passthrough = 1
-							else:
-								passthrough = 0
-								buildmsg(sock,'ERROR',user,chan,'PRIV',"You didn't enter any nicks")
-						if (passthrough == 1):
-							if (getaccess(sock,loggedin[sock][user]['username'],chan,'CHANNEL') >= 5):
-								massmodes(sock,user,chan,['REM','a',data])
-							else:
-								buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESS')
-				elif (incom[4].upper() == 'PROTECTME'):
-					if (islogged(sock,user) == 'FALSE'):
-						buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESS')
-					else:
-						if ((type == 'PMSG') or (type == 'PNOTE')):
-							if (len(incom) >= 6):
-								chan = rl(incom[5])
-								passthrough = 1
-							else:
-								passthrough = 0
-								buildmsg(sock,'ERROR',user,chan,'PRIV',"You didn't enter a channel")
-						if ((type == 'CMSG') or (type == 'CNOTE')):
-							passthrough = 1
-						if (passthrough == 1):
-							if (getaccess(sock,loggedin[sock][user]['username'],chan,'CHANNEL') >= 4):
-								massmodes(sock,user,chan,['ADD','a',user]) #can be ADD or REM
-							else:
-								buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESS')
-				elif (incom[4].upper() == 'DEPROTECTME'):
-					if (islogged(sock,user) == 'FALSE'):
-						buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESS')
-					else:
-						if ((type == 'PMSG') or (type == 'PNOTE')):
-							if (len(incom) >= 6):
-								chan = rl(incom[5])
-								passthrough = 1
-							else:
-								passthrough = 0
-								buildmsg(sock,'ERROR',user,chan,'PRIV',"You didn't enter a channel")
-						if ((type == 'CMSG') or (type == 'CNOTE')):
-							passthrough = 1
-						if (passthrough == 1):
-							if (getaccess(sock,loggedin[sock][user]['username'],chan,'CHANNEL') >= 4):
-								massmodes(sock,user,chan,['REM','a',user])
-							else:
-								buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESS')
-				elif (incom[4].upper() == 'MOP'):
-					if (islogged(sock,user) == 'FALSE'):
-						buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESS')
-					else:
-						if ((type == 'PMSG') or (type == 'PNOTE')):
-							if (len(incom) >= 6):
-								chan = rl(incom[5])
-								passthrough = 1
-							else:
-								passthrough = 0
-								buildmsg(sock,'ERROR',user,chan,'PRIV',"You didn't enter a channel")
-						if ((type == 'CMSG') or (type == 'CNOTE')):
-							passthrough = 1
-						if (passthrough == 1):
-							if (getaccess(sock,loggedin[sock][user]['username'],chan,'CHANNEL') >= 3):
-								massmodes(sock,user,chan,['ADD','o','ALL'])
-							else:
-								buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESS')
-				elif (incom[4].upper() == 'OP'):
-					if (islogged(sock,user) == 'FALSE'):
-						buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESS')
-					else:
-						if ((type == 'PMSG') or (type == 'PNOTE')):
-							if (len(incom) >= 6):
-								chan = rl(incom[5])
-								if (len(incom) >= 7):
-									data = incom[6:]
-									passthrough = 1
-								else:
-									passthrough = 0
-									buildmsg(sock,'ERROR',user,chan,'PRIV',"You didn't enter any nicks")
-							else:
-								passthrough = 0
-								buildmsg(sock,'ERROR',user,chan,'PRIV',"You didn't enter a channel")
-						if ((type == 'CMSG') or (type == 'CNOTE')):
-							if (len(incom) >= 6):
-								data = incom[5:]
-								passthrough = 1
-							else:
-								passthrough = 0
-								buildmsg(sock,'ERROR',user,chan,'PRIV',"You didn't enter any nicks")
-						if (passthrough == 1):
-							if (getaccess(sock,loggedin[sock][user]['username'],chan,'CHANNEL') >= 3):
-								massmodes(sock,user,chan,['ADD','o',data])
-							else:
-								buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESS')
-				elif (incom[4].upper() == 'MDEOP'):
-					if (islogged(sock,user) == 'FALSE'):
-						buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESS')
-					else:
-						if ((type == 'PMSG') or (type == 'PNOTE')):
-							if (len(incom) >= 6):
-								chan = rl(incom[5])
-								passthrough = 1
-							else:
-								passthrough = 0
-								buildmsg(sock,'ERROR',user,chan,'PRIV',"You didn't enter a channel")
-						if ((type == 'CMSG') or (type == 'CNOTE')):
-							passthrough = 1
-						if (passthrough == 1):
-							if (getaccess(sock,loggedin[sock][user]['username'],chan,'CHANNEL') >= 3):
-								massmodes(sock,user,chan,['REM','o','BC'])
-							else:
-								buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESS')
-				elif (incom[4].upper() == 'DEOP'):
-					if (islogged(sock,user) == 'FALSE'):
-						buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESS')
-					else:
-						if ((type == 'PMSG') or (type == 'PNOTE')):
-							if (len(incom) >= 6):
-								chan = rl(incom[5])
-								if (len(incom) >= 7):
-									data = incom[6:]
-									passthrough = 1
-								else:
-									passthrough = 0
-									buildmsg(sock,'ERROR',user,chan,'PRIV',"You didn't enter any nicks")
-							else:
-								passthrough = 0
-								buildmsg(sock,'ERROR',user,chan,'PRIV',"You didn't enter a channel")
-						if ((type == 'CMSG') or (type == 'CNOTE')):
-							if (len(incom) >= 6):
-								data = incom[5:]
-								passthrough = 1
-							else:
-								passthrough = 0
-								buildmsg(sock,'ERROR',user,chan,'PRIV',"You didn't enter any nicks")
-						if (passthrough == 1):
-							if (getaccess(sock,loggedin[sock][user]['username'],chan,'CHANNEL') >= 3):
-								massmodes(sock,user,chan,['REM','o',data])
-							else:
-								buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESS')
-				elif (incom[4].upper() == 'OPME'):
-					if (islogged(sock,user) == 'FALSE'):
-						buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESS')
-					else:
-						if ((type == 'PMSG') or (type == 'PNOTE')):
-							if (len(incom) >= 6):
-								chan = rl(incom[5])
-								passthrough = 1
-							else:
-								passthrough = 0
-								buildmsg(sock,'ERROR',user,chan,'PRIV',"You didn't enter a channel")
-						if ((type == 'CMSG') or (type == 'CNOTE')):
-							passthrough = 1
-						if (passthrough == 1):
-							if (getaccess(sock,loggedin[sock][user]['username'],chan,'CHANNEL') >= 3):
-								massmodes(sock,user,chan,['ADD','o',user]) #can be ADD or REM
-							else:
-								buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESS')
-				elif (incom[4].upper() == 'DEOPME'):
-					if (islogged(sock,user) == 'FALSE'):
-						buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESS')
-					else:
-						if ((type == 'PMSG') or (type == 'PNOTE')):
-							if (len(incom) >= 6):
-								chan = rl(incom[5])
-								passthrough = 1
-							else:
-								passthrough = 0
-								buildmsg(sock,'ERROR',user,chan,'PRIV',"You didn't enter a channel")
-						if ((type == 'CMSG') or (type == 'CNOTE')):
-							passthrough = 1
-						if (passthrough == 1):
-							if (getaccess(sock,loggedin[sock][user]['username'],chan,'CHANNEL') >= 3):
-								massmodes(sock,user,chan,['REM','o',user])
-							else:
-								buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESS')
-				elif (incom[4].upper() == 'MHALFOP'):
-					if (islogged(sock,user) == 'FALSE'):
-						buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESS')
-					else:
-						if ((type == 'PMSG') or (type == 'PNOTE')):
-							if (len(incom) >= 6):
-								chan = rl(incom[5])
-								passthrough = 1
-							else:
-								passthrough = 0
-								buildmsg(sock,'ERROR',user,chan,'PRIV',"You didn't enter a channel")
-						if ((type == 'CMSG') or (type == 'CNOTE')):
-							passthrough = 1
-						if (passthrough == 1):
-							if (getaccess(sock,loggedin[sock][user]['username'],chan,'CHANNEL') >= 3):
-								massmodes(sock,user,chan,['ADD','h','ALL'])
-							else:
-								buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESS')
-				elif (incom[4].upper() == 'HALFOP'):
-					if (islogged(sock,user) == 'FALSE'):
-						buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESS')
-					else:
-						if ((type == 'PMSG') or (type == 'PNOTE')):
-							if (len(incom) >= 6):
-								chan = rl(incom[5])
-								if (len(incom) >= 7):
-									data = incom[6:]
-									passthrough = 1
-								else:
-									passthrough = 0
-									buildmsg(sock,'ERROR',user,chan,'PRIV',"You didn't enter any nicks")
-							else:
-								passthrough = 0
-								buildmsg(sock,'ERROR',user,chan,'PRIV',"You didn't enter a channel")
-						if ((type == 'CMSG') or (type == 'CNOTE')):
-							if (len(incom) >= 6):
-								data = incom[5:]
-								passthrough = 1
-							else:
-								passthrough = 0
-								buildmsg(sock,'ERROR',user,chan,'PRIV',"You didn't enter any nicks")
-						if (passthrough == 1):
-							if (getaccess(sock,loggedin[sock][user]['username'],chan,'CHANNEL') >= 3):
-								massmodes(sock,user,chan,['ADD','h',data])
-							else:
-								buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESS')
-				elif (incom[4].upper() == 'MDEHALFOP'):
-					if (islogged(sock,user) == 'FALSE'):
-						buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESS')
-					else:
-						if ((type == 'PMSG') or (type == 'PNOTE')):
-							if (len(incom) >= 6):
-								chan = rl(incom[5])
-								passthrough = 1
-							else:
-								passthrough = 0
-								buildmsg(sock,'ERROR',user,chan,'PRIV',"You didn't enter a channel")
-						if ((type == 'CMSG') or (type == 'CNOTE')):
-							passthrough = 1
-						if (passthrough == 1):
-							if (getaccess(sock,loggedin[sock][user]['username'],chan,'CHANNEL') >= 3):
-								massmodes(sock,user,chan,['REM','h','BC'])
-							else:
-								buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESS')
-				elif (incom[4].upper() == 'DEHALFOP'):
-					if (islogged(sock,user) == 'FALSE'):
-						buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESS')
-					else:
-						if ((type == 'PMSG') or (type == 'PNOTE')):
-							if (len(incom) >= 6):
-								chan = rl(incom[5])
-								if (len(incom) >= 7):
-									data = incom[6:]
-									passthrough = 1
-								else:
-									passthrough = 0
-									buildmsg(sock,'ERROR',user,chan,'PRIV',"You didn't enter any nicks")
-							else:
-								passthrough = 0
-								buildmsg(sock,'ERROR',user,chan,'PRIV',"You didn't enter a channel")
-						if ((type == 'CMSG') or (type == 'CNOTE')):
-							if (len(incom) >= 6):
-								data = incom[5:]
-								passthrough = 1
-							else:
-								passthrough = 0
-								buildmsg(sock,'ERROR',user,chan,'PRIV',"You didn't enter any nicks")
-						if (passthrough == 1):
-							if (getaccess(sock,loggedin[sock][user]['username'],chan,'CHANNEL') >= 3):
-								massmodes(sock,user,chan,['REM','h',data])
-							else:
-								buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESS')
-				elif (incom[4].upper() == 'HALFOPME'):
-					if (islogged(sock,user) == 'FALSE'):
-						buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESS')
-					else:
-						if ((type == 'PMSG') or (type == 'PNOTE')):
-							if (len(incom) >= 6):
-								chan = rl(incom[5])
-								passthrough = 1
-							else:
-								passthrough = 0
-								buildmsg(sock,'ERROR',user,chan,'PRIV',"You didn't enter a channel")
-						if ((type == 'CMSG') or (type == 'CNOTE')):
-							passthrough = 1
-						if (passthrough == 1):
-							if (getaccess(sock,loggedin[sock][user]['username'],chan,'CHANNEL') >= 2):
-								massmodes(sock,user,chan,['ADD','h',user]) #can be ADD or REM
-							else:
-								buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESS')
-				elif (incom[4].upper() == 'DEHALFOPME'):
-					if (islogged(sock,user) == 'FALSE'):
-						buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESS')
-					else:
-						if ((type == 'PMSG') or (type == 'PNOTE')):
-							if (len(incom) >= 6):
-								chan = rl(incom[5])
-								passthrough = 1
-							else:
-								passthrough = 0
-								buildmsg(sock,'ERROR',user,chan,'PRIV',"You didn't enter a channel")
-						if ((type == 'CMSG') or (type == 'CNOTE')):
-							passthrough = 1
-						if (passthrough == 1):
-							if (getaccess(sock,loggedin[sock][user]['username'],chan,'CHANNEL') >= 2):
-								massmodes(sock,user,chan,['REM','h',user])
-							else:
-								buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESS')
-				elif (incom[4].upper() == 'MVOICE'):
-					if (islogged(sock,user) == 'FALSE'):
-						buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESS')
-					else:
-						if ((type == 'PMSG') or (type == 'PNOTE')):
-							if (len(incom) >= 6):
-								chan = rl(incom[5])
-								passthrough = 1
-							else:
-								passthrough = 0
-								buildmsg(sock,'ERROR',user,chan,'PRIV',"You didn't enter a channel")
-						if ((type == 'CMSG') or (type == 'CNOTE')):
-							passthrough = 1
-						if (passthrough == 1):
-							if (getaccess(sock,loggedin[sock][user]['username'],chan,'CHANNEL') >= 2):
-								massmodes(sock,user,chan,['ADD','v','ALL'])
-							else:
-								buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESS')
-				elif (incom[4].upper() == 'VOICE'):
-					if (islogged(sock,user) == 'FALSE'):
-						buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESS')
-					else:
-						if ((type == 'PMSG') or (type == 'PNOTE')):
-							if (len(incom) >= 6):
-								chan = rl(incom[5])
-								if (len(incom) >= 7):
-									data = incom[6:]
-									passthrough = 1
-								else:
-									passthrough = 0
-									buildmsg(sock,'ERROR',user,chan,'PRIV',"You didn't enter any nicks")
-							else:
-								passthrough = 0
-								buildmsg(sock,'ERROR',user,chan,'PRIV',"You didn't enter a channel")
-						if ((type == 'CMSG') or (type == 'CNOTE')):
-							if (len(incom) >= 6):
-								data = incom[5:]
-								passthrough = 1
-							else:
-								passthrough = 0
-								buildmsg(sock,'ERROR',user,chan,'PRIV',"You didn't enter any nicks")
-						if (passthrough == 1):
-							if (getaccess(sock,loggedin[sock][user]['username'],chan,'CHANNEL') >= 2):
-								massmodes(sock,user,chan,['ADD','v',data])
-							else:
-								buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESS')
-				elif (incom[4].upper() == 'MDEVOICE'):
-					if (islogged(sock,user) == 'FALSE'):
-						buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESS')
-					else:
-						if ((type == 'PMSG') or (type == 'PNOTE')):
-							if (len(incom) >= 6):
-								chan = rl(incom[5])
-								passthrough = 1
-							else:
-								passthrough = 0
-								buildmsg(sock,'ERROR',user,chan,'PRIV',"You didn't enter a channel")
-						if ((type == 'CMSG') or (type == 'CNOTE')):
-							passthrough = 1
-						if (passthrough == 1):
-							if (getaccess(sock,loggedin[sock][user]['username'],chan,'CHANNEL') >= 2):
-								massmodes(sock,user,chan,['REM','v','BC'])
-							else:
-								buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESS')
-				elif (incom[4].upper() == 'DEVOICE'):
-					if (islogged(sock,user) == 'FALSE'):
-						buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESS')
-					else:
-						if ((type == 'PMSG') or (type == 'PNOTE')):
-							if (len(incom) >= 6):
-								chan = rl(incom[5])
-								if (len(incom) >= 7):
-									data = incom[6:]
-									passthrough = 1
-								else:
-									passthrough = 0
-									buildmsg(sock,'ERROR',user,chan,'PRIV',"You didn't enter any nicks")
-							else:
-								passthrough = 0
-								buildmsg(sock,'ERROR',user,chan,'PRIV',"You didn't enter a channel")
-						if ((type == 'CMSG') or (type == 'CNOTE')):
-							if (len(incom) >= 6):
-								data = incom[5:]
-								passthrough = 1
-							else:
-								passthrough = 0
-								buildmsg(sock,'ERROR',user,chan,'PRIV',"You didn't enter any nicks")
-						if (passthrough == 1):
-							if (getaccess(sock,loggedin[sock][user]['username'],chan,'CHANNEL') >= 2):
-								massmodes(sock,user,chan,['REM','v',data])
-							else:
-								buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESS')
-				elif (incom[4].upper() == 'VOICEME'):
-					if (islogged(sock,user) == 'FALSE'):
-						buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESS')
-					else:
-						if ((type == 'PMSG') or (type == 'PNOTE')):
-							if (len(incom) >= 6):
-								chan = rl(incom[5])
-								passthrough = 1
-							else:
-								passthrough = 0
-								buildmsg(sock,'ERROR',user,chan,'PRIV',"You didn't enter a channel")
-						if ((type == 'CMSG') or (type == 'CNOTE')):
-							passthrough = 1
-						if (passthrough == 1):
-							if (getaccess(sock,loggedin[sock][user]['username'],chan,'CHANNEL') >= 1):
-								massmodes(sock,user,chan,['ADD','v',user]) #can be ADD or REM
-							else:
-								buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESS')
-				elif (incom[4].upper() == 'DEVOICEME'):
-					if (islogged(sock,user) == 'FALSE'):
-						buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESS')
-					else:
-						if ((type == 'PMSG') or (type == 'PNOTE')):
-							if (len(incom) >= 6):
-								chan = rl(incom[5])
-								passthrough = 1
-							else:
-								passthrough = 0
-								buildmsg(sock,'ERROR',user,chan,'PRIV',"You didn't enter a channel")
-						if ((type == 'CMSG') or (type == 'CNOTE')):
-							passthrough = 1
-						if (passthrough == 1):
-							if (getaccess(sock,loggedin[sock][user]['username'],chan,'CHANNEL') >= 1):
-								massmodes(sock,user,chan,['REM','v',user])
-							else:
-								buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESS')
-				elif (incom[4].upper() == 'SAY'):
-					if (islogged(sock,user) == 'FALSE'):
-						buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESS')
-					else:
-						if ((type == 'PMSG') or (type == 'PNOTE')):
-							if (len(incom) >= 6):
-								chan = rl(incom[5])
-								if (len(incom) >= 7):
-									data = incom[6:]
-									passthrough = 1
-								else:
-									passthrough = 0
-									buildmsg(sock,'ERROR',user,chan,'PRIV',"You didn't enter a message")								
-							else:
-								passthrough = 0
-								buildmsg(sock,'ERROR',user,chan,'PRIV',"You didn't enter a channel")
-						if ((type == 'CMSG') or (type == 'CNOTE')):
-							if (len(incom) >= 6):
-								data = incom[5:]
-								passthrough = 1
-							else:
-								passthrough = 0
-								buildmsg(sock,'ERROR',user,chan,'PRIV',"You didn't enter a message")
-						if (passthrough == 1):
-							if (getaccess(sock,loggedin[sock][user]['username'],chan,'CHANNEL') >= 1):
-								sts(sock,"PRIVMSG {0} :{1}".format(chan,splitjoiner(data)))
-							else:
-								buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESS')
-				elif (incom[4].upper() == 'ACT'):
-					if (islogged(sock,user) == 'FALSE'):
-						buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESS')
-					else:
-						if ((type == 'PMSG') or (type == 'PNOTE')):
-							if (len(incom) >= 6):
-								chan = rl(incom[5])
-								if (len(incom) >= 7):
-									data = incom[6:]
-									passthrough = 1
-								else:
-									passthrough = 0
-									buildmsg(sock,'ERROR',user,chan,'PRIV',"You didn't enter a action")								
-							else:
-								passthrough = 0
-								buildmsg(sock,'ERROR',user,chan,'PRIV',"You didn't enter a channel")
-						if ((type == 'CMSG') or (type == 'CNOTE')):
-							if (len(incom) >= 6):
-								data = incom[5:]
-								passthrough = 1
-							else:
-								passthrough = 0
-								buildmsg(sock,'ERROR',user,chan,'PRIV',"You didn't enter a action")
-						if (passthrough == 1):
-							if (getaccess(sock,loggedin[sock][user]['username'],chan,'CHANNEL') >= 1):
-								sts(sock,"PRIVMSG {0} :\x01ACTION {1}\x01".format(chan,splitjoiner(data)))
-							else:
-								buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESS')
+*/											
+						case 'ACCOUNT': {
+							if (($type == 'PMSG') or ($type == 'PNOTE')) {
+								if ($this->_core_islogged($id,$user) == true) {
+									if (count($indata) >= 6) {
+										$userdetail = $this->_core_pulluser($this->sdata['cons'][$id]['loggedin'][$user]['username']);
+										if (strtoupper($indata[5]) == 'CHGPASS') {
+											if (count($indata) >= 7) {
+												if (count($indata) >= 8) {
+													$tmppass = md5($indata[6]);
+													if ($userdetail['password'] == $tmppass) {
+														$tmppass2 = $indata[7];
+														$this->sql->sql('update',"UPDATE users SET password = '".$tmppass2."' where id = '".$userdetail['id']."'");
+														$this->sdata['cons'][$id]['loggedin'][$user]['password'] = $tmppass2;
+														$this->_core_buildmsg($id,'NORMAL',$user,$chan,'PRIV',"You have successfully changed your password.");
+													} else {
+														$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You sure you entered your current password right?");
+													}
+												} else {
+													$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"Missing New Password");
+												}
+											} else {
+												$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"Missing Current Password");
+											}
+										}
+										if (strtoupper($indata[5]) == 'MSGTYPE') {
+											if (count($indata) >= 7) {
+												if (strtolower($indata[6]) == 'notice') {
+													$newtype = 'notice';
+												} else {
+													$newtype = 'msg';
+												}
+												$this->sql->sql('update',"UPDATE users SET msgtype = '".$newtype."' where id = '".$userdetail['id']."'");
+												$this->sdata['cons'][$id]['loggedin'][$user]['msgtype'] = $newtype;
+												$this->_core_buildmsg($id,'NORMAL',$user,$chan,'PRIV',"You have successfully changed your message type to ".$newtype);
+											} else {
+												$this->_core_buildmsg($id,'NORMAL',$user,$chan,'PRIV',"You have to enter a Message type");
+											}
+										}
+									} else {
+										$this->_core_buildmsg($id,'NORMAL',$user,$chan,'PRIV',"Your account details ".$user."(".$this->sdata['cons'][$id]['loggedin'][$user]['username'].")");
+										$this->_core_buildmsg($id,'NORMAL',$user,$chan,'PRIV',"MSGTYPE: ".$this->sdata['cons'][$id]['loggedin'][$user]['msgtype']);
+									}
+								} else {
+									$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOTLOGGED');
+								}
+							} else {
+								$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You can not access your account via channel commands");
+							}
+							break;
+						}
+						case 'WHOIS': {
+							$passthrough = false;
+							if (($type == 'PMSG') or ($type == 'PNOTE')) {
+								if (count($indata) >= 6) {
+									$chan = $indata[5];
+									if (count($indata) >= 7) {
+										$uwho = $indata[6];
+										$passthrough = true;
+									} else {
+										$uwho = 'NULL';
+										$passthrough = true;
+									}
+								} else {
+									$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You didn't enter a channel");
+								}
+							}
+							if (($type == 'CMSG') or ($type == 'CNOTE')) {
+								if (count($indata) >= 6) {
+									$uwho = $indata[5];
+									$passthrough = true;
+								} else {
+									$uwho = 'NULL';
+									$passthrough = true;
+								}
+							}
+							if ($passthrough == true) {
+								$this->_core_get_whois($id,$user,$chan,'WHOIS',$uwho);
+							}
+							break;
+						}
+						case 'WHOAMI': {
+							$passthrough = false;
+							if (($type == 'PMSG') or ($type == 'PNOTE')) {
+								if (count($indata) >= 6) {
+									$chan = $indata[5];
+									$passthrough = true;
+								} else {
+									$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You didn't enter a channel");
+								}
+							}
+							if (($type == 'CMSG') or ($type == 'CNOTE')) {
+								$passthrough = true;
+							}
+							if ($passthrough == true) {
+								$this->_core_get_whois($id,$user,$chan,'WHOAMI','NULL');
+							}
+							break;
+						}
+						case 'LOGOUT': {
+							if ($this->_core_islogged($id,$user) == true) {
+								$this->_core_buildmsg($id,'NORMAL',$user,$chan,'PRIV',"You have been logged out of ".$this->sdata['cons'][$id]['loggedin'][$user]['username']);
+								unset($this->sdata['cons'][$id]['loggedin'][$user]);
+							} else {
+								$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOTLOGGED');
+							}
+							break;
+						}
+						case 'LOGIN': {
+							if (($type == 'PMSG') or ($type == 'PNOTE')) {
+								if ($this->_core_islogged($id,$user) == false) {
+									if (count($indata) >= 6) {
+										if (count($indata) >= 7) {
+											$tmpudata = $this->_core_pulluser($indata[5]);
+											if ($tmpudata != false) {
+												$tmppass = md5($indata[6]);
+												if ($tmpudata['password'] == $tmppass) {
+													$this->sdata['cons'][$id]['loggedin'][$user] = ['username'=>$tmpudata['username'],'msg'=>$tmpudata['msgtype'],'umask'=>$indata[0]];
+													$this->_core_buildmsg($id,'NORMAL',$user,$chan,'PRIV',"You have successfully logged in as ".strtolower($indata[5]));
+												} else {
+													$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You have failed to login");
+												}
+											} else {
+												$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You didn't enter a valid username");
+											}
+										} else {
+											$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You only entered a username, please enter a password as well");
+										}
+									} else {
+										$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You are missing <username> <password>");
+									}
+								} else {
+									$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You are already LOGGED In as ".$this->sdata['cons'][$id]['loggedin'][$user]['username']);
+								}
+							} else {
+								$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You can not log in via channel commands");
+							}
+							break;
+						}
+						case 'REGISTER': {
+							if (($type == 'PMSG') or ($type == 'PNOTE')) {
+								if ($this->_core_islogged($id,$user) == false) {
+									if (count($indata) >= 6) {
+										if (count($indata) >= 7) {
+											$tmpudata = $this->_core_pulluser($indata[5]);
+											if ($tmpudata == false) {
+												$tmppass = md5($indata[6]);
+												$this->sql->sql('insert',"INSERT INTO users (username, password, global, server, channel, msgtype) VALUES (".strtolower($indata[5]).", ".$tmppass.", NULL, NULL, NULL, msg)");
+												$this->sdata['cons'][$id]['loggedin'][$user] = ['username'=>strtolower($indata[5]),'msg'=>'msg','umask'=>$indata[0]];
+												$this->_core_buildmsg($id,'NORMAL',$user,$chan,'PRIV',"You have successfully registered as ".strtolower($indata[5])." and have been auto logged-in");
+											} else {
+												$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"The username you entered already exists");
+											}
+										} else {
+											$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You only entered a username, please enter a password as well");
+										}
+									} else {
+										$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You are missing <username> <password>");
+									}
+								} else {
+									$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','LOGIN');
+								}
+							} else {
+								$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You can not register via channel commands");
+							}
+							break;
+						}
+						case 'VERSION': {
+							$this->_core_buildmsg($id,'NORMAL',$user,$chan,'PRIV',"Ch3wyB0t Version ".$CORE['info']['version']);
+							break;
+						}
+						case 'HELP': {
+							if (($type == 'PMSG') or ($type == 'PNOTE')) {
+								if (count($indata) >= 6) {
+									$chan = $indata[5];
+								}
+							}
+							$this->_core_command_help($id,$user,$chan,$indata);
+							break;
+						}
+						case 'MOWNER': {
+							if ($this->_core_islogged($id,$user)) {
+								if (($type == 'PMSG') or ($type == 'PNOTE')) {
+									if (count($indata) >= 6) {
+										$chan = $indata[5];
+										$passthrough = true;
+									} else {
+										$passthrough = false;
+										$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You didn't enter a channel");
+									}
+								}
+								if (($type == 'CMSG') or ($type == 'CNOTE')) {
+									$passthrough = true;
+								}
+								if ($passthrough == true) {
+									if ($this->_core_get_access_logged($id,$user,$chan,'CHANNEL') >= 5) {
+										$this->_core_massmodes($id,$user,$chan,['ADD','q','ALL']);
+									} else {
+										$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESS');
+									}
+								}
+							} else {
+								$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESS');
+							}
+							break;
+						}
+						case 'OWNER': {
+							if ($this->_core_islogged($id,$user)) {
+								if (($type == 'PMSG') or ($type == 'PNOTE')) {
+									if (count($indata) >= 6) {
+										$chan = $indata[5];
+										if (count($indata) >= 7) {
+											$tmpdata = $this->_core_array_join($indata,6," ");
+											$passthrough = true;
+										} else {
+											$passthrough = false;
+											$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You didn't enter any nicks");
+										}
+									} else {
+										$passthrough = false;
+										$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You didn't enter a channel");
+									}
+								}
+								if (($type == 'CMSG') or ($type == 'CNOTE')) {
+									if (count($indata) >= 6) {
+										$tmpdata = $this->_core_array_join($indata,5," ");
+										$passthrough = true;
+									} else {
+										$passthrough = false;
+										$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You didn't enter any nicks");
+									}
+								}
+								if ($passthrough == true) {
+									if ($this->_core_get_access_logged($id,$user,$chan,'CHANNEL') >= 5) {
+										$this->_core_massmodes($id,$user,$chan,['ADD','q',$tmpdata]);
+									} else {
+										$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESS');
+									}
+								}
+							} else {
+								$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESS');
+							}
+							break;
+						}
+						case 'MDEOWNER': {
+							if ($this->_core_islogged($id,$user)) {
+								if (($type == 'PMSG') or ($type == 'PNOTE')) {
+									if (count($indata) >= 6) {
+										$chan = $indata[5];
+										$passthrough = true;
+									} else {
+										$passthrough = false;
+										$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You didn't enter a channel");
+									}
+								}
+								if (($type == 'CMSG') or ($type == 'CNOTE')) {
+									$passthrough = true;
+								}
+								if ($passthrough == true) {
+									if ($this->_core_get_access_logged($id,$user,$chan,'CHANNEL') >= 5) {
+										$this->_core_massmodes($id,$user,$chan,['REM','q','BC']);
+									} else {
+										$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESS');
+									}
+								}
+							} else {
+								$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESS');
+							}
+							break;
+						}
+						case 'DEOWNER': {
+							if ($this->_core_islogged($id,$user)) {
+								if (($type == 'PMSG') or ($type == 'PNOTE')) {
+									if (count($indata) >= 6) {
+										$chan = $indata[5];
+										if (count($indata) >= 7) {
+											$tmpdata = $this->_core_array_join($indata,6," ");
+											$passthrough = true;
+										} else {
+											$passthrough = false;
+											$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You didn't enter any nicks");
+										}
+									} else {
+										$passthrough = false;
+										$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You didn't enter a channel");
+									}
+								}
+								if (($type == 'CMSG') or ($type == 'CNOTE')) {
+									if (count($indata) >= 6) {
+										$tmpdata = $this->_core_array_join($indata,5," ");
+										$passthrough = true;
+									} else {
+										$passthrough = false;
+										$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You didn't enter any nicks");
+									}
+								}
+								if ($passthrough == true) {
+									if ($this->_core_get_access_logged($id,$user,$chan,'CHANNEL') >= 5) {
+										$this->_core_massmodes($id,$user,$chan,['REM','q',$tmpdata]);
+									} else {
+										$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESS');
+									}
+								}
+							} else {
+								$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESS');
+							}
+							break;
+						}
+						case 'OWNERME': {
+							if ($this->_core_islogged($id,$user)) {
+								if (($type == 'PMSG') or ($type == 'PNOTE')) {
+									if (count($indata) >= 6) {
+										$chan = $indata[5];
+										$passthrough = true;
+									} else {
+										$passthrough = false;
+										$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You didn't enter a channel");
+									}
+								}
+								if (($type == 'CMSG') or ($type == 'CNOTE')) {
+									$passthrough = true;
+								}
+								if ($passthrough == true) {
+									if ($this->_core_get_access_logged($id,$user,$chan,'CHANNEL') >= 5) {
+										$this->_core_massmodes($id,$user,$chan,['ADD','q',$user]);
+									} else {
+										$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESS');
+									}
+								}
+							} else {
+								$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESS');
+							}
+							break;
+						}
+						case 'DEOWNERME': {
+							if ($this->_core_islogged($id,$user)) {
+								if (($type == 'PMSG') or ($type == 'PNOTE')) {
+									if (count($indata) >= 6) {
+										$chan = $indata[5];
+										$passthrough = true;
+									} else {
+										$passthrough = false;
+										$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You didn't enter a channel");
+									}
+								}
+								if (($type == 'CMSG') or ($type == 'CNOTE')) {
+									$passthrough = true;
+								}
+								if ($passthrough == true) {
+									if ($this->_core_get_access_logged($id,$user,$chan,'CHANNEL') >= 5) {
+										$this->_core_massmodes($id,$user,$chan,['REM','q',$user]);
+									} else {
+										$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESS');
+									}
+								}
+							} else {
+								$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESS');
+							}
+							break;
+						}
+						case 'MPROTECT': {
+							if ($this->_core_islogged($id,$user)) {
+								if (($type == 'PMSG') or ($type == 'PNOTE')) {
+									if (count($indata) >= 6) {
+										$chan = $indata[5];
+										$passthrough = true;
+									} else {
+										$passthrough = false;
+										$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You didn't enter a channel");
+									}
+								}
+								if (($type == 'CMSG') or ($type == 'CNOTE')) {
+									$passthrough = true;
+								}
+								if ($passthrough == true) {
+									if ($this->_core_get_access_logged($id,$user,$chan,'CHANNEL') >= 5) {
+										$this->_core_massmodes($id,$user,$chan,['ADD','a','ALL']);
+									} else {
+										$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESS');
+									}
+								}
+							} else {
+								$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESS');
+							}
+							break;
+						}
+						case 'PROTECT': {
+							if ($this->_core_islogged($id,$user)) {
+								if (($type == 'PMSG') or ($type == 'PNOTE')) {
+									if (count($indata) >= 6) {
+										$chan = $indata[5];
+										if (count($indata) >= 7) {
+											$tmpdata = $this->_core_array_join($indata,6," ");
+											$passthrough = true;
+										} else {
+											$passthrough = false;
+											$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You didn't enter any nicks");
+										}
+									} else {
+										$passthrough = false;
+										$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You didn't enter a channel");
+									}
+								}
+								if (($type == 'CMSG') or ($type == 'CNOTE')) {
+									if (count($indata) >= 6) {
+										$tmpdata = $this->_core_array_join($indata,5," ");
+										$passthrough = true;
+									} else {
+										$passthrough = false;
+										$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You didn't enter any nicks");
+									}
+								}
+								if ($passthrough == true) {
+									if ($this->_core_get_access_logged($id,$user,$chan,'CHANNEL') >= 5) {
+										$this->_core_massmodes($id,$user,$chan,['ADD','a',$tmpdata]);
+									} else {
+										$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESS');
+									}
+								}
+							} else {
+								$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESS');
+							}
+							break;
+						}
+						case 'MDEPROTECT': {
+							if ($this->_core_islogged($id,$user)) {
+								if (($type == 'PMSG') or ($type == 'PNOTE')) {
+									if (count($indata) >= 6) {
+										$chan = $indata[5];
+										$passthrough = true;
+									} else {
+										$passthrough = false;
+										$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You didn't enter a channel");
+									}
+								}
+								if (($type == 'CMSG') or ($type == 'CNOTE')) {
+									$passthrough = true;
+								}
+								if ($passthrough == true) {
+									if ($this->_core_get_access_logged($id,$user,$chan,'CHANNEL') >= 5) {
+										$this->_core_massmodes($id,$user,$chan,['REM','a','BC']);
+									} else {
+										$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESS');
+									}
+								}
+							} else {
+								$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESS');
+							}
+							break;
+						}
+						case 'DEPROTECT': {
+							if ($this->_core_islogged($id,$user)) {
+								if (($type == 'PMSG') or ($type == 'PNOTE')) {
+									if (count($indata) >= 6) {
+										$chan = $indata[5];
+										if (count($indata) >= 7) {
+											$tmpdata = $this->_core_array_join($indata,6," ");
+											$passthrough = true;
+										} else {
+											$passthrough = false;
+											$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You didn't enter any nicks");
+										}
+									} else {
+										$passthrough = false;
+										$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You didn't enter a channel");
+									}
+								}
+								if (($type == 'CMSG') or ($type == 'CNOTE')) {
+									if (count($indata) >= 6) {
+										$tmpdata = $this->_core_array_join($indata,5," ");
+										$passthrough = true;
+									} else {
+										$passthrough = false;
+										$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You didn't enter any nicks");
+									}
+								}
+								if ($passthrough == true) {
+									if ($this->_core_get_access_logged($id,$user,$chan,'CHANNEL') >= 5) {
+										$this->_core_massmodes($id,$user,$chan,['REM','a',$tmpdata]);
+									} else {
+										$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESS');
+									}
+								}
+							} else {
+								$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESS');
+							}
+							break;
+						}
+						case 'PROTECTME': {
+							if ($this->_core_islogged($id,$user)) {
+								if (($type == 'PMSG') or ($type == 'PNOTE')) {
+									if (count($indata) >= 6) {
+										$chan = $indata[5];
+										$passthrough = true;
+									} else {
+										$passthrough = false;
+										$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You didn't enter a channel");
+									}
+								}
+								if (($type == 'CMSG') or ($type == 'CNOTE')) {
+									$passthrough = true;
+								}
+								if ($passthrough == true) {
+									if ($this->_core_get_access_logged($id,$user,$chan,'CHANNEL') >= 4) {
+										$this->_core_massmodes($id,$user,$chan,['ADD','a',$user]);
+									} else {
+										$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESS');
+									}
+								}
+							} else {
+								$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESS');
+							}
+							break;
+						}
+						case 'DEPROTECTME': {
+							if ($this->_core_islogged($id,$user)) {
+								if (($type == 'PMSG') or ($type == 'PNOTE')) {
+									if (count($indata) >= 6) {
+										$chan = $indata[5];
+										$passthrough = true;
+									} else {
+										$passthrough = false;
+										$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You didn't enter a channel");
+									}
+								}
+								if (($type == 'CMSG') or ($type == 'CNOTE')) {
+									$passthrough = true;
+								}
+								if ($passthrough == true) {
+									if ($this->_core_get_access_logged($id,$user,$chan,'CHANNEL') >= 4) {
+										$this->_core_massmodes($id,$user,$chan,['REM','a',$user]);
+									} else {
+										$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESS');
+									}
+								}
+							} else {
+								$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESS');
+							}
+							break;
+						}
+						case 'MOP': {
+							if ($this->_core_islogged($id,$user)) {
+								if (($type == 'PMSG') or ($type == 'PNOTE')) {
+									if (count($indata) >= 6) {
+										$chan = $indata[5];
+										$passthrough = true;
+									} else {
+										$passthrough = false;
+										$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You didn't enter a channel");
+									}
+								}
+								if (($type == 'CMSG') or ($type == 'CNOTE')) {
+									$passthrough = true;
+								}
+								if ($passthrough == true) {
+									if ($this->_core_get_access_logged($id,$user,$chan,'CHANNEL') >= 3) {
+										$this->_core_massmodes($id,$user,$chan,['ADD','o','ALL']);
+									} else {
+										$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESS');
+									}
+								}
+							} else {
+								$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESS');
+							}
+							break;
+						}
+						case 'OP': {
+							if ($this->_core_islogged($id,$user)) {
+								if (($type == 'PMSG') or ($type == 'PNOTE')) {
+									if (count($indata) >= 6) {
+										$chan = $indata[5];
+										if (count($indata) >= 7) {
+											$tmpdata = $this->_core_array_join($indata,6," ");
+											$passthrough = true;
+										} else {
+											$passthrough = false;
+											$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You didn't enter any nicks");
+										}
+									} else {
+										$passthrough = false;
+										$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You didn't enter a channel");
+									}
+								}
+								if (($type == 'CMSG') or ($type == 'CNOTE')) {
+									if (count($indata) >= 6) {
+										$tmpdata = $this->_core_array_join($indata,5," ");
+										$passthrough = true;
+									} else {
+										$passthrough = false;
+										$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You didn't enter any nicks");
+									}
+								}
+								if ($passthrough == true) {
+									if ($this->_core_get_access_logged($id,$user,$chan,'CHANNEL') >= 3) {
+										$this->_core_massmodes($id,$user,$chan,['ADD','o',$tmpdata]);
+									} else {
+										$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESS');
+									}
+								}
+							} else {
+								$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESS');
+							}
+							break;
+						}
+						case 'MDEOP': {
+							if ($this->_core_islogged($id,$user)) {
+								if (($type == 'PMSG') or ($type == 'PNOTE')) {
+									if (count($indata) >= 6) {
+										$chan = $indata[5];
+										$passthrough = true;
+									} else {
+										$passthrough = false;
+										$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You didn't enter a channel");
+									}
+								}
+								if (($type == 'CMSG') or ($type == 'CNOTE')) {
+									$passthrough = true;
+								}
+								if ($passthrough == true) {
+									if ($this->_core_get_access_logged($id,$user,$chan,'CHANNEL') >= 3) {
+										$this->_core_massmodes($id,$user,$chan,['REM','o','BC']);
+									} else {
+										$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESS');
+									}
+								}
+							} else {
+								$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESS');
+							}
+							break;
+						}
+						case 'DEOP': {
+							if ($this->_core_islogged($id,$user)) {
+								if (($type == 'PMSG') or ($type == 'PNOTE')) {
+									if (count($indata) >= 6) {
+										$chan = $indata[5];
+										if (count($indata) >= 7) {
+											$tmpdata = $this->_core_array_join($indata,6," ");
+											$passthrough = true;
+										} else {
+											$passthrough = false;
+											$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You didn't enter any nicks");
+										}
+									} else {
+										$passthrough = false;
+										$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You didn't enter a channel");
+									}
+								}
+								if (($type == 'CMSG') or ($type == 'CNOTE')) {
+									if (count($indata) >= 6) {
+										$tmpdata = $this->_core_array_join($indata,5," ");
+										$passthrough = true;
+									} else {
+										$passthrough = false;
+										$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You didn't enter any nicks");
+									}
+								}
+								if ($passthrough == true) {
+									if ($this->_core_get_access_logged($id,$user,$chan,'CHANNEL') >= 3) {
+										$this->_core_massmodes($id,$user,$chan,['REM','o',$tmpdata]);
+									} else {
+										$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESS');
+									}
+								}
+							} else {
+								$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESS');
+							}
+							break;
+						}
+						case 'OPME': {
+							if ($this->_core_islogged($id,$user)) {
+								if (($type == 'PMSG') or ($type == 'PNOTE')) {
+									if (count($indata) >= 6) {
+										$chan = $indata[5];
+										$passthrough = true;
+									} else {
+										$passthrough = false;
+										$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You didn't enter a channel");
+									}
+								}
+								if (($type == 'CMSG') or ($type == 'CNOTE')) {
+									$passthrough = true;
+								}
+								if ($passthrough == true) {
+									if ($this->_core_get_access_logged($id,$user,$chan,'CHANNEL') >= 3) {
+										$this->_core_massmodes($id,$user,$chan,['ADD','o',$user]);
+									} else {
+										$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESS');
+									}
+								}
+							} else {
+								$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESS');
+							}
+							break;
+						}
+						case 'DEOPME': {
+							if ($this->_core_islogged($id,$user)) {
+								if (($type == 'PMSG') or ($type == 'PNOTE')) {
+									if (count($indata) >= 6) {
+										$chan = $indata[5];
+										$passthrough = true;
+									} else {
+										$passthrough = false;
+										$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You didn't enter a channel");
+									}
+								}
+								if (($type == 'CMSG') or ($type == 'CNOTE')) {
+									$passthrough = true;
+								}
+								if ($passthrough == true) {
+									if ($this->_core_get_access_logged($id,$user,$chan,'CHANNEL') >= 3) {
+										$this->_core_massmodes($id,$user,$chan,['REM','o',$user]);
+									} else {
+										$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESS');
+									}
+								}
+							} else {
+								$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESS');
+							}
+							break;
+						}
+						case 'MHALFOP': {
+							if ($this->_core_islogged($id,$user)) {
+								if (($type == 'PMSG') or ($type == 'PNOTE')) {
+									if (count($indata) >= 6) {
+										$chan = $indata[5];
+										$passthrough = true;
+									} else {
+										$passthrough = false;
+										$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You didn't enter a channel");
+									}
+								}
+								if (($type == 'CMSG') or ($type == 'CNOTE')) {
+									$passthrough = true;
+								}
+								if ($passthrough == true) {
+									if ($this->_core_get_access_logged($id,$user,$chan,'CHANNEL') >= 3) {
+										$this->_core_massmodes($id,$user,$chan,['ADD','h','ALL']);
+									} else {
+										$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESS');
+									}
+								}
+							} else {
+								$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESS');
+							}
+							break;
+						}
+						case 'HALFOP': {
+							if ($this->_core_islogged($id,$user)) {
+								if (($type == 'PMSG') or ($type == 'PNOTE')) {
+									if (count($indata) >= 6) {
+										$chan = $indata[5];
+										if (count($indata) >= 7) {
+											$tmpdata = $this->_core_array_join($indata,6," ");
+											$passthrough = true;
+										} else {
+											$passthrough = false;
+											$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You didn't enter any nicks");
+										}
+									} else {
+										$passthrough = false;
+										$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You didn't enter a channel");
+									}
+								}
+								if (($type == 'CMSG') or ($type == 'CNOTE')) {
+									if (count($indata) >= 6) {
+										$tmpdata = $this->_core_array_join($indata,5," ");
+										$passthrough = true;
+									} else {
+										$passthrough = false;
+										$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You didn't enter any nicks");
+									}
+								}
+								if ($passthrough == true) {
+									if ($this->_core_get_access_logged($id,$user,$chan,'CHANNEL') >= 3) {
+										$this->_core_massmodes($id,$user,$chan,['ADD','h',$tmpdata]);
+									} else {
+										$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESS');
+									}
+								}
+							} else {
+								$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESS');
+							}
+							break;
+						}
+						case 'MDEHALFOP': {
+							if ($this->_core_islogged($id,$user)) {
+								if (($type == 'PMSG') or ($type == 'PNOTE')) {
+									if (count($indata) >= 6) {
+										$chan = $indata[5];
+										$passthrough = true;
+									} else {
+										$passthrough = false;
+										$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You didn't enter a channel");
+									}
+								}
+								if (($type == 'CMSG') or ($type == 'CNOTE')) {
+									$passthrough = true;
+								}
+								if ($passthrough == true) {
+									if ($this->_core_get_access_logged($id,$user,$chan,'CHANNEL') >= 3) {
+										$this->_core_massmodes($id,$user,$chan,['REM','h','BC']);
+									} else {
+										$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESS');
+									}
+								}
+							} else {
+								$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESS');
+							}
+							break;
+						}
+						case 'DEHALFOP': {
+							if ($this->_core_islogged($id,$user)) {
+								if (($type == 'PMSG') or ($type == 'PNOTE')) {
+									if (count($indata) >= 6) {
+										$chan = $indata[5];
+										if (count($indata) >= 7) {
+											$tmpdata = $this->_core_array_join($indata,6," ");
+											$passthrough = true;
+										} else {
+											$passthrough = false;
+											$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You didn't enter any nicks");
+										}
+									} else {
+										$passthrough = false;
+										$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You didn't enter a channel");
+									}
+								}
+								if (($type == 'CMSG') or ($type == 'CNOTE')) {
+									if (count($indata) >= 6) {
+										$tmpdata = $this->_core_array_join($indata,5," ");
+										$passthrough = true;
+									} else {
+										$passthrough = false;
+										$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You didn't enter any nicks");
+									}
+								}
+								if ($passthrough == true) {
+									if ($this->_core_get_access_logged($id,$user,$chan,'CHANNEL') >= 3) {
+										$this->_core_massmodes($id,$user,$chan,['REM','h',$tmpdata]);
+									} else {
+										$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESS');
+									}
+								}
+							} else {
+								$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESS');
+							}
+							break;
+						}
+						case 'HALFOPME': {
+							if ($this->_core_islogged($id,$user)) {
+								if (($type == 'PMSG') or ($type == 'PNOTE')) {
+									if (count($indata) >= 6) {
+										$chan = $indata[5];
+										$passthrough = true;
+									} else {
+										$passthrough = false;
+										$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You didn't enter a channel");
+									}
+								}
+								if (($type == 'CMSG') or ($type == 'CNOTE')) {
+									$passthrough = true;
+								}
+								if ($passthrough == true) {
+									if ($this->_core_get_access_logged($id,$user,$chan,'CHANNEL') >= 2) {
+										$this->_core_massmodes($id,$user,$chan,['ADD','h',$user]);
+									} else {
+										$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESS');
+									}
+								}
+							} else {
+								$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESS');
+							}
+							break;
+						}
+						case 'DEHALFOPME': {
+							if ($this->_core_islogged($id,$user)) {
+								if (($type == 'PMSG') or ($type == 'PNOTE')) {
+									if (count($indata) >= 6) {
+										$chan = $indata[5];
+										$passthrough = true;
+									} else {
+										$passthrough = false;
+										$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You didn't enter a channel");
+									}
+								}
+								if (($type == 'CMSG') or ($type == 'CNOTE')) {
+									$passthrough = true;
+								}
+								if ($passthrough == true) {
+									if ($this->_core_get_access_logged($id,$user,$chan,'CHANNEL') >= 2) {
+										$this->_core_massmodes($id,$user,$chan,['REM','h',$user]);
+									} else {
+										$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESS');
+									}
+								}
+							} else {
+								$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESS');
+							}
+							break;
+						}
+						case 'MVOICE': {
+							if ($this->_core_islogged($id,$user)) {
+								if (($type == 'PMSG') or ($type == 'PNOTE')) {
+									if (count($indata) >= 6) {
+										$chan = $indata[5];
+										$passthrough = true;
+									} else {
+										$passthrough = false;
+										$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You didn't enter a channel");
+									}
+								}
+								if (($type == 'CMSG') or ($type == 'CNOTE')) {
+									$passthrough = true;
+								}
+								if ($passthrough == true) {
+									if ($this->_core_get_access_logged($id,$user,$chan,'CHANNEL') >= 2) {
+										$this->_core_massmodes($id,$user,$chan,['ADD','v','ALL']);
+									} else {
+										$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESS');
+									}
+								}
+							} else {
+								$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESS');
+							}
+							break;
+						}
+						case 'VOICE': {
+							if ($this->_core_islogged($id,$user)) {
+								if (($type == 'PMSG') or ($type == 'PNOTE')) {
+									if (count($indata) >= 6) {
+										$chan = $indata[5];
+										if (count($indata) >= 7) {
+											$tmpdata = $this->_core_array_join($indata,6," ");
+											$passthrough = true;
+										} else {
+											$passthrough = false;
+											$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You didn't enter any nicks");
+										}
+									} else {
+										$passthrough = false;
+										$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You didn't enter a channel");
+									}
+								}
+								if (($type == 'CMSG') or ($type == 'CNOTE')) {
+									if (count($indata) >= 6) {
+										$tmpdata = $this->_core_array_join($indata,5," ");
+										$passthrough = true;
+									} else {
+										$passthrough = false;
+										$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You didn't enter any nicks");
+									}
+								}
+								if ($passthrough == true) {
+									if ($this->_core_get_access_logged($id,$user,$chan,'CHANNEL') >= 2) {
+										$this->_core_massmodes($id,$user,$chan,['ADD','v',$tmpdata]);
+									} else {
+										$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESS');
+									}
+								}
+							} else {
+								$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESS');
+							}
+							break;
+						}
+						case 'MDEVOICE': {
+							if ($this->_core_islogged($id,$user)) {
+								if (($type == 'PMSG') or ($type == 'PNOTE')) {
+									if (count($indata) >= 6) {
+										$chan = $indata[5];
+										$passthrough = true;
+									} else {
+										$passthrough = false;
+										$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You didn't enter a channel");
+									}
+								}
+								if (($type == 'CMSG') or ($type == 'CNOTE')) {
+									$passthrough = true;
+								}
+								if ($passthrough == true) {
+									if ($this->_core_get_access_logged($id,$user,$chan,'CHANNEL') >= 2) {
+										$this->_core_massmodes($id,$user,$chan,['REM','v','BC']);
+									} else {
+										$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESS');
+									}
+								}
+							} else {
+								$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESS');
+							}
+							break;
+						}
+						case 'DEVOICE': {
+							if ($this->_core_islogged($id,$user)) {
+								if (($type == 'PMSG') or ($type == 'PNOTE')) {
+									if (count($indata) >= 6) {
+										$chan = $indata[5];
+										if (count($indata) >= 7) {
+											$tmpdata = $this->_core_array_join($indata,6," ");
+											$passthrough = true;
+										} else {
+											$passthrough = false;
+											$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You didn't enter any nicks");
+										}
+									} else {
+										$passthrough = false;
+										$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You didn't enter a channel");
+									}
+								}
+								if (($type == 'CMSG') or ($type == 'CNOTE')) {
+									if (count($indata) >= 6) {
+										$tmpdata = $this->_core_array_join($indata,5," ");
+										$passthrough = true;
+									} else {
+										$passthrough = false;
+										$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You didn't enter any nicks");
+									}
+								}
+								if ($passthrough == true) {
+									if ($this->_core_get_access_logged($id,$user,$chan,'CHANNEL') >= 2) {
+										$this->_core_massmodes($id,$user,$chan,['REM','v',$tmpdata]);
+									} else {
+										$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESS');
+									}
+								}
+							} else {
+								$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESS');
+							}
+							break;
+						}
+						case 'VOICEME': {
+							if ($this->_core_islogged($id,$user)) {
+								if (($type == 'PMSG') or ($type == 'PNOTE')) {
+									if (count($indata) >= 6) {
+										$chan = $indata[5];
+										$passthrough = true;
+									} else {
+										$passthrough = false;
+										$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You didn't enter a channel");
+									}
+								}
+								if (($type == 'CMSG') or ($type == 'CNOTE')) {
+									$passthrough = true;
+								}
+								if ($passthrough == true) {
+									if ($this->_core_get_access_logged($id,$user,$chan,'CHANNEL') >= 1) {
+										$this->_core_massmodes($id,$user,$chan,['ADD','v',$user]);
+									} else {
+										$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESS');
+									}
+								}
+							} else {
+								$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESS');
+							}
+							break;
+						}
+						case 'DEVOICEME': {
+							if ($this->_core_islogged($id,$user)) {
+								if (($type == 'PMSG') or ($type == 'PNOTE')) {
+									if (count($indata) >= 6) {
+										$chan = $indata[5];
+										$passthrough = true;
+									} else {
+										$passthrough = false;
+										$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You didn't enter a channel");
+									}
+								}
+								if (($type == 'CMSG') or ($type == 'CNOTE')) {
+									$passthrough = true;
+								}
+								if ($passthrough == true) {
+									if ($this->_core_get_access_logged($id,$user,$chan,'CHANNEL') >= 1) {
+										$this->_core_massmodes($id,$user,$chan,['REM','v',$user]);
+									} else {
+										$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESS');
+									}
+								}
+							} else {
+								$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESS');
+							}
+							break;
+						}
+						case 'SAY': {
+							if ($this->_core_islogged($id,$user)) {
+								if (($type == 'PMSG') or ($type == 'PNOTE')) {
+									if (count($indata) >= 6) {
+										$chan = $indata[5];
+										if (count($indata) >= 7) {
+											$passthrough = true;
+											$tmpoutput = $this->_core_array_join($indata,6," ");
+										} else {
+											$passthrough = false;
+											$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You didn't enter a message");
+										}
+									} else {
+										$passthrough = false;
+										$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You didn't enter a channel");
+									}
+								}
+								if (($type == 'CMSG') or ($type == 'CNOTE')) {
+									if (count($indata) >= 6) { 
+										$passthrough = true;
+										$tmpoutput = $this->_core_array_join($indata,5," ");
+									} else {
+										$passthrough = false;
+										$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You didn't enter a message");
+									}
+								}
+								if ($passthrough == true) {
+									if ($this->_core_get_access_logged($id,$user,$chan,'CHANNEL') >= 1) {
+										$this->_core_sts($id,"PRIVMSG ".$chan." :".$tmpoutput);
+									} else {
+										$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESS');
+									}
+								}
+							} else {
+								$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESS');
+							}
+							break;
+						}
+						case 'ACT': {
+							if ($this->_core_islogged($id,$user)) {
+								if (($type == 'PMSG') or ($type == 'PNOTE')) {
+									if (count($indata) >= 6) {
+										$chan = $indata[5];
+										if (count($indata) >= 7) {
+											$passthrough = true;
+											$tmpoutput = $this->_core_array_join($indata,6," ");
+										} else {
+											$passthrough = false;
+											$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You didn't enter a action");
+										}
+									} else {
+										$passthrough = false;
+										$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You didn't enter a channel");
+									}
+								}
+								if (($type == 'CMSG') or ($type == 'CNOTE')) {
+									if (count($indata) >= 6) { 
+										$passthrough = true;
+										$tmpoutput = $this->_core_array_join($indata,5," ");
+									} else {
+										$passthrough = false;
+										$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You didn't enter a action");
+									}
+								}
+								if ($passthrough == true) {
+									if ($this->_core_get_access_logged($id,$user,$chan,'CHANNEL') >= 1) {
+										$this->_core_sts($id,"PRIVMSG ".$chan." :\x01ACTION ".$tmpoutput."\x01");
+									} else {
+										$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESS');
+									}
+								}
+							} else {
+								$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESS');
+							}
+							break;
+						}
+						case 'TESTCMD': {
+							if ($this->_core_get_access_logged($id,$user,$chan,'GLOBAL') >= 7) {
+								$this->_sprint($id." ".print_r($this->sdata,true),'debug',false);
+							} else {
+								$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESS');
+							}
+							break;
+						}
+						case 'TESTDATA': {
+							if ($this->_core_get_access_logged($id,$user,$chan,'GLOBAL') >= 7) {
+								$this->_sprint($id." ".print_r($this->data,true),'debug',false);
+							} else {
+								$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESS');
+							}
+							break;
+						}
+						case 'TEST': {
+							if ($this->_core_get_access_logged($id,$user,$chan,'GLOBAL') >= 7) {
+								#$this->_core_sts($id,"MODE :".$this->sdata['cons'][$id]['nick']);
+								//$this->_core_massmodes($id,$user,$chan,['ADD','v','chewy Channel_Bot chewyb_13']);
+								//$this->_core_massmodes($id,$user,$chan,['ADD','v','BC']);
+								$this->_core_massmodes($id,$user,$chan,['ADD','v','ALL']);
+								//$this->_core_massmodes($id,$user,$chan,['REM','v','chewy Channel_Bot chewyb_13']);
+								//$this->_core_massmodes($id,$user,$chan,['REM','v','BC']);
+								$this->_core_massmodes($id,$user,$chan,['REM','v','ALL']);
 
-*/				
+								$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"data blarg");
+							} else {
+								$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESS');
+							}
+							break;
+						}
+						default: {
+							$this->_sprint($id." c1 ".print_r($indata,true),'debug',false);
+							if (($type == 'CMSG') or ($type == 'CNOTE')) {
+								$this->_core_buildmsg($id,'ERROR',$user,$chan,'CHAN',"The command ".$indata[4]." doesn't exist at the momment");
+							}
+							if (($type == 'PMSG') or ($type == 'PNOTE')) {
+								$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"The command ".$indata[4]." doesn't exist at the momment");
+							}
+							break;
+						}
+					}
 				}
 			} 
 			else {
@@ -2906,57 +3210,6 @@ def helpcmd(sock,user,chan,incom):
 			$this->_sprint("Unknown Length of data",'debug',false);
 		}
 		return;
-/*
-def splitjoiner(data):
-	outcounti = 0
-	output = ''
-	while (outcounti != len(data)):
-		output = output+data[outcounti]+" "
-		outcounti = outcounti + 1
-	output = output.rstrip()
-	return output
-def massmodes(sock,user,chan,modes):
-	modespl = mysockets[sock]['modespl']
-	tmpusers = deque()
-	if (len(mysockets[sock]['channels'][chan]['users']) > 0):
-		tmplogged = 'FALSE'
-		tmpkeys = mysockets[sock]['channels'][chan]['users'].keys()
-		for tmpkey in tmpkeys:
-			if (modes[2] == 'ALL'):
-				tmpusers.append(tmpkey)
-			elif (modes[2] == 'BC'):
-				if (modes[0] == 'ADD'):	tmpusers.append(tmpkey)
-				else:
-					if (tmpkey == user): tmplogged = 'TRUE'
-					elif (tmpkey == mysockets[sock]['nick']): tmplogged = 'TRUE'
-					else: tmpusers.append(tmpkey)
-			else:
-				for tmpmode in modes[2]:
-					if (tmpkey == tmpmode): tmpusers.append(tmpkey)
-			
-	i = 0
-	outputmode = ''
-	while (i != modespl):
-		outputmode = outputmode+modes[1]
-		i = i + 1
-	outputmode = outputmode.rstrip()
-	if (modes[0] == 'ADD'): omode = '+'
-	else: omode = '-'
-	i = l = 0
-	output = ''
-	length = len(tmpusers)
-	while (i != length):
-		output = output+tmpusers.popleft()+" "
-		l = l + 1
-		if (l == modespl):
-			output = output.rstrip()
-			sts(sock,"MODE {0} {1}{2} {3}".format(chan,omode,outputmode,output))
-			output = ''
-			l = 0
-		i = i + 1
-	output = output.rstrip()
-	sts(sock,"MODE {0} {1}{2} {3}".format(chan,omode,outputmode,output))		
-*/		
 	}
 
 	private function _core_array_stripchr($in,$chr) {
@@ -2966,6 +3219,10 @@ def massmodes(sock,user,chan,modes):
 			$in[$stripcount] = str_replace(chr($chr),'',$in[$stripcount]);
 		}
 		return $in;
+	}
+	
+	private function _core_array_join($in,$o,$j) {
+		return implode($j,$this->_core_array_rearrange($in,$o));
 	}
 	
 	private function _core_array_rearrange($in,$o) {
@@ -3078,6 +3335,66 @@ def chanmodes(sock,chan):
 	return 'NULL'				
 	*/
 	}
+	
+	private function _core_massmodes($id,$user,$chan,$modes) {
+		//$this->_sprint("Modes ".print_r($modes,true),'debug',false);
+		$modespl = $this->sdata['cons'][$id]['modespl'];
+		$tmpusers = array();
+		if (count($this->sdata['cons'][$id]['chans'][$chan]['users']) > 0) {
+			//$this->_sprint("Users Listing: ".print_r($this->sdata['cons'][$id]['chans'][$chan]['users'],true),'debug',false);
+			foreach ($this->sdata['cons'][$id]['chans'][$chan]['users'] as $t1 => $t2) {
+				//$this->_sprint("User Details: T1 ".$t1." T2 ".print_r($t2,true),'debug',false);
+				if ($modes[2] == 'ALL') {
+					array_push($tmpusers,$t1);
+				}	elseif ($modes[2] == 'BC') {
+					if ($modes[0] == 'ADD') {
+						array_push($tmpusers,$t1);
+					} else {
+						if ($this->_core_islogged($id,$t1) == false) {
+							array_push($tmpusers,$t1);
+						}
+					}
+				} else {
+					$tmpmodes = explode(" ",$modes[2]);
+					foreach ($tmpmodes as $tmpmode) {
+						//$this->_sprint("TMPMODE: ".$tmpmode,'debug',false);
+						if ($tmpmode == $t1) {
+							array_push($tmpusers,$t1);
+						}
+					}
+				}
+				//$this->_sprint("TmpUsers: ".print_r($tmpusers,true),'debug',false);
+			}
+		}
+		
+		$i = 0;
+		$outputmode = '';
+		while ($i != $modespl) {
+			$outputmode .= $modes[1];
+			$i += 1;
+		}
+		//$this->_sprint($outputmode,'debug',false);
+		if ($modes[0] == 'ADD') {
+			$outmode = '+';
+		} else {
+			$outmode = '-';
+		}
+		$l = 0;
+		$output = '';
+		foreach ($tmpusers as $t1 => $t2) {
+			//$this->_sprint("T1: ".$t1." T2: ".$t2,'debug',false);
+			$output = $output.$t2." ";
+			$l += 1;
+			if ($l == $modespl) {
+				//$this->_sprint($output,'debug',false);
+				$this->_core_sts($id,"MODE ".$chan." ".$outmode.$outputmode." ".$output);
+				$l = 0;
+				$output = '';
+			}
+		}
+		//$this->_sprint($output,'debug',false);
+		$this->_core_sts($id,"MODE ".$chan." ".$outmode.$outputmode." ".$output);
+	}	
 	
 	private function _core_modeprocessor_chan($id,$user,$chan,$data) {
 		$i = 0;

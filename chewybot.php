@@ -11,14 +11,15 @@
 */
 $CORE['conf']['db'] = './database/chewydb.db';
 $CORE['conf']['bindip'] = false;
-$CORE['conf']['bindedip'] = '192.168.2.56';
+$CORE['conf']['bindedip'] = '192.168.2.16';
+$CORE['conf']['console_colorize'] = true;
 // You shouldn't need to edit anything below this point what so ever
 $CORE['info']['botauthor'] = "chewyb_13 @ Servers irc.chewynet.co.uk:6667 & HellRisingSun.BounceMe.Net:7202";
 $CORE['info']['helpchans'] = "#chewybot @ Servers irc.chewynet.co.uk:6667 & HellRisingSun.BounceMe.Net:7202";
 $CORE['info']['botauthoremail'] = "chewyb13@gmail.com";
 $CORE['info']['bugtracker'] = "http://code.google.com/p/chewybot-php/issues/list";
 $CORE['info']['sourcecode'] = "https://chewybot-php.googlecode.com/svn/trunk/ chewybot-php-read-only";
-$CORE['info']['version'] = "0.0.1.7";
+$CORE['info']['version'] = "0.0.1.8";
 $CORE['debug'] = true;
 require ("./module/core/defines.inc.php");
 // You really shouldn't need to edit anything below this point unless you are wanting to help with development
