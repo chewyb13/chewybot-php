@@ -215,199 +215,268 @@ class ChewyBot {
 							}
 							break;
 						}
-					
-/*					
-				elif (incom[4].upper() == 'SETTINGS'):
-					if ((type == 'PMSG') or (type == 'PNOTE')):
-						if (loggedgetaccess(sock,user,chan,'GLOBAL') >= 6):
-							if (len(incom) >= 6):
-								if (incom[5].upper() == 'SET'):
-									if (len(incom) >= 7):
-										if (len(incom) >= 8):
-											sql = "UPDATE settings SET setting = '{0}', value = '{1}' WHERE setting = '{0}'".format(rl(incom[6]),incom[7])
-											vals = db.execute(sql)
-											settings[rl(incom[6])] = incom[7]
-											buildmsg(sock,'NORMAL',user,chan,'PRIV',"You have successfully changed {0} to {1}".format(rl(incom[6]),incom[7]))
-										else:
-											buildmsg(sock,'ERROR',user,chan,'PRIV',"Missing Setting Value")
-									else:
-										buildmsg(sock,'ERROR',user,chan,'PRIV',"Missing Setting Name")
-								elif (incom[5].upper() == 'LIST'):
-									sql = "SELECT * FROM settings"
-									records = db.select(sql)
-									for record in records:
-										buildmsg(sock,'NORMAL',user,chan,'PRIV',"Setting: {0} Value: {1}".format(record[1], record[2]))
-								else:
-									buildmsg(sock,'ERROR',user,chan,'PRIV',"Error, Use Either Set or List")
-							else:
-								buildmsg(sock,'ERROR',user,chan,'PRIV',"Error, Use Either Set or List")
-						else:
-							buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESS')
-					else:
-						buildmsg(sock,'ERROR',user,chan,'PRIV',"You can not access settings via channel commands")
-				elif (incom[4].upper() == 'SERVER'):
-					if ((type == 'PMSG') or (type == 'PNOTE')):
-						if (loggedgetaccess(sock,user,chan,'GLOBAL') >= 6):
-							if (len(incom) >= 6):
-								if (incom[5].upper() == 'ADD'):
-									blarg = 1
-								elif (incom[5].upper() == 'CHG'):
-									blarg = 1
-									#if (len(incom) >= 7):
-										#if (len(incom) >= 8):
-											#sql = "UPDATE settings SET setting = '{0}', value = '{1}' WHERE setting = '{0}'".format(rl(incom[6]),incom[7])
-											#vals = db.execute(sql)
-											#settings[rl(incom[6])] = incom[7]
-											#buildmsg(sock,'NORMAL',user,chan,'PRIV',"You have successfully changed {0} to {1}".format(rl(incom[6]),incom[7]))
-										#else:
-											#buildmsg(sock,'ERROR',user,chan,'PRIV',"Missing Setting Value")
-									#else:
-										#buildmsg(sock,'ERROR',user,chan,'PRIV',"Missing Setting Name")
-								elif (incom[5].upper() == 'LIST'):
-									sql = "SELECT * FROM servers"
-									records = db.select(sql)
-									for record in records:
-										if (record[10] == 'enabled'):
-											buildmsg(sock,'NORMAL',user,chan,'PRIV',"\x033SID: {0} Server: {1} Address: {2} Port: {3} SPass: {4} Nick: {5} BNick: {6} NSPass: {7} BotOper: {8} BotOperPass: {9}\x03".format(int(record[0]),record[1],record[2],int(record[3]),record[4],record[5],record[6],record[7],record[8],record[9]))
-										else:
-											buildmsg(sock,'NORMAL',user,chan,'PRIV',"\x034SID: {0} Server: {1} Address: {2} Port: {3} SPass: {4} Nick: {5} BNick: {6} NSPass: {7} BotOper: {8} BotOperPass: {9}\x03".format(int(record[0]),record[1],record[2],int(record[3]),record[4],record[5],record[6],record[7],record[8],record[9]))
-									buildmsg(sock,'NORMAL',user,chan,'PRIV',"Color \x033Green\x03 is enabled, Color \x034Red\x03 is disabled")
-								else:
-									buildmsg(sock,'ERROR',user,chan,'PRIV',"Error, Use Either List, Add, or Chg")
-							else:
-								buildmsg(sock,'ERROR',user,chan,'PRIV',"Error, Use Either List, Add, or Chg")
-						else:
-							buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESS')
-					else:
-						buildmsg(sock,'ERROR',user,chan,'PRIV',"You can not access server via channel commands")
-				elif (incom[4].upper() == 'CHANNEL'):
-					if ((type == 'PMSG') or (type == 'PNOTE')):
-						if (loggedgetaccess(sock,user,chan,'GLOBAL') >= 6):
-							if (len(incom) >= 6):
-								if (incom[5].upper() == 'CHG'):
-									if (len(incom) >= 7):
-										if (len(incom) >= 8):
-											if (incom[7].upper() == 'SERVER'):
+						case 'SETTINGS': {
+							if (($type == 'PMSG') or ($type == 'PNOTE')) {
+								if ($this->_core_get_access_logged($id,$user,$chan,'GLOBAL') >= 6) {
+									if (count($indata) >= 6) {
+										switch(strtoupper($indata[5])) {
+											case 'SET': {
+												if (count($indata) >= 7) {
+													if (count($indata) >= 8) {
+														$this->sql->sql('update',"UPDATE settings SET setting = '".strtolower($indata[6])."', value = '".$indata[7]."' where setting = '".strtolower($indata[6])."'");
+														$this->data['settings'][strtolower($indata[6])] = $indata[7];
+														$this->_core_buildmsg($id,'NORMAL',$user,$chan,'PRIV',"You have successfully changed ".strtolower($indata[6])." to ".$indata[7]);
+													} else {
+														$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"Missing Setting Value");
+													}
+												} else {
+													$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"Missing Setting Name");
+												}
+												break;
+											} 
+											case 'LIST': {
+												$records = $this->sql->sql('select',"SELECT * FROM settings");
+												while ($row = $records->fetchArray()) {
+													$this->_core_buildmsg($id,'NORMAL',$user,$chan,'PRIV',"Setting: ".$row['setting']." Value: ".$row['value']);
+												}
+												break;
+											}
+											default: {
+												$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"Error, Use Either Set or List");
+												break;
+											}
+										}
+									} else {
+										$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"Error, Use Either Set or List");
+									}
+								} else {
+									$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESS');
+								}
+							} else {
+								$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You can not access settings via channel commands");
+							}
+							break;
+						}
+						case 'SERVER': {
+							if (($type == 'PMSG') or ($type == 'PNOTE')) {
+								if ($this->_core_get_access_logged($id,$user,$chan,'GLOBAL') >= 6) {
+									if (count($indata) >= 6) {
+										switch(strtoupper($indata[5])) {
+											case 'ADD': {
+												
+												break;
+											}
+											case 'CHG': {
+												/*
 												blarg = 1
-											elif (incom[7].upper() == 'CHANNEL'):
-												blarg = 1
-											elif (incom[7].upper() == 'CHANPASS'):
-												blarg = 1
-											elif (incom[7].upper() == 'CHANMODES'):
-												blarg = 1
-											elif (incom[7].upper() == 'CHANTOPIC'):
-												blarg = 1
-											elif (incom[7].upper() == 'OPTIONS'):
-												blarg = 1
-											elif (incom[7].upper() == 'ENABLED'):
-												blarg = 1
-											else:
-												buildmsg(sock,'ERROR',user,chan,'PRIV',"Error, You must choose from Server, Channel, Chanpass, Chanmodes, Chantopic, Options, Enabled")
-										else:
-											buildmsg(sock,'ERROR',user,chan,'PRIV',"Error, You must choose from Server, Channel, Chanpass, Chanmodes, Chantopic, Options, Enabled")
-									else:
-										buildmsg(sock,'ERROR',user,chan,'PRIV',"Error, Missing CID number, please check channel list again")
-									#if (len(incom) >= 7):
-										#if (len(incom) >= 8):
-											#sql = "UPDATE settings SET setting = '{0}', value = '{1}' WHERE setting = '{0}'".format(rl(incom[6]),incom[7])
-											#vals = db.execute(sql)
-											#settings[rl(incom[6])] = incom[7]
-											#buildmsg(sock,'NORMAL',user,chan,'PRIV',"You have successfully changed {0} to {1}".format(rl(incom[6]),incom[7]))
-										#else:
-											#buildmsg(sock,'ERROR',user,chan,'PRIV',"Missing Setting Value")
-									#else:
-										#buildmsg(sock,'ERROR',user,chan,'PRIV',"Missing Setting Name")
-								elif (incom[5].upper() == 'LIST'):
-									sql = "SELECT * FROM channels"
-									records = db.select(sql)
-									for record in records:
-										if (record[7] == 'enabled'):
-											buildmsg(sock,'NORMAL',user,chan,'PRIV',"\x033CID: {0} Server: {1} Channel: {2} Pass: {3} Channel Modes: {4} Chan Options: {5}\x03".format(int(record[0]),record[1],record[2],record[3],record[4],record[6]))
-											buildmsg(sock,'NORMAL',user,chan,'PRIV',"\x033CID: {0} Topic: {1}\x03".format(int(record[0]),record[5]))
-										else:
-											buildmsg(sock,'NORMAL',user,chan,'PRIV',"\x034CID: {0} Server: {1} Channel: {2} Pass: {3} Channel Modes: {4} Chan Options: {5}\x03".format(int(record[0]),record[1],record[2],record[3],record[4],record[6]))
-											buildmsg(sock,'NORMAL',user,chan,'PRIV',"\x034CID: {0} Topic: {1}\x03".format(int(record[0]),record[5]))
-									buildmsg(sock,'NORMAL',user,chan,'PRIV',"Color \x033Green\x03 is enabled, Color \x034Red\x03 is disabled")
-								else:
-									buildmsg(sock,'ERROR',user,chan,'PRIV',"Error, Use Either List, or Chg")
-							else:
-								buildmsg(sock,'ERROR',user,chan,'PRIV',"Error, Use Either List, or Chg")
-						else:
-							buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESS')
-					else:
-						buildmsg(sock,'ERROR',user,chan,'PRIV',"You can not access channels via channel commands")
-				elif (incom[4].upper() == 'USER'):
-					if ((type == 'PMSG') or (type == 'PNOTE')):
-						if (loggedgetaccess(sock,user,chan,'GLOBAL') >= 6):
-							if (len(incom) >= 6):
-								if (incom[5].upper() == 'ADD'):
-									if (len(incom) >= 7):
-										if (len(incom) >=8):
-											tmpudata = pulluser(rl(incom[6]))
-											if (tmpudata == 'FALSE'):
-												tmppass = hashlib.md5()
-												tmppass.update(incom[7])
-												sql = "INSERT INTO users (username, password, global, server, channel, msgtype) VALUES ('{0}', '{1}', '{2}', '{3}', '{4}', '{5}')".format(rl(incom[6]),tmppass.hexdigest(),'NULL','NULL','NULL','msg')
-												blarg = db.insert(sql)
-												buildmsg(sock,'NORMAL',user,chan,'PRIV',"You have successfully created '{0}' with the password '{1}'".format(rl(incom[6]),incom[7]))
-											else:
-												buildmsg(sock,'ERROR',user,chan,'PRIV',"The username you entered already exists")
-										else:
-											buildmsg(sock,'ERROR',user,chan,'PRIV',"You only entered a username, please enter a password as well")
-									else:
-										buildmsg(sock,'ERROR',user,chan,'PRIV',"You are missing <username> <password>")
-								elif (incom[5].upper() == 'CHG'):
-									if (len(incom) >= 7):
-										if (len(incom) >= 8):
-											if (incom[7].upper() == 'PASS'):
-												if (len(incom) >= 9):
-													tmppass = hashlib.md5()
-													tmppass.update(incom[8])
-													sql = "UPDATE users SET password = '{0}' where username = '{1}'".format(tmppass.hexdigest(),rl(incom[6]))
-													vals = db.execute(sql)
-													buildmsg(sock,'NORMAL',user,chan,'PRIV',"You have successfully changed the password for '{0}'".format(rl(incom[6])))													
-												else:
-													buildmsg(sock,'ERROR',user,chan,'PRIV',"Error, Use format <username> PASS <newpass>")
-											elif (incom[7].upper() == 'MSGTYPE'):
-												if (len(incom) >= 9):
-													if (incom[8].lower() == 'notice'):
-														newtype = 'notice'
+												#if (len(incom) >= 7):
+													#if (len(incom) >= 8):
+														#sql = "UPDATE settings SET setting = '{0}', value = '{1}' WHERE setting = '{0}'".format(rl(incom[6]),incom[7])
+														#vals = db.execute(sql)
+														#settings[rl(incom[6])] = incom[7]
+														#buildmsg(sock,'NORMAL',user,chan,'PRIV',"You have successfully changed {0} to {1}".format(rl(incom[6]),incom[7]))
+													#else:
+														#buildmsg(sock,'ERROR',user,chan,'PRIV',"Missing Setting Value")
+												#else:
+													#buildmsg(sock,'ERROR',user,chan,'PRIV',"Missing Setting Name")
+													*/
+											} 
+											case 'LIST': {
+												$records = $this->sql->sql('select',"SELECT * FROM servers");
+												while ($row = $records->fetchArray()) {
+													if ($row['enabled'] == 'enabled') {
+														$this->_core_buildmsg($id,'NORMAL',$user,$chan,'PRIV',"\x033SID: ".$row['id']." Server: ".$row['servername']." Address: ".$row['address']." Port: ".$row['serverport']." SPass: ".$row['serverpass']." Nick: ".$row['nick']." BNick: ".$row['bnick']." NSPass: ".$row['nickservpass']." BotOper: ".$row['botoper']." BotOperPass: ".$row['botoperpass']."\x03");
+													} else {
+														$this->_core_buildmsg($id,'NORMAL',$user,$chan,'PRIV',"\x034SID: ".$row['id']." Server: ".$row['servername']." Address: ".$row['address']." Port: ".$row['serverport']." SPass: ".$row['serverpass']." Nick: ".$row['nick']." BNick: ".$row['bnick']." NSPass: ".$row['nickservpass']." BotOper: ".$row['botoper']." BotOperPass: ".$row['botoperpass']."\x03");
+													}
+												}
+												$this->_core_buildmsg($id,'NORMAL',$user,$chan,'PRIV',"Color \x033Green\x03 is enabled, Color \x034Red\x03 is disabled");
+												break;
+											}
+											default: {
+												$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"Error, Use Either List, Add, or Chg");
+												break;
+											}
+										}
+									} else {
+										$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"Error, Use Either List, Add, or Chg");
+									}
+								} else {
+									$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESS');
+								}
+							} else {
+								$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You can not access server via channel commands");
+							}
+							break;
+						}
+						case 'CHANNEL': {
+							if (($type == 'PMSG') or ($type == 'PNOTE')) {
+								if ($this->_core_get_access_logged($id,$user,$chan,'GLOBAL') >= 6) {
+									if (count($indata) >= 6) {
+										switch(strtoupper($indata[5])) {
+											case 'ADD': {
+												
+												break;
+											}
+											case 'CHG': {
+												/*
+												if (len(incom) >= 7):
+													if (len(incom) >= 8):
+														if (incom[7].upper() == 'SERVER'):
+															blarg = 1
+														elif (incom[7].upper() == 'CHANNEL'):
+															blarg = 1
+														elif (incom[7].upper() == 'CHANPASS'):
+															blarg = 1
+														elif (incom[7].upper() == 'CHANMODES'):
+															blarg = 1
+														elif (incom[7].upper() == 'CHANTOPIC'):
+															blarg = 1
+														elif (incom[7].upper() == 'OPTIONS'):
+															blarg = 1
+														elif (incom[7].upper() == 'ENABLED'):
+															blarg = 1
+														else:
+															buildmsg(sock,'ERROR',user,chan,'PRIV',"Error, You must choose from Server, Channel, Chanpass, Chanmodes, Chantopic, Options, Enabled")
 													else:
-														newtype = 'msg'
-													sql = "UPDATE users SET msgtype = '{0}' where username = '{1}'".format(newtype,rl(incom[6]))
-													vals = db.execute(sql)
-													if (islogged(sock,rl(incom[6])) == 'TRUE'):
-														loggedin[sock][rl(incom[6])]['msgtype'] = newtype
-													buildmsg(sock,'NORMAL',user,chan,'PRIV',"You have successfully changed the message type for '{0}' to '{1}'".format(rl(incom[6]),newtype))
+														buildmsg(sock,'ERROR',user,chan,'PRIV',"Error, You must choose from Server, Channel, Chanpass, Chanmodes, Chantopic, Options, Enabled")
 												else:
-													buildmsg(sock,'ERROR',user,chan,'PRIV',"Error, Use format <username> MSGTYPE <notice/msg>")
-											else:
-												buildmsg(sock,'ERROR',user,chan,'PRIV',"Error, Use Either Pass, Msgtype")
-										else:
-											buildmsg(sock,'ERROR',user,chan,'PRIV',"Error, Use Either Pass, Msgtype")
-									else:
-										buildmsg(sock,'ERROR',user,chan,'PRIV',"Missing Username")
-								elif (incom[5].upper() == 'DEL'):
-									#this bit of coding is only gonna be temperary for the time being due to abuse possiblities
-									sql = "DELETE FROM users WHERE username = '{0}'".format(rl(incom[6]))
-									db.execute(sql)
-									buildmsg(sock,'NORMAL',user,chan,'PRIV',"Deleted {0} or attempted to delete from the database".format(rl(incom[6])))
-								elif (incom[5].upper() == 'LIST'):
-									sql = "SELECT * FROM users"
-									records = db.select(sql)
-									for record in records:
-										buildmsg(sock,'NORMAL',user,chan,'PRIV',"UID: {0} Username: {1} Global: {2} Server: {3} Channel: {4} MsgType: {5}".format(int(record[0]),record[1],record[3],record[4],record[5],record[6]))
-								else:
-									buildmsg(sock,'ERROR',user,chan,'PRIV',"Error, Use Either List, Add, Del, or Chg")
-							else:
-								buildmsg(sock,'ERROR',user,chan,'PRIV',"Error, Use Either List, Add, Del, or Chg")
-						else:
-							buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESS')
-					else:
-						buildmsg(sock,'ERROR',user,chan,'PRIV',"You can not access users via channel commands")
-				elif (incom[4].upper() == 'ACCESS'):
-					blarg = 1
-*/											
+													buildmsg(sock,'ERROR',user,chan,'PRIV',"Error, Missing CID number, please check channel list again")
+												#if (len(incom) >= 7):
+													#if (len(incom) >= 8):
+														#sql = "UPDATE settings SET setting = '{0}', value = '{1}' WHERE setting = '{0}'".format(rl(incom[6]),incom[7])
+														#vals = db.execute(sql)
+														#settings[rl(incom[6])] = incom[7]
+														#buildmsg(sock,'NORMAL',user,chan,'PRIV',"You have successfully changed {0} to {1}".format(rl(incom[6]),incom[7]))
+													#else:
+														#buildmsg(sock,'ERROR',user,chan,'PRIV',"Missing Setting Value")
+												#else:
+													#buildmsg(sock,'ERROR',user,chan,'PRIV',"Missing Setting Name")
+													*/
+											} 
+											case 'LIST': {
+												$records = $this->sql->sql('select',"SELECT * FROM channels");
+												while ($row = $records->fetchArray()) {
+													if ($row['enabled'] == 'enabled') {
+														$this->_core_buildmsg($id,'NORMAL',$user,$chan,'PRIV',"\x033CID: ".$row['id']." Server: ".$row['server']." Channel: ".$row['channel']." Pass: ".$row['chanpass']." Channel Modes: ".$row['chanmodes']." Chan Options: ".$row['options']."\x03");
+														$this->_core_buildmsg($id,'NORMAL',$user,$chan,'PRIV',"\x033CID: ".$row['id']." Topic: ".$row['chantopic']."\x03");
+													} else {
+														$this->_core_buildmsg($id,'NORMAL',$user,$chan,'PRIV',"\x034CID: ".$row['id']." Server: ".$row['server']." Channel: ".$row['channel']." Pass: ".$row['chanpass']." Channel Modes: ".$row['chanmodes']." Chan Options: ".$row['options']."\x03");
+														$this->_core_buildmsg($id,'NORMAL',$user,$chan,'PRIV',"\x034CID: ".$row['id']." Topic: ".$row['chantopic']."\x03");
+													}
+												}
+												$this->_core_buildmsg($id,'NORMAL',$user,$chan,'PRIV',"Color \x033Green\x03 is enabled, Color \x034Red\x03 is disabled");
+												break;
+											}
+											default: {
+												$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"Error, Use Either List, Add, or Chg");
+												break;
+											}
+										}
+									} else {
+										$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"Error, Use Either List, Add, or Chg");
+									}
+								} else {
+									$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESS');
+								}
+							} else {
+								$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You can not access channel via channel commands");
+							}
+							break;
+						}
+						case 'USER': {
+							if (($type == 'PMSG') or ($type == 'PNOTE')) {
+								if ($this->_core_get_access_logged($id,$user,$chan,'GLOBAL') >= 6) {
+									if (count($indata) >= 6) {
+										switch(strtoupper($indata[5])) {
+											case 'ADD': {
+												/*
+												if (len(incom) >= 7):
+													if (len(incom) >=8):
+														tmpudata = pulluser(rl(incom[6]))
+														if (tmpudata == 'FALSE'):
+															tmppass = hashlib.md5()
+															tmppass.update(incom[7])
+															sql = "INSERT INTO users (username, password, global, server, channel, msgtype) VALUES ('{0}', '{1}', '{2}', '{3}', '{4}', '{5}')".format(rl(incom[6]),tmppass.hexdigest(),'NULL','NULL','NULL','msg')
+															blarg = db.insert(sql)
+															buildmsg(sock,'NORMAL',user,chan,'PRIV',"You have successfully created '{0}' with the password '{1}'".format(rl(incom[6]),incom[7]))
+														else:
+															buildmsg(sock,'ERROR',user,chan,'PRIV',"The username you entered already exists")
+													else:
+														buildmsg(sock,'ERROR',user,chan,'PRIV',"You only entered a username, please enter a password as well")
+												else:
+													buildmsg(sock,'ERROR',user,chan,'PRIV',"You are missing <username> <password>")
+												*/
+												break;
+											}
+											case 'CHG': {
+												/*
+												if (len(incom) >= 7):
+													if (len(incom) >= 8):
+														if (incom[7].upper() == 'PASS'):
+															if (len(incom) >= 9):
+																tmppass = hashlib.md5()
+																tmppass.update(incom[8])
+																sql = "UPDATE users SET password = '{0}' where username = '{1}'".format(tmppass.hexdigest(),rl(incom[6]))
+																vals = db.execute(sql)
+																buildmsg(sock,'NORMAL',user,chan,'PRIV',"You have successfully changed the password for '{0}'".format(rl(incom[6])))													
+															else:
+																buildmsg(sock,'ERROR',user,chan,'PRIV',"Error, Use format <username> PASS <newpass>")
+														elif (incom[7].upper() == 'MSGTYPE'):
+															if (len(incom) >= 9):
+																if (incom[8].lower() == 'notice'):
+																	newtype = 'notice'
+																else:
+																	newtype = 'msg'
+																sql = "UPDATE users SET msgtype = '{0}' where username = '{1}'".format(newtype,rl(incom[6]))
+																vals = db.execute(sql)
+																if (islogged(sock,rl(incom[6])) == 'TRUE'):
+																	loggedin[sock][rl(incom[6])]['msgtype'] = newtype
+																buildmsg(sock,'NORMAL',user,chan,'PRIV',"You have successfully changed the message type for '{0}' to '{1}'".format(rl(incom[6]),newtype))
+															else:
+																buildmsg(sock,'ERROR',user,chan,'PRIV',"Error, Use format <username> MSGTYPE <notice/msg>")
+														else:
+															buildmsg(sock,'ERROR',user,chan,'PRIV',"Error, Use Either Pass, Msgtype")
+													else:
+														buildmsg(sock,'ERROR',user,chan,'PRIV',"Error, Use Either Pass, Msgtype")
+												else:
+													buildmsg(sock,'ERROR',user,chan,'PRIV',"Missing Username")
+												*/
+												break;
+											} 
+											case 'DEL': {
+												#this bit of coding is only gonna be temperary for the time being due to abuse possiblities
+												$this->sql->sql('execute',"DELETE FROM users WHERE username = '".strtolower($indata[6])."'");
+												$this->_core_buildmsg($id,'NORMAL',$user,$chan,'PRIV',"Deleted ".strtolower($indata[6])." or attempted to delete from the database");
+												break;
+											}
+											case 'LIST': {
+												$records = $this->sql->sql('select',"SELECT * FROM users");
+												while ($row = $records->fetchArray()) {
+													$this->_core_buildmsg($id,'NORMAL',$user,$chan,'PRIV',"UID: ".$row['id']." Username: ".$row['username']." Global: ".$row['global']." Server: ".$row['server']." Channel: ".$row['channel']." MsgType: ".$row['msgtype']);
+												}
+												break;
+											}
+											default: {
+												$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"Error, Use Either List, Add, Del, or Chg");
+												break;
+											}
+										}
+									} else {
+										$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"Error, Use Either List, Add, Del, or Chg");
+									}
+								} else {
+									$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESS');
+								}
+							} else {
+								$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You can not access user via channel commands");
+							}
+							break;
+						}
+						case 'ACCESS': {
+							$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"Command Access under construction");
+							break;
+						}
 						case 'ACCOUNT': {
 							if (($type == 'PMSG') or ($type == 'PNOTE')) {
 								if ($this->_core_islogged($id,$user) == true) {
@@ -1641,26 +1710,28 @@ class ChewyBot {
 		}
 	}
 	
-	private function _core_command_help($id,$sender,$chan,$indata) {
-/*	
-def helpcmd(sock,user,chan,incom):
-	buildmsg(sock,'HELP',user,chan,'PRIV',"{0} help system".format(settings['botname']))
-	buildmsg(sock,'HELP',user,chan,'PRIV',"If you need help on a certain command go help <command>")
-	buildmsg(sock,'HELP',user,chan,'PRIV',"{0}{3} = CHAN, {2}{3} = DCC, {1}{3} = MSG".format(settings['chancom'],settings['pvtcom'],settings['dcccom'],settings['signal']))
-	if (len(incom) >= 6):
-		if (chan == incom[5]):
-			if (len(incom) >= 7):
-				hcmds = incom[6:]
-				processhelp = 1
-			else:
-				processhelp = 0
-		else:
-			hcmds = incom[5:]
-			processhelp = 1
-	else:
-		processhelp = 0
-	if (processhelp == 1):
-		#debug(sock,len(incom))
+	private function _core_command_help($id,$user,$chan,$indata) {
+		$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',$this->data['settings']['botname']." help system");
+		$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"If you need help on a certain command go help <command>");
+		$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',$this->data['settings']['chancom'].$this->data['settings']['signal']." = CHAN, ".$this->data['settings']['dcccom'].$this->data['settings']['signal']." = DCC, ".$this->data['settings']['pvtcom'].$this->data['settings']['signal']." = MSG");
+		if (count($indata) >= 6) {
+			if ($chan == $indata[5]) {
+				if (count($indata) >= 7) {
+					$hcmds = $this->_core_array_rearrange($indata,6);
+					$processhelp = true;
+				} else {
+					$processhelp = false;
+				}
+			} else {
+				$hcmds = $this->_core_array_rearrange($indata,5);
+				$processhelp = true;
+			}
+		} else {
+			$processhelp = false;
+		}
+		if ($processhelp == true) {
+			switch(strtoupper($hcmds[0]) {
+/*
 		if (hcmds[0].upper() == 'EXIT'):
 			if (loggedgetaccess(sock,user,chan,'GLOBAL') >= 6):
 				buildmsg(sock,'HELP',user,chan,'PRIV',"-(EXIT)- This Command will cause the bot to exit completely")
@@ -1982,80 +2053,112 @@ def helpcmd(sock,user,chan,incom):
 			buildmsg(sock,'HELP',user,chan,'PRIV',"-(HELP)- Command Structure: {0}{1} help <channel> <topic>".format(settings['pvtcom'],settings['signal']))
 			#buildmsg(sock,'HELP',user,chan,'PRIV',"-(HELP)- Command Structure: {0}{1} help <channel> <topic>".format(settings['dcccom'],settings['signal']))
 			buildmsg(sock,'HELP',user,chan,'PRIV',"-(HELP)- Command Structure: {0}{1} help <topic>".format(settings['chancom'],settings['signal']))
-		elif (hcmds[0].upper() == 'WHOIS'):
-			buildmsg(sock,'HELP',user,chan,'PRIV',"-(WHOIS)- This Command will send you a whois on the <nick> you choose")
-			buildmsg(sock,'HELP',user,chan,'PRIV',"-(WHOIS)- Command Structure: {0}{1} whois <channel> <nick>".format(settings['pvtcom'],settings['signal']))
-			#buildmsg(sock,'HELP',user,chan,'PRIV',"-(WHOIS)- Command Structure: {0}{1} whois <channel> <nick>".format(settings['dcccom'],settings['signal']))
-			buildmsg(sock,'HELP',user,chan,'PRIV',"-(WHOIS)- Command Structure: {0}{1} whois <nick>".format(settings['chancom'],settings['signal']))
-		elif (hcmds[0].upper() == 'WHOAMI'):
-			buildmsg(sock,'HELP',user,chan,'PRIV',"-(WHOAMI)- This Command will send you a whois on your current logged in user account")
-			buildmsg(sock,'HELP',user,chan,'PRIV',"-(WHOAMI)- Command Structure: {0}{1} whoami <channel>".format(settings['pvtcom'],settings['signal']))
-			#buildmsg(sock,'HELP',user,chan,'PRIV',"-(WHOAMI)- Command Structure: {0}{1} whoami <channel>".format(settings['dcccom'],settings['signal']))
-			buildmsg(sock,'HELP',user,chan,'PRIV',"-(WHOAMI)- Command Structure: {0}{1} whoami".format(settings['chancom'],settings['signal']))		
-		else:
-			buildmsg(sock,'ERROR',user,chan,'PRIV',"The help topic {0} is not in the database".format(hcmds[0]))
-	else:
-		buildmsg(sock,'HELP',user,chan,'PRIV',"The bot has the following Commands Available")
-		if (islogged(sock,user) == 'TRUE'):
-			if (loggedgetaccess(sock,user,chan,'GLOBAL') >= 7):
-				buildmsg(sock,'HELP',user,chan,'PRIV',"Creator Level Access (7) Only (Due to dangerous level to bot and system):")
-				buildmsg(sock,'HELP',user,chan,'PRIV',"Raw Rawdb")
-			if (loggedgetaccess(sock,user,chan,'CHANNEL') >= 6):
-				#Master & Creator Commands 6/7 Global, 6 Server, 6 Channel
-				buildmsg(sock,'HELP',user,chan,'PRIV',"Master Level Access (6):")
-				if (loggedgetaccess(sock,user,chan,'GLOBAL') >= 6):
-					buildmsg(sock,'HELP',user,chan,'PRIV',"Exit Rehash Settings") #Server User
-				if (loggedgetaccess(sock,user,chan,'SERVER') >= 6):
-					buildmsg(sock,'HELP',user,chan,'PRIV',"Quit") #Channel
-				if (loggedgetaccess(sock,user,chan,'CHANNEL') >= 6):
-					blarg = 1 #don't think there is gonna be any of these
-			if (loggedgetaccess(sock,user,chan,'CHANNEL') >= 5):
-				#Owner Commands - 5 Global, 6 Server, 5 Channel
-				buildmsg(sock,'HELP',user,chan,'PRIV',"Owner Level Access (5):")
-				if (loggedgetaccess(sock,user,chan,'GLOBAL') >= 5):
-					blarg = 1
-				if (loggedgetaccess(sock,user,chan,'SERVER') >= 5):
-					blarg = 1
-				if (loggedgetaccess(sock,user,chan,'CHANNEL') >= 5):
-					buildmsg(sock,'HELP',user,chan,'PRIV',"MOwner Owner MDeOwner DeOwner Ownerme DeOwnerme")
-					buildmsg(sock,'HELP',user,chan,'PRIV',"MProtect Protect MDeProtect DeProtect")
-			if (loggedgetaccess(sock,user,chan,'CHANNEL') >= 4):
-				#Protected Commands - 4 Global, 4 Server, 4 Channel
-				buildmsg(sock,'HELP',user,chan,'PRIV',"Protected Level Access (4):")
-				if (loggedgetaccess(sock,user,chan,'GLOBAL') >= 4):
-					blarg = 1
-				if (loggedgetaccess(sock,user,chan,'SERVER') >= 4):
-					blarg = 1
-				if (loggedgetaccess(sock,user,chan,'CHANNEL') >= 4):
-					buildmsg(sock,'HELP',user,chan,'PRIV',"Protectme DeProtectme")
-					#Access Protectme DeProtectme
-			if (loggedgetaccess(sock,user,chan,'CHANNEL') >= 3):
-				#Op Commands - 3 Global, 3 Server, 3 Channel
-				buildmsg(sock,'HELP',user,chan,'PRIV',"Op Level Access (3):")
-				buildmsg(sock,'HELP',user,chan,'PRIV',"MOp Op MDeOp DeOp Opme DeOpme")
-				buildmsg(sock,'HELP',user,chan,'PRIV',"MHalfop Halfop MDeHalfop DeHalfop")
-			if (loggedgetaccess(sock,user,chan,'CHANNEL') >= 2):
-				#Half-Op Commands - 2 Global, 2 Server, 2 Channel
-				buildmsg(sock,'HELP',user,chan,'PRIV',"Half-Op Level Access (2):")
-				buildmsg(sock,'HELP',user,chan,'PRIV',"Halfopme DeHalfopme MVoice Voice MDeVoice DeVoice")
-				#channel Kick Ban
-			if (loggedgetaccess(sock,user,chan,'CHANNEL') >= 1):
-				#Voice Commands - 1 Global, 1 Server, 1 Channel
-				buildmsg(sock,'HELP',user,chan,'PRIV',"Voice Level Access (1):")
-				buildmsg(sock,'HELP',user,chan,'PRIV',"Voiceme DeVoiceme Say Act")		
-			#Logged in with - 0 Global, 0 Server, 0 Channel
-			buildmsg(sock,'HELP',user,chan,'PRIV',"Logged In Access (0):")
-			buildmsg(sock,'HELP',user,chan,'PRIV',"Account Logout")
-		else :
-			#Logged out with - 0 Global, 0 Server, 0 Channel
-			buildmsg(sock,'HELP',user,chan,'PRIV',"Logged out Access (0):")
-			buildmsg(sock,'HELP',user,chan,'PRIV',"Login Register")
-		#Anyone Commands - 0 global, 0 server, 0 channel
-		buildmsg(sock,'HELP',user,chan,'PRIV',"Anyone Can Access (0):")
-		buildmsg(sock,'HELP',user,chan,'PRIV',"Help Whoami Whois")
-		buildmsg(sock,'HELP',user,chan,'PRIV',"Pvt Command: {0}{2} help <channel> <topic>, Channel Command: {1}{2} help <topic>".format(settings['pvtcom'],settings['chancom'],settings['signal']))
-	buildmsg(sock,'HELP',user,chan,'PRIV',"End Of {0} help system".format(settings['botname']))
+
 */	
+				case 'HELP': {
+					$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(HELP)- This Command Displays The Help System and Certain Command information");
+					$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(HELP)- Command Structure: ".$this->data['settings']['pvtcom'].$this->data['settings']['signal']." help <channel> <topic>")
+					#$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(HELP)- Command Structure: ".$this->data['settings']['dcccom'].$this->data['settings']['signal']." help <channel> <topic>")
+					$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(HELP)- Command Structure: ".$this->data['settings']['chancom'].$this->data['settings']['signal']." help <topic>")
+					break;
+				}
+				case 'WHOIS': {
+					$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(WHOIS)- This Command will send you a whois on the <nick> you choose");
+					$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(WHOIS)- Command Structure: ".$this->data['settings']['pvtcom'].$this->data['settings']['signal']." whois <channel> <nick>")
+					#$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(WHOIS)- Command Structure: ".$this->data['settings']['dcccom'].$this->data['settings']['signal']." whois <channel> <nick>")
+					$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(WHOIS)- Command Structure: ".$this->data['settings']['chancom'].$this->data['settings']['signal']." whois <nick>")
+					break;
+				}
+				case 'WHOAMI': {
+					$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(WHOAMI)- This Command will send you a whois on your current logged in user account");
+					$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(WHOAMI)- Command Structure: ".$this->data['settings']['pvtcom'].$this->data['settings']['signal']." whoami <channel>")
+					#$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(WHOAMI)- Command Structure: ".$this->data['settings']['dcccom'].$this->data['settings']['signal']." whoami <channel>")
+					$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(WHOAMI)- Command Structure: ".$this->data['settings']['chancom'].$this->data['settings']['signal']." whoami")
+					break;
+				}
+				default: {
+					$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"The help topic ".$hcmds[0]." is not in the database");
+					break;
+				}
+			}			
+		} else {
+			$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"The bot has the following Commands Available");
+			if ($this->_core_islogged($id,$user) == true) {
+				if ($this->_core_get_access_logged($id,$user,$chan,'GLOBAL') >= 7) {
+					$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"Creator Level Access (7) Only (Due to dangerous level to bot and system):");
+					$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"Raw Rawdb");
+				}
+				if ($this->_core_get_access_logged($id,$user,$chan,'CHANNEL') >= 6) {
+					#Master & Creator Commands 6/7 Global, 6 Server, 6 Channel
+					$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"Master Level Access (6):");
+					if ($this->_core_get_access_logged($id,$user,$chan,'GLOBAL') >= 6) {
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"Exit Rehash Settings Server User");
+					}
+					if ($this->_core_get_access_logged($id,$user,$chan,'SERVER') >= 6) {
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"Quit Channel");
+					}
+					if ($this->_core_get_access_logged($id,$user,$chan,'CHANNEL') >= 6) {
+						#nothing atm
+					}
+				}
+				if ($this->_core_get_access_logged($id,$user,$chan,'CHANNEL') >= 5) {
+					#Owner Commands - 5 Global, 5 Server, 5 CHANNEL
+					$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"Owner Level Access (5):");
+					if ($this->_core_get_access_logged($id,$user,$chan,'GLOBAL') >= 5) {
+						#nothing atm
+					}
+					if ($this->_core_get_access_logged($id,$user,$chan,'SERVER') >= 5) {
+						#nothing atm
+					}
+					if ($this->_core_get_access_logged($id,$user,$chan,'CHANNEL') >= 5) {
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"MOwner Owner MDeOwner DeOwner Ownerme DeOwnerme");
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"MProtect Protect MDeProtect DeProtect");
+					}
+				}
+				if ($this->_core_get_access_logged($id,$user,$chan,'CHANNEL') >= 4) {
+					#Protected Commands - 4 Global, 4 Server, 4 CHANNEL
+					$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"Protected Level Access (4):");
+					if ($this->_core_get_access_logged($id,$user,$chan,'GLOBAL') >= 4) {
+						#nothing atm
+					}
+					if ($this->_core_get_access_logged($id,$user,$chan,'SERVER') >= 4) {
+						#nothing atm
+					}
+					if ($this->_core_get_access_logged($id,$user,$chan,'CHANNEL') >= 4) {
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"Protectme DeProtectme"); #Access
+					}
+				}
+				if ($this->_core_get_access_logged($id,$user,$chan,'CHANNEL') >= 3) {
+					#Op Commands - 3 Global, 3 Server, 3 CHANNEL
+					$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"Op Level Access (3):");
+					$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"MOp Op MDeOp Opme DeOpme");
+					$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"MHalfop Halfop MDeHalfop DeHalfop");
+				}
+				if ($this->_core_get_access_logged($id,$user,$chan,'CHANNEL') >= 2) {
+					#Half-Op Commands - 2 Global, 2 Server, 2 CHANNEL
+					$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"Half-Op Level Access (2):");
+					$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"Halfopme DeHalfopme MVoice Voice MDeVoice DeVoice");
+					#Channel Kick Ban
+				}
+				if ($this->_core_get_access_logged($id,$user,$chan,'CHANNEL') >= 1) {
+					#Voice Commands - 1 Global, 1 Server, 1 CHANNEL
+					$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"Voice Level Access (1):");
+					$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"Voiceme DeVoiceme Say Act");
+				}
+				#Logged in with - 0 Global, 0 Server, 0 CHANNEL
+				$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"Logged In Access (0):");
+				$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"Account Logout");
+			} else {
+				#Logged out with - 0 Global, 0 Server, 0 Channel
+				$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"Logged out Access (0):");
+				$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"Login Register");
+			}
+			#Anyone Commands - 0 Global, 0 Server, 0 Channel
+			$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"Anyone Can Access (0):");
+			$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"Help Whoami Whois");
+			$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"Pvt Command: ".$this->data['settings']['pvtcom'].$this->data['settings']['signal'].", Channel Command: ".$this->data['settings']['chancom'].$this->data['settings']['signal']);
+		}
+		$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"End of ".$this->data['settings']['botname']." help system");
 	}
 	
 	private function _core_parse_data($id,$data) {
