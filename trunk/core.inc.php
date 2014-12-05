@@ -143,7 +143,7 @@ class ChewyBot {
 								foreach ($this->sdata['cons'] as $t1 => $t2) {
 									if ($t2['enabled'] == 'enabled') {
 										$this->sdata['cons'][$t2['id']]['lastcmd'] = 'EXIT';
-										$this->_core_sts($id,$quitmsg);
+										$this->_core_sts($t2['id'],$quitmsg);
 									}
 								}
 							} else {
@@ -156,7 +156,7 @@ class ChewyBot {
 								foreach ($this->sdata['cons'] as $t1 => $t2) {
 									if ($t2['enabled'] == 'enabled') {
 										$this->sdata['cons'][$t2['id']]['lastcmd'] = 'RELOAD';
-										$this->_core_sts($id,"QUIT Ch3wyB0t Version ".$CORE['info']['version']." Reloading");
+										$this->_core_sts($t2['id'],"QUIT Ch3wyB0t Version ".$CORE['info']['version']." Reloading");
 									}
 								}
 							} else {
@@ -169,7 +169,7 @@ class ChewyBot {
 								if (count($indata) >= 6) {
 									$tmpoutput = $this->_core_array_join($rawdata,5," ");
 									$this->_core_sts($id,$tmpoutput);
-									$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"Sent ".$tmpoutput." to Server");
+									$this->_core_buildmsg($id,'RAW',$user,$chan,'PRIV',"Sent ".$tmpoutput." to Server");
 								} else {
 									$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You didn't enter what you want to send to the bot");
 								}
@@ -1730,7 +1730,7 @@ class ChewyBot {
 			$processhelp = false;
 		}
 		if ($processhelp == true) {
-			switch(strtoupper($hcmds[0]) {
+			switch(strtoupper($hcmds[0])) {
 /*
 		if (hcmds[0].upper() == 'EXIT'):
 			if (loggedgetaccess(sock,user,chan,'GLOBAL') >= 6):
@@ -2057,23 +2057,23 @@ class ChewyBot {
 */	
 				case 'HELP': {
 					$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(HELP)- This Command Displays The Help System and Certain Command information");
-					$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(HELP)- Command Structure: ".$this->data['settings']['pvtcom'].$this->data['settings']['signal']." help <channel> <topic>")
-					#$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(HELP)- Command Structure: ".$this->data['settings']['dcccom'].$this->data['settings']['signal']." help <channel> <topic>")
-					$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(HELP)- Command Structure: ".$this->data['settings']['chancom'].$this->data['settings']['signal']." help <topic>")
+					$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(HELP)- Command Structure: ".$this->data['settings']['pvtcom'].$this->data['settings']['signal']." help <channel> <topic>");
+					#$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(HELP)- Command Structure: ".$this->data['settings']['dcccom'].$this->data['settings']['signal']." help <channel> <topic>");
+					$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(HELP)- Command Structure: ".$this->data['settings']['chancom'].$this->data['settings']['signal']." help <topic>");
 					break;
 				}
 				case 'WHOIS': {
 					$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(WHOIS)- This Command will send you a whois on the <nick> you choose");
-					$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(WHOIS)- Command Structure: ".$this->data['settings']['pvtcom'].$this->data['settings']['signal']." whois <channel> <nick>")
-					#$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(WHOIS)- Command Structure: ".$this->data['settings']['dcccom'].$this->data['settings']['signal']." whois <channel> <nick>")
-					$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(WHOIS)- Command Structure: ".$this->data['settings']['chancom'].$this->data['settings']['signal']." whois <nick>")
+					$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(WHOIS)- Command Structure: ".$this->data['settings']['pvtcom'].$this->data['settings']['signal']." whois <channel> <nick>");
+					#$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(WHOIS)- Command Structure: ".$this->data['settings']['dcccom'].$this->data['settings']['signal']." whois <channel> <nick>");
+					$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(WHOIS)- Command Structure: ".$this->data['settings']['chancom'].$this->data['settings']['signal']." whois <nick>");
 					break;
 				}
 				case 'WHOAMI': {
 					$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(WHOAMI)- This Command will send you a whois on your current logged in user account");
-					$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(WHOAMI)- Command Structure: ".$this->data['settings']['pvtcom'].$this->data['settings']['signal']." whoami <channel>")
-					#$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(WHOAMI)- Command Structure: ".$this->data['settings']['dcccom'].$this->data['settings']['signal']." whoami <channel>")
-					$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(WHOAMI)- Command Structure: ".$this->data['settings']['chancom'].$this->data['settings']['signal']." whoami")
+					$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(WHOAMI)- Command Structure: ".$this->data['settings']['pvtcom'].$this->data['settings']['signal']." whoami <channel>");
+					#$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(WHOAMI)- Command Structure: ".$this->data['settings']['dcccom'].$this->data['settings']['signal']." whoami <channel>");
+					$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(WHOAMI)- Command Structure: ".$this->data['settings']['chancom'].$this->data['settings']['signal']." whoami");
 					break;
 				}
 				default: {
@@ -4158,7 +4158,7 @@ def chanmodes(sock,chan):
 			}
 			//$this->_sprint("before sleep",'debug',false);
 			if ($numsocks == $numdisabled) { break; }
-			sleep(0.5);
+			sleep(1); //0.5
 			//$this->_sprint("after sleep",'debug',false);
 		}
 	}
