@@ -1977,84 +1977,121 @@ class ChewyBot {
 				buildmsg(sock,'HELP',user,chan,'PRIV',"-(MDEVOICE)- Command Structure: {0}{1} MDeVoice".format(settings['chancom'],settings['signal']))
 			else:
 				buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESSHELP')
-		elif (hcmds[0].upper() == 'DEVOICE'):
-			if (loggedgetaccess(sock,user,chan,'CHANNEL') >= 2):
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(DEVOICE)- This Command will de-voice the <nicks> you pick on <channel>")
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(DEVOICE)- Command Structure: {0}{1} DeVoice <channel> <nick> [<nick> [<nick>]]".format(settings['pvtcom'],settings['signal']))
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(DEVOICE)- Command Structure: {0}{1} DeVoice <nick> [<nick> [<nick>]]".format(settings['chancom'],settings['signal']))
-			else:
-				buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESSHELP')
-		elif (hcmds[0].upper() == 'VOICEME'):
-			if (loggedgetaccess(sock,user,chan,'CHANNEL') >= 1):
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(VOICEME)- This Command will voice yourself on <channel>")
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(VOICEME)- Command Structure: {0}{1} VoiceMe <channel>".format(settings['pvtcom'],settings['signal']))
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(VOICEME)- Command Structure: {0}{1} VoiceMe".format(settings['chancom'],settings['signal']))
-			else:
-				buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESSHELP')
-		elif (hcmds[0].upper() == 'DEVOICEME'):
-			if (loggedgetaccess(sock,user,chan,'CHANNEL') >= 1):
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(DEVOICEME)- This Command will de-voice yourself on <channel>")
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(DEVOICEME)- Command Structure: {0}{1} DeVoiceMe <channel>".format(settings['pvtcom'],settings['signal']))
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(DEVOICEME)- Command Structure: {0}{1} DeVoiceMe".format(settings['chancom'],settings['signal']))
-			else:
-				buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESSHELP')
-		elif (hcmds[0].upper() == 'SAY'):
-			if (loggedgetaccess(sock,user,chan,'CHANNEL') >= 1):
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(SAY)- This command will cause the bot to say a message on a channel")
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(SAY)- Command Structure: {0}{1} say <channel> <message>".format(settings['pvtcom'],settings['signal']))
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(SAY)- Command Structure: {0}{1} say <message>".format(settings['chancom'],settings['signal']))
-			else:
-				buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESSHELP')		
-		elif (hcmds[0].upper() == 'ACT'):
-			if (loggedgetaccess(sock,user,chan,'CHANNEL') >= 1):
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(ACT)- This command will cause the bot to do a action on a channel")
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(ACT)- Command Structure: {0}{1} act <channel> <action>".format(settings['pvtcom'],settings['signal']))
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(ACT)- Command Structure: {0}{1} act <action>".format(settings['chancom'],settings['signal']))
-			else:
-				buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESSHELP')
-		elif (hcmds[0].upper() == 'ACCOUNT'):
-			if (islogged(sock,user) == 'TRUE'):
-				if (len(hcmds) >= 2):
-					if (hcmds[1].upper() == 'CHGPASS'):
-						buildmsg(sock,'HELP',user,chan,'PRIV',"-(ACCOUNT)-(CHGPASS)- This Command will allow you to change your password")
-						buildmsg(sock,'HELP',user,chan,'PRIV',"-(ACCOUNT)-(CHGPASS)- Command Structure: {0}{1} account chgpass <old pass> <new pass>".format(settings['pvtcom'],settings['signal']))
-					elif (hcmds[1].upper() == 'MSGTYPE'):
-						buildmsg(sock,'HELP',user,chan,'PRIV',"-(ACCOUNT)-(MSGTYPE)- This Command will allow you to change your Message Type")
-						buildmsg(sock,'HELP',user,chan,'PRIV',"-(ACCOUNT)-(MSGTYPE)- Command Structure: {0}{1} account msgtype <notice/msg>".format(settings['pvtcom'],settings['signal']))
-					else:
-						buildmsg(sock,'ERROR',user,chan,'PRIV',"-(ACCOUNT)- The help topic account {0} is not in the database".format(hcmds[1]))
-				else:
-					buildmsg(sock,'HELP',user,chan,'PRIV',"-(ACCOUNT)- This Command will allow the user to do some modifications to their account")
-					buildmsg(sock,'HELP',user,chan,'PRIV',"-(ACCOUNT)- Command Structure: {0}{1} account <chgpass/msgtype>".format(settings['pvtcom'],settings['signal']))
-					buildmsg(sock,'HELP',user,chan,'PRIV',"-(ACCOUNT)- Topics available: chgpass msgtype")
-			else:
-				buildmsg(sock,'ERROR',user,chan,'PRIV','NOTLOGGED')
-		elif (hcmds[0].upper() == 'LOGOUT'):
-			if (islogged(sock,user) == 'TRUE'):
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(LOGOUT)- This Command will logout from the bot, this is the only command that works with users that is allowed in channel")
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(LOGOUT)- Command Structure: {0}{1} logout".format(settings['pvtcom'],settings['signal']))
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(LOGOUT)- Command Structure: {0}{1} logout".format(settings['pvtcom'],settings['signal']))
-			else:
-				buildmsg(sock,'ERROR',user,chan,'PRIV','NOTLOGGED')
-		elif (hcmds[0].upper() == 'LOGIN'):
-			if (islogged(sock,user) == 'FALSE'):
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(LOGIN)- This Command will login to the bot, should the username and password be right")
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(LOGIN)- Command Structure: {0}{1} login <username> <password>".format(settings['pvtcom'],settings['signal']))
-			else:
-				buildmsg(sock,'ERROR',user,chan,'PRIV','LOGGED')
-		elif (hcmds[0].upper() == 'REGISTER'):
-			if (islogged(sock,user) == 'FALSE'):
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(REGISTER)- This Command will register a user to the bot if that username doesn't already exists")
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(REGISTER)- Command Structure: {0}{1} register <username> <password>".format(settings['pvtcom'],settings['signal']))
-			else:
-				buildmsg(sock,'ERROR',user,chan,'PRIV','LOGGED')		
-		elif (hcmds[0].upper() == 'HELP'):
-			buildmsg(sock,'HELP',user,chan,'PRIV',"-(HELP)- This Command Displays The Help System and Certain Command information")
-			buildmsg(sock,'HELP',user,chan,'PRIV',"-(HELP)- Command Structure: {0}{1} help <channel> <topic>".format(settings['pvtcom'],settings['signal']))
-			#buildmsg(sock,'HELP',user,chan,'PRIV',"-(HELP)- Command Structure: {0}{1} help <channel> <topic>".format(settings['dcccom'],settings['signal']))
-			buildmsg(sock,'HELP',user,chan,'PRIV',"-(HELP)- Command Structure: {0}{1} help <topic>".format(settings['chancom'],settings['signal']))
-
 */	
+				
+				case 'DEVOICE': {
+					if ($this->_core_get_access_logged($id,$user,$chan,'CHANNEL') >= 2) {
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(DEVOICE)- This command will de-voice the <nicks> you pick on <channel>");
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(DEVOICE)- Command Structure: ".$this->data['settings']['pvtcom'].$this->data['settings']['signal']." DeVoice <channel> <nick> [<nick> [<nick>]]");
+						#$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(DEVOICE)- Command Structure: ".$this->data['settings']['dcccom'].$this->data['settings']['signal']." DeVoice <channel> <nick> [<nick> [<nick>]]");
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(DEVOICE)- Command Structure: ".$this->data['settings']['chancom'].$this->data['settings']['signal']." DeVoice <nick> [<nick> [<nick>]]");
+					} else {
+						$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESSHELP');
+					}
+					break;
+				}
+				case 'VOICEME': {
+					if ($this->_core_get_access_logged($id,$user,$chan,'CHANNEL') >= 1) {
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(VOICEME)- This command will voice yourself on <channel>");
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(VOICEME)- Command Structure: ".$this->data['settings']['pvtcom'].$this->data['settings']['signal']." VoiceMe <channel>");
+						#$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(VOICEME)- Command Structure: ".$this->data['settings']['dcccom'].$this->data['settings']['signal']." VoiceMe <channel>");
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(VOICEME)- Command Structure: ".$this->data['settings']['chancom'].$this->data['settings']['signal']." VoiceMe");
+					} else {
+						$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESSHELP');
+					}
+					break;
+				}
+				case 'DEVOICEME': {
+					if ($this->_core_get_access_logged($id,$user,$chan,'CHANNEL') >= 1) {
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(DEVOICEME)- This command will de-voice yourself on <channel>");
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(DEVOICEME)- Command Structure: ".$this->data['settings']['pvtcom'].$this->data['settings']['signal']." DeVoiceMe <channel>");
+						#$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(DEVOICEME)- Command Structure: ".$this->data['settings']['dcccom'].$this->data['settings']['signal']." DeVoiceMe <channel>");
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(DEVOICEME)- Command Structure: ".$this->data['settings']['chancom'].$this->data['settings']['signal']." DeVoiceMe");
+					} else {
+						$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESSHELP');
+					}
+					break;
+				}
+				case 'SAY': {
+					if ($this->_core_get_access_logged($id,$user,$chan,'CHANNEL') >= 1) {
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(SAY)- This command will cause the bot to say a message on a channel");
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(SAY)- Command Structure: ".$this->data['settings']['pvtcom'].$this->data['settings']['signal']." say <channel> <message>");
+						#$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(SAY)- Command Structure: ".$this->data['settings']['dcccom'].$this->data['settings']['signal']." say <channel> <message>");
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(SAY)- Command Structure: ".$this->data['settings']['chancom'].$this->data['settings']['signal']." say <message>");
+					} else {
+						$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESSHELP');
+					}
+					break;
+				}
+				case 'ACT': {
+					if ($this->_core_get_access_logged($id,$user,$chan,'CHANNEL') >= 1) {
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(ACT)- This command will cause the bot to do a action on a channel");
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(ACT)- Command Structure: ".$this->data['settings']['pvtcom'].$this->data['settings']['signal']." act <channel> <action>");
+						#$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(ACT)- Command Structure: ".$this->data['settings']['dcccom'].$this->data['settings']['signal']." act <channel> <action>");
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(ACT)- Command Structure: ".$this->data['settings']['chancom'].$this->data['settings']['signal']." act <action>");
+					} else {
+						$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESSHELP');
+					}
+					break;
+				}
+				case 'ACCOUNT': {
+					if ($this->_core_islogged($id,$user) == true) {
+						if (count($hcmds) >= 2) {
+							switch (strtoupper($hcmds[1])) {
+								case 'CHGPASS': {
+									$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(ACCOUNT)-(CHGPASS)- This Command will allow you to change your password");
+									$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(ACCOUNT)-(CHGPASS)- Command Structure: ".$this->data['settings']['pvtcom'].$this->data['settings']['signal']." account chgpass <old pass> <new pass>");
+									break;
+								} 
+								case 'MSGTYPE': {
+									$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(ACCOUNT)-(MSGTYPE)- This Command will allow you to change your Message Type");
+									$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(ACCOUNT)-(MSGTYPE)- Command Structure: ".$this->data['settings']['pvtcom'].$this->data['settings']['signal']." account msgtype <notice/msg>");
+									break;
+								}
+								default: {
+									$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(ACCOUNT)- The help topic account ".$hcmds[1]." is not in the database");
+									break;
+								}
+							}
+						} else {
+							$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(ACCOUNT)- This Command will allow the user to do some modificatios to their account");
+							$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(ACCOUNT)- Command Structure: ".$this->data['settings']['pvtcom'].$this->data['settings']['signal']." account <chgpass/msgtype>");
+							$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(ACCOUNT)- Topics available: chgpass msgtype");
+						}
+					} else {
+						$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOTLOGGED');
+					}
+					break;
+				}
+				case 'LOGOUT': {
+					if ($this->_core_islogged($id,$user) == true) {
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(LOGOUT)- This Command will logout from the bot, this is the only command that works with users that is allowed in channel");
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(LOGOUT)- Command Structure: ".$this->data['settings']['pvtcom'].$this->data['settings']['signal']." logout");
+						//$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(LOGOUT)- Command Structure: ".$this->data['settings']['dcccom'].$this->data['settings']['signal']." logout");
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(LOGOUT)- Command Structure: ".$this->data['settings']['chancom'].$this->data['settings']['signal']." logout");
+					} else {
+						$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOTLOGGED');
+					}
+					break;
+				}
+				case 'LOGIN': {
+					if ($this->_core_islogged($id,$user) == false) {
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(LOGIN)- This Command will login to the bot, should the username and password be right");
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(LOGIN)- Command Structure: ".$this->data['settings']['pvtcom'].$this->data['settings']['signal']." login <username> <password>");
+					} else {
+						$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','LOGGED');
+					}
+					break;
+				}
+				case 'REGISTER': {
+					if ($this->_core_islogged($id,$user) == false) {
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(REGISTER)- This Command will register a user tot he bot if that username doesn't already exists");
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(REGISTER)- Command Structure: ".$this->data['settings']['pvtcom'].$this->data['settings']['signal']." register <username> <password>");
+					} else {
+						$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','LOGGED');
+					}
+					break;
+				}
 				case 'HELP': {
 					$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(HELP)- This Command Displays The Help System and Certain Command information");
 					$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(HELP)- Command Structure: ".$this->data['settings']['pvtcom'].$this->data['settings']['signal']." help <channel> <topic>");
