@@ -1731,254 +1731,400 @@ class ChewyBot {
 		}
 		if ($processhelp == true) {
 			switch(strtoupper($hcmds[0])) {
-/*
-		if (hcmds[0].upper() == 'EXIT'):
-			if (loggedgetaccess(sock,user,chan,'GLOBAL') >= 6):
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(EXIT)- This Command will cause the bot to exit completely")
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(EXIT)- Command Structure: {0}{1} exit <message>".format(settings['pvtcom'],settings['signal']))
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(EXIT)- Command Structure: {0}{1} exit <message>".format(settings['chancom'],settings['signal']))
-			else:
-				buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESSHELP')
-		elif (hcmds[0].upper() == 'RAW'):
-			if (loggedgetaccess(sock,user,chan,'GLOBAL') >= 7):
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(RAW)- This Command is super dangerous as it will send whatever is entered into it")
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(RAW)- Command Structure: {0}{1} raw <data to send>".format(settings['pvtcom'],settings['signal']))
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(RAW)- Command Structure: {0}{1} raw <data to send>".format(settings['chancom'],settings['signal']))
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(RAW)- It is highly recommend you DO NOT use this command")
-			else:
-				buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESSHELP')
-		elif (hcmds[0].upper() == 'RAWDB'):
-			if (loggedgetaccess(sock,user,chan,'GLOBAL') >= 7):
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(RAWDB)- This Command is super dangerous as it will send whatever is entered into it")
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(RAWDB)- Command Structure: {0}{1} rawdb <data to send>".format(settings['pvtcom'],settings['signal']))
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(RAWDB)- Command Structure: {0}{1} rawdb <data to send>".format(settings['chancom'],settings['signal']))
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(RAWDB)- It is highly recommend you DO NOT use this command")
-			else:
-				buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESSHELP')				
-		elif (hcmds[0].upper() == 'QUIT'):
-			if (loggedgetaccess(sock,user,chan,'SERVER') >= 6):
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(QUIT)- This Command will cause the bot to quit from the current network")
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(QUIT)- Command Structure: {0}{1} quit <message>".format(settings['pvtcom'],settings['signal']))
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(QUIT)- Command Structure: {0}{1} quit <message>".format(settings['chancom'],settings['signal']))
-			else:
-				buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESSHELP')
-		elif (hcmds[0].upper() == 'REHASH'):
-			if (loggedgetaccess(sock,user,chan,'GLOBAL') >= 6):
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(REHASH)- This Command will cause the bot to reload from the database")
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(REHASH)- Command Structure: {0}{1} rehash".format(settings['pvtcom'],settings['signal']))
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(REHASH)- Command Structure: {0}{1} rehash".format(settings['chancom'],settings['signal']))
-			else:
-				buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESSHELP')
-		elif (hcmds[0].upper() == 'SETTINGS'):
-			if (loggedgetaccess(sock,user,chan,'GLOBAL') >= 6):
-				if (len(hcmds) >= 2):
-					if (hcmds[1].upper() == 'LIST'):
-						buildmsg(sock,'HELP',user,chan,'PRIV',"-(SETTINGS)-(LIST)- This Command will list the values that are currently in the bots settings")
-						buildmsg(sock,'HELP',user,chan,'PRIV',"-(SETTINGS)-(LIST)- Command Structure: {0}{1} settings list".format(settings['pvtcom'],settings['signal']))
-					elif (hcmds[1].upper() == 'SET'):
-						buildmsg(sock,'HELP',user,chan,'PRIV',"-(SETTINGS)-(SET)- This Command will set the value you pick and update both local and the db")
-						buildmsg(sock,'HELP',user,chan,'PRIV',"-(SETTINGS)-(SET)- Command Structure: {0}{1} settings set <setting> <value>".format(settings['pvtcom'],settings['signal']))
-					else:
-						buildmsg(sock,'ERROR',user,chan,'PRIV',"-(SETTINGS)- The help topic account {0} is not in the database".format(hcmds[1]))
-				else:
-					buildmsg(sock,'HELP',user,chan,'PRIV',"-(SETTINGS)- This Command deals with the bots settings")
-					buildmsg(sock,'HELP',user,chan,'PRIV',"-(SETTINGS)- Command Structure: {0}{1} settings [<list>][<set> <setting> <value>]".format(settings['pvtcom'],settings['signal']))
-					buildmsg(sock,'HELP',user,chan,'PRIV',"-(SETTINGS)- Topics available: list set")
-			else:
-				buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESSHELP')
-
-		#loggedgetaccess(sock,user,chan,type)
-		elif (hcmds[0].upper() == 'MOWNER'):
-			if (loggedgetaccess(sock,user,chan,'CHANNEL') >= 5):
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(MOWNER)- This Command will Owner everyone in <channel>")
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(MOWNER)- Command Structure: {0}{1} MOwner <channel>".format(settings['pvtcom'],settings['signal']))
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(MOWNER)- Command Structure: {0}{1} MOwner".format(settings['chancom'],settings['signal']))
-			else:
-				buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESSHELP')
-		elif (hcmds[0].upper() == 'OWNER'):
-			if (loggedgetaccess(sock,user,chan,'CHANNEL') >= 5):
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(OWNER)- This Command will Owner the <nicks> you pick on <channel>")
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(OWNER)- Command Structure: {0}{1} Owner <channel> <nick> [<nick> [<nick>]]".format(settings['pvtcom'],settings['signal']))
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(OWNER)- Command Structure: {0}{1} Owner <nick> [<nick> [<nick>]]".format(settings['chancom'],settings['signal']))
-			else:
-				buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESSHELP')
-		elif (hcmds[0].upper() == 'MDEOWNER'):
-			if (loggedgetaccess(sock,user,chan,'CHANNEL') >= 5):
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(MDEOWNER)- This Command will DeOwner everyone in <channel> but the bot and you")
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(MDEOWNER)- Command Structure: {0}{1} MDeOwner <channel>".format(settings['pvtcom'],settings['signal']))
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(MDEOWNER)- Command Structure: {0}{1} MDeOwner".format(settings['chancom'],settings['signal']))
-			else:
-				buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESSHELP')
-		elif (hcmds[0].upper() == 'DEOWNER'):
-			if (loggedgetaccess(sock,user,chan,'CHANNEL') >= 5):
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(DEOWNER)- This Command will de-Owner the <nicks> you pick on <channel>")
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(DEOWNER)- Command Structure: {0}{1} DeOwner <channel> <nick> [<nick> [<nick>]]".format(settings['pvtcom'],settings['signal']))
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(DEOWNER)- Command Structure: {0}{1} DeOwner <nick> [<nick> [<nick>]]".format(settings['chancom'],settings['signal']))
-			else:
-				buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESSHELP')
-		elif (hcmds[0].upper() == 'OWNERME'):
-			if (loggedgetaccess(sock,user,chan,'CHANNEL') >= 5):
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(OWNERME)- This Command will Owner yourself on <channel>")
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(OWNERME)- Command Structure: {0}{1} OwnerMe <channel>".format(settings['pvtcom'],settings['signal']))
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(OWNERME)- Command Structure: {0}{1} OwnerMe".format(settings['chancom'],settings['signal']))
-			else:
-				buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESSHELP')
-		elif (hcmds[0].upper() == 'DEOWNERME'):
-			if (loggedgetaccess(sock,user,chan,'CHANNEL') >= 5):
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(DEOWNERME)- This Command will de-Owner yourself on <channel>")
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(DEOWNERME)- Command Structure: {0}{1} DeOwnerMe <channel>".format(settings['pvtcom'],settings['signal']))
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(DEOWNERME)- Command Structure: {0}{1} DeOwnerMe".format(settings['chancom'],settings['signal']))
-			else:
-				buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESSHELP')
-		elif (hcmds[0].upper() == 'MPROTECT'):
-			if (loggedgetaccess(sock,user,chan,'CHANNEL') >= 5):
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(MPROTECT)- This Command will Protect everyone in <channel>")
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(MPROTECT)- Command Structure: {0}{1} MProtect <channel>".format(settings['pvtcom'],settings['signal']))
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(MPROTECT)- Command Structure: {0}{1} MProtect".format(settings['chancom'],settings['signal']))
-			else:
-				buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESSHELP')
-		elif (hcmds[0].upper() == 'PROTECT'):
-			if (loggedgetaccess(sock,user,chan,'CHANNEL') >= 5):
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(PROTECT)- This Command will Protect the <nicks> you pick on <channel>")
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(PROTECT)- Command Structure: {0}{1} Protect <channel> <nick> [<nick> [<nick>]]".format(settings['pvtcom'],settings['signal']))
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(PROTECT)- Command Structure: {0}{1} Protect <nick> [<nick> [<nick>]]".format(settings['chancom'],settings['signal']))
-			else:
-				buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESSHELP')
-		elif (hcmds[0].upper() == 'MDEPROTECT'):
-			if (loggedgetaccess(sock,user,chan,'CHANNEL') >= 5):
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(MDEPROTECT)- This Command will DeProtect everyone in <channel> but the bot and you")
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(MDEPROTECT)- Command Structure: {0}{1} MDeProtect <channel>".format(settings['pvtcom'],settings['signal']))
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(MDEPROTECT)- Command Structure: {0}{1} MDeProtect".format(settings['chancom'],settings['signal']))
-			else:
-				buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESSHELP')
-		elif (hcmds[0].upper() == 'DEPROTECT'):
-			if (loggedgetaccess(sock,user,chan,'CHANNEL') >= 5):
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(DEPROTECT)- This Command will de-Protect the <nicks> you pick on <channel>")
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(DEPROTECT)- Command Structure: {0}{1} DeProtect <channel> <nick> [<nick> [<nick>]]".format(settings['pvtcom'],settings['signal']))
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(DEPROTECT)- Command Structure: {0}{1} DeProtect <nick> [<nick> [<nick>]]".format(settings['chancom'],settings['signal']))
-			else:
-				buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESSHELP')
-		elif (hcmds[0].upper() == 'PROTECTME'):
-			if (loggedgetaccess(sock,user,chan,'CHANNEL') >= 4):
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(PROTECTME)- This Command will Protect yourself on <channel>")
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(PROTECTME)- Command Structure: {0}{1} ProtectMe <channel>".format(settings['pvtcom'],settings['signal']))
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(PROTECTME)- Command Structure: {0}{1} ProtectMe".format(settings['chancom'],settings['signal']))
-			else:
-				buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESSHELP')
-		elif (hcmds[0].upper() == 'DEPROTECTME'):
-			if (loggedgetaccess(sock,user,chan,'CHANNEL') >= 4):
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(DEPROTECTME)- This Command will de-Protect yourself on <channel>")
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(DEPROTECTME)- Command Structure: {0}{1} DeProtectMe <channel>".format(settings['pvtcom'],settings['signal']))
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(DEPROTECTME)- Command Structure: {0}{1} DeProtectMe".format(settings['chancom'],settings['signal']))
-			else:
-				buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESSHELP')
-		elif (hcmds[0].upper() == 'MOP'):
-			if (loggedgetaccess(sock,user,chan,'CHANNEL') >= 3):
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(MOP)- This Command will Op everyone in <channel>")
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(MOP)- Command Structure: {0}{1} MOp <channel>".format(settings['pvtcom'],settings['signal']))
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(MOP)- Command Structure: {0}{1} MOp".format(settings['chancom'],settings['signal']))
-			else:
-				buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESSHELP')
-		elif (hcmds[0].upper() == 'OP'):
-			if (loggedgetaccess(sock,user,chan,'CHANNEL') >= 3):
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(OP)- This Command will Op the <nicks> you pick on <channel>")
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(OP)- Command Structure: {0}{1} Op <channel> <nick> [<nick> [<nick>]]".format(settings['pvtcom'],settings['signal']))
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(OP)- Command Structure: {0}{1} Op <nick> [<nick> [<nick>]]".format(settings['chancom'],settings['signal']))
-			else:
-				buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESSHELP')
-		elif (hcmds[0].upper() == 'MDEOP'):
-			if (loggedgetaccess(sock,user,chan,'CHANNEL') >= 3):
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(MDEOP)- This Command will DeOp everyone in <channel> but the bot and you")
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(MDEOP)- Command Structure: {0}{1} MDeOp <channel>".format(settings['pvtcom'],settings['signal']))
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(MDEOP)- Command Structure: {0}{1} MDeOp".format(settings['chancom'],settings['signal']))
-			else:
-				buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESSHELP')
-		elif (hcmds[0].upper() == 'DEOP'):
-			if (loggedgetaccess(sock,user,chan,'CHANNEL') >= 3):
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(DEOP)- This Command will de-Op the <nicks> you pick on <channel>")
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(DEOP)- Command Structure: {0}{1} DeOp <channel> <nick> [<nick> [<nick>]]".format(settings['pvtcom'],settings['signal']))
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(DEOP)- Command Structure: {0}{1} DeOp <nick> [<nick> [<nick>]]".format(settings['chancom'],settings['signal']))
-			else:
-				buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESSHELP')
-		elif (hcmds[0].upper() == 'OPME'):
-			if (loggedgetaccess(sock,user,chan,'CHANNEL') >= 3):
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(OPME)- This Command will Op yourself on <channel>")
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(OPME)- Command Structure: {0}{1} OpMe <channel>".format(settings['pvtcom'],settings['signal']))
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(OPME)- Command Structure: {0}{1} OpMe".format(settings['chancom'],settings['signal']))
-			else:
-				buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESSHELP')
-		elif (hcmds[0].upper() == 'DEOPME'):
-			if (loggedgetaccess(sock,user,chan,'CHANNEL') >= 3):
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(DEOPME)- This Command will de-Op yourself on <channel>")
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(DEOPME)- Command Structure: {0}{1} DeOpMe <channel>".format(settings['pvtcom'],settings['signal']))
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(DEOPME)- Command Structure: {0}{1} DeOpMe".format(settings['chancom'],settings['signal']))
-			else:
-				buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESSHELP')
-		elif (hcmds[0].upper() == 'MHALFOP'):
-			if (loggedgetaccess(sock,user,chan,'CHANNEL') >= 3):
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(MHALFOP)- This Command will HalfOp everyone in <channel>")
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(MHALFOP)- Command Structure: {0}{1} MHalfOp <channel>".format(settings['pvtcom'],settings['signal']))
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(MHALFOP)- Command Structure: {0}{1} MHalfOp".format(settings['chancom'],settings['signal']))
-			else:
-				buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESSHELP')
-		elif (hcmds[0].upper() == 'HALFOP'):
-			if (loggedgetaccess(sock,user,chan,'CHANNEL') >= 3):
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(HALFOP)- This Command will HalfOp the <nicks> you pick on <channel>")
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(HALFOP)- Command Structure: {0}{1} HalfOp <channel> <nick> [<nick> [<nick>]]".format(settings['pvtcom'],settings['signal']))
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(HALFOP)- Command Structure: {0}{1} HalfOp <nick> [<nick> [<nick>]]".format(settings['chancom'],settings['signal']))
-			else:
-				buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESSHELP')
-		elif (hcmds[0].upper() == 'MDEHALFOP'):
-			if (loggedgetaccess(sock,user,chan,'CHANNEL') >= 3):
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(MDEHALFOP)- This Command will DeHalfOp everyone in <channel> but the bot and you")
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(MDEHALFOP)- Command Structure: {0}{1} MDeHalfOp <channel>".format(settings['pvtcom'],settings['signal']))
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(MDEHALFOP)- Command Structure: {0}{1} MDeHalfOp".format(settings['chancom'],settings['signal']))
-			else:
-				buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESSHELP')
-		elif (hcmds[0].upper() == 'DEHALFOP'):
-			if (loggedgetaccess(sock,user,chan,'CHANNEL') >= 3):
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(DEHALFOP)- This Command will de-HalfOp the <nicks> you pick on <channel>")
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(DEHALFOP)- Command Structure: {0}{1} DeHalfOp <channel> <nick> [<nick> [<nick>]]".format(settings['pvtcom'],settings['signal']))
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(DEHALFOP)- Command Structure: {0}{1} DeHalfOp <nick> [<nick> [<nick>]]".format(settings['chancom'],settings['signal']))
-			else:
-				buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESSHELP')
-		elif (hcmds[0].upper() == 'HALFOPME'):
-			if (loggedgetaccess(sock,user,chan,'CHANNEL') >= 2):
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(HALFOPME)- This Command will HalfOp yourself on <channel>")
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(HALFOPME)- Command Structure: {0}{1} HalfOpMe <channel>".format(settings['pvtcom'],settings['signal']))
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(HALFOPME)- Command Structure: {0}{1} HalfOpMe".format(settings['chancom'],settings['signal']))
-			else:
-				buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESSHELP')
-		elif (hcmds[0].upper() == 'DEHALFOPME'):
-			if (loggedgetaccess(sock,user,chan,'CHANNEL') >= 2):
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(DEHALFOPME)- This Command will de-HalfOp yourself on <channel>")
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(DEHALFOPME)- Command Structure: {0}{1} DeHalfOpMe <channel>".format(settings['pvtcom'],settings['signal']))
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(DEHALFOPME)- Command Structure: {0}{1} DeHalfOpMe".format(settings['chancom'],settings['signal']))
-			else:
-				buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESSHELP')
-		elif (hcmds[0].upper() == 'MVOICE'):
-			if (loggedgetaccess(sock,user,chan,'CHANNEL') >= 2):
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(MVOICE)- This Command will Voice everyone in <channel>")
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(MVOICE)- Command Structure: {0}{1} MVoice <channel>".format(settings['pvtcom'],settings['signal']))
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(MVOICE)- Command Structure: {0}{1} MVoice".format(settings['chancom'],settings['signal']))
-			else:
-				buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESSHELP')
-		elif (hcmds[0].upper() == 'VOICE'):
-			if (loggedgetaccess(sock,user,chan,'CHANNEL') >= 2):
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(VOICE)- This Command will voice the <nicks> you pick on <channel>")
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(VOICE)- Command Structure: {0}{1} Voice <channel> <nick> [<nick> [<nick>]]".format(settings['pvtcom'],settings['signal']))
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(VOICE)- Command Structure: {0}{1} Voice <nick> [<nick> [<nick>]]".format(settings['chancom'],settings['signal']))
-			else:
-				buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESSHELP')
-		elif (hcmds[0].upper() == 'MDEVOICE'):
-			if (loggedgetaccess(sock,user,chan,'CHANNEL') >= 2):
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(MDEVOICE)- This Command will DeVoice everyone in <channel> but the bot and you")
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(MDEVOICE)- Command Structure: {0}{1} MDeVoice <channel>".format(settings['pvtcom'],settings['signal']))
-				buildmsg(sock,'HELP',user,chan,'PRIV',"-(MDEVOICE)- Command Structure: {0}{1} MDeVoice".format(settings['chancom'],settings['signal']))
-			else:
-				buildmsg(sock,'ERROR',user,chan,'PRIV','NOACCESSHELP')
-*/	
-				
+				case 'RAW': {
+					if ($this->_core_get_access_logged($id,$user,$chan,'GLOBAL') >= 7) {
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(RAW)- This Command is super dangerous as it will whatever is entered into it to the server");
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(RAW)- Command Structure: ".$this->data['settings']['pvtcom'].$this->data['settings']['signal']." raw <data to send>");
+						#$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(RAW)- Command Structure: ".$this->data['settings']['dcccom'].$this->data['settings']['signal']." raw <data to send>");
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(RAW)- Command Structure: ".$this->data['settings']['chancom'].$this->data['settings']['signal']." raw <data to send>");
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(RAW)- \x034It is highly recommended you DO NOT use this command\x03");
+					} else {
+						$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESSHELP');
+					}
+					break;
+				}
+				case 'RAWDB': {
+					if ($this->_core_get_access_logged($id,$user,$chan,'GLOBAL') >= 7) {
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(RAWDB)- This Command is super dangerous as it will whatever is entered into it to the database");
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(RAWDB)- Command Structure: ".$this->data['settings']['pvtcom'].$this->data['settings']['signal']." rawdb <data to send>");
+						#$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(RAWDB)- Command Structure: ".$this->data['settings']['dcccom'].$this->data['settings']['signal']." rawdb <data to send>");
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(RAWDB)- Command Structure: ".$this->data['settings']['chancom'].$this->data['settings']['signal']." rawdb <data to send>");
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(RAWDB)- \x034It is highly recommended you DO NOT use this command\x03");
+					} else {
+						$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESSHELP');
+					}
+					break;
+				}
+				case 'EXIT': {
+					if ($this->_core_get_access_logged($id,$user,$chan,'GLOBAL') >= 6) {
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(EXIT)- This command will cause the bot to exit completely");
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(EXIT)- Command Structure: ".$this->data['settings']['pvtcom'].$this->data['settings']['signal']." exit [<message>]");
+						#$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(EXIT)- Command Structure: ".$this->data['settings']['dcccom'].$this->data['settings']['signal']." exit [<message>]");
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(EXIT)- Command Structure: ".$this->data['settings']['chancom'].$this->data['settings']['signal']." exit [<message>]");
+					} else {
+						$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESSHELP');
+					}
+					break;
+				}
+				case 'RELOAD': {
+					if ($this->_core_get_access_logged($id,$user,$chan,'GLOBAL') >= 6) {
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(RELOAD)- This command will cause the bot to exit so it can restart fresh");
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(RELOAD)- Command Structure: ".$this->data['settings']['pvtcom'].$this->data['settings']['signal']." reload");
+						#$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(RELOAD)- Command Structure: ".$this->data['settings']['dcccom'].$this->data['settings']['signal']." reload");
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(RELOAD)- Command Structure: ".$this->data['settings']['chancom'].$this->data['settings']['signal']." reload");
+					} else {
+						$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESSHELP');
+					}
+					break;
+				}
+				case 'QUIT': {
+					if ($this->_core_get_access_logged($id,$user,$chan,'GLOBAL') >= 6) {
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(QUIT)- This command will cause the bot to quit from the current network");
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(QUIT)- Command Structure: ".$this->data['settings']['pvtcom'].$this->data['settings']['signal']." quit [<message>]");
+						#$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(QUIT)- Command Structure: ".$this->data['settings']['dcccom'].$this->data['settings']['signal']." quit [<message>]");
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(QUIT)- Command Structure: ".$this->data['settings']['chancom'].$this->data['settings']['signal']." quit [<message>]");
+					} else {
+						$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESSHELP');
+					}
+					break;
+				}
+				case 'REHASH': {
+					if ($this->_core_get_access_logged($id,$user,$chan,'GLOBAL') >= 6) {
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(REHASH)- This command will cause the bot to reload from the database");
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(REHASH)- Command Structure: ".$this->data['settings']['pvtcom'].$this->data['settings']['signal']." rehash");
+						#$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(REHASH)- Command Structure: ".$this->data['settings']['dcccom'].$this->data['settings']['signal']." rehash");
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(REHASH)- Command Structure: ".$this->data['settings']['chancom'].$this->data['settings']['signal']." rehash");
+					} else {
+						$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESSHELP');
+					}
+					break;
+				}
+				case 'SETTINGS': {
+					if ($this->_core_get_access_logged($id,$user,$chan,'GLOBAL') >= 6) {
+						if (count($hcmds) >= 2) {
+							switch (strtoupper($hcmds[1])) {
+								case 'LIST': {
+									$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(SETTINGS)-(LIST)- This Command list the values that are currently in the bots settings");
+									$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(SETTINGS)-(LIST)- Command Structure: ".$this->data['settings']['pvtcom'].$this->data['settings']['signal']." settings list");
+									break;
+								} 
+								case 'SET': {
+									$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(SETTINGS)-(SET)- This Command will set the value you pick and update both local and the db");
+									$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(SETTINGS)-(SET)- Command Structure: ".$this->data['settings']['pvtcom'].$this->data['settings']['signal']." settings set <setting> <value>");
+									break;
+								}
+								default: {
+									$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(SETTINGS)- The help topic settings ".$hcmds[1]." is not in the database");
+									break;
+								}
+							}
+						} else {
+							$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(SETTINGS)- This Command deals with the bot's settings");
+							$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(SETTINGS)- Command Structure: ".$this->data['settings']['pvtcom'].$this->data['settings']['signal']." settings [<list>][<set> <setting> <value>]");
+							$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(SETTINGS)- Topics available: list set");
+						}
+					} else {
+						$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESSHELP');
+					}
+					break;
+				}
+				case 'MOWNER': {
+					if ($this->_core_get_access_logged($id,$user,$chan,'CHANNEL') >= 5) {
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(MOWNER)- This command will Owner everyone in <channel>");
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(MOWNER)- Command Structure: ".$this->data['settings']['pvtcom'].$this->data['settings']['signal']." MOwner <channel>");
+						#$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(MOWNER)- Command Structure: ".$this->data['settings']['dcccom'].$this->data['settings']['signal']." MOwner <channel>");
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(MOWNER)- Command Structure: ".$this->data['settings']['chancom'].$this->data['settings']['signal']." MOwner");
+					} else {
+						$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESSHELP');
+					}
+					break;
+				}
+				case 'OWNER': {
+					if ($this->_core_get_access_logged($id,$user,$chan,'CHANNEL') >= 5) {
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(OWNER)- This command will Owner the <nicks> you pick on <channel>");
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(OWNER)- Command Structure: ".$this->data['settings']['pvtcom'].$this->data['settings']['signal']." Owner <channel> <nick> [<nick> [<nick>]]");
+						#$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(OWNER)- Command Structure: ".$this->data['settings']['dcccom'].$this->data['settings']['signal']." Owner <channel> <nick> [<nick> [<nick>]]");
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(OWNER)- Command Structure: ".$this->data['settings']['chancom'].$this->data['settings']['signal']." Owner <nick> [<nick> [<nick>]]");
+					} else {
+						$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESSHELP');
+					}
+					break;
+				}
+				case 'MDEOWNER': {
+					if ($this->_core_get_access_logged($id,$user,$chan,'CHANNEL') >= 5) {
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(MDEOWNER)- This command will De-Owner everyone in <channel> but the bot and you");
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(MDEOWNER)- Command Structure: ".$this->data['settings']['pvtcom'].$this->data['settings']['signal']." MDeOwner <channel>");
+						#$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(MDEOWNER)- Command Structure: ".$this->data['settings']['dcccom'].$this->data['settings']['signal']." MDeOwner <channel>");
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(MDEOWNER)- Command Structure: ".$this->data['settings']['chancom'].$this->data['settings']['signal']." MDeOwner");
+					} else {
+						$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESSHELP');
+					}
+					break;
+				}
+				case 'DEOWNER': {
+					if ($this->_core_get_access_logged($id,$user,$chan,'CHANNEL') >= 5) {
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(DEOWNER)- This command will De-Owner the <nicks> you pick on <channel>");
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(DEOWNER)- Command Structure: ".$this->data['settings']['pvtcom'].$this->data['settings']['signal']." DeOwner <channel> <nick> [<nick> [<nick>]]");
+						#$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(DEOWNER)- Command Structure: ".$this->data['settings']['dcccom'].$this->data['settings']['signal']." DeOwner <channel> <nick> [<nick> [<nick>]]");
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(DEOWNER)- Command Structure: ".$this->data['settings']['chancom'].$this->data['settings']['signal']." DeOwner <nick> [<nick> [<nick>]]");
+					} else {
+						$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESSHELP');
+					}
+					break;
+				}
+				case 'OWNERME': {
+					if ($this->_core_get_access_logged($id,$user,$chan,'CHANNEL') >= 5) {
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(OWNERME)- This command will Owner yourself on <channel>");
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(OWNERME)- Command Structure: ".$this->data['settings']['pvtcom'].$this->data['settings']['signal']." OwnerMe <channel>");
+						#$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(OWNERME)- Command Structure: ".$this->data['settings']['dcccom'].$this->data['settings']['signal']." OwnerMe <channel>");
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(OWNERME)- Command Structure: ".$this->data['settings']['chancom'].$this->data['settings']['signal']." OwnerMe");
+					} else {
+						$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESSHELP');
+					}
+					break;
+				}
+				case 'DEOWNERME': {
+					if ($this->_core_get_access_logged($id,$user,$chan,'CHANNEL') >= 5) {
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(DEOWNERME)- This command will de-Owner yourself on <channel>");
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(DEOWNERME)- Command Structure: ".$this->data['settings']['pvtcom'].$this->data['settings']['signal']." DeOwnerMe <channel>");
+						#$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(DEOWNERME)- Command Structure: ".$this->data['settings']['dcccom'].$this->data['settings']['signal']." DeOwnerMe <channel>");
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(DEOWNERME)- Command Structure: ".$this->data['settings']['chancom'].$this->data['settings']['signal']." DeOwnerMe");
+					} else {
+						$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESSHELP');
+					}
+					break;
+				}
+				case 'MPROTECT': {
+					if ($this->_core_get_access_logged($id,$user,$chan,'CHANNEL') >= 5) {
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(MPROTECT)- This command will Protect everyone in <channel>");
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(MPROTECT)- Command Structure: ".$this->data['settings']['pvtcom'].$this->data['settings']['signal']." MProtect <channel>");
+						#$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(MPROTECT)- Command Structure: ".$this->data['settings']['dcccom'].$this->data['settings']['signal']." MProtect <channel>");
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(MPROTECT)- Command Structure: ".$this->data['settings']['chancom'].$this->data['settings']['signal']." MProtect");
+					} else {
+						$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESSHELP');
+					}
+					break;
+				}
+				case 'PROTECT': {
+					if ($this->_core_get_access_logged($id,$user,$chan,'CHANNEL') >= 5) {
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(PROTECT)- This command will Protect the <nicks> you pick on <channel>");
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(PROTECT)- Command Structure: ".$this->data['settings']['pvtcom'].$this->data['settings']['signal']." Protect <channel> <nick> [<nick> [<nick>]]");
+						#$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(PROTECT)- Command Structure: ".$this->data['settings']['dcccom'].$this->data['settings']['signal']." Protect <channel> <nick> [<nick> [<nick>]]");
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(PROTECT)- Command Structure: ".$this->data['settings']['chancom'].$this->data['settings']['signal']." Protect <nick> [<nick> [<nick>]]");
+					} else {
+						$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESSHELP');
+					}
+					break;
+				}
+				case 'MDEPROTECT': {
+					if ($this->_core_get_access_logged($id,$user,$chan,'CHANNEL') >= 5) {
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(MDEPROTECT)- This command will De-Protect everyone in <channel> but the bot and you");
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(MDEPROTECT)- Command Structure: ".$this->data['settings']['pvtcom'].$this->data['settings']['signal']." MDeProtect <channel>");
+						#$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(MDEPROTECT)- Command Structure: ".$this->data['settings']['dcccom'].$this->data['settings']['signal']." MDeProtect <channel>");
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(MDEPROTECT)- Command Structure: ".$this->data['settings']['chancom'].$this->data['settings']['signal']." MDeProtect");
+					} else {
+						$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESSHELP');
+					}
+					break;
+				}
+				case 'DEPROTECT': {
+					if ($this->_core_get_access_logged($id,$user,$chan,'CHANNEL') >= 5) {
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(DEPROTECT)- This command will De-Protect the <nicks> you pick on <channel>");
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(DEPROTECT)- Command Structure: ".$this->data['settings']['pvtcom'].$this->data['settings']['signal']." DeProtect <channel> <nick> [<nick> [<nick>]]");
+						#$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(DEPROTECT)- Command Structure: ".$this->data['settings']['dcccom'].$this->data['settings']['signal']." DeProtect <channel> <nick> [<nick> [<nick>]]");
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(DEPROTECT)- Command Structure: ".$this->data['settings']['chancom'].$this->data['settings']['signal']." DeProtect <nick> [<nick> [<nick>]]");
+					} else {
+						$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESSHELP');
+					}
+					break;
+				}
+				case 'PROTECTME': {
+					if ($this->_core_get_access_logged($id,$user,$chan,'CHANNEL') >= 4) {
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(PROTECTME)- This command will Protect yourself on <channel>");
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(PROTECTME)- Command Structure: ".$this->data['settings']['pvtcom'].$this->data['settings']['signal']." ProtectMe <channel>");
+						#$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(PROTECTME)- Command Structure: ".$this->data['settings']['dcccom'].$this->data['settings']['signal']." ProtectMe <channel>");
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(PROTECTME)- Command Structure: ".$this->data['settings']['chancom'].$this->data['settings']['signal']." ProtectMe");
+					} else {
+						$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESSHELP');
+					}
+					break;
+				}
+				case 'DEPROTECTME': {
+					if ($this->_core_get_access_logged($id,$user,$chan,'CHANNEL') >= 4) {
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(DEPROTECTME)- This command will de-Protect yourself on <channel>");
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(DEPROTECTME)- Command Structure: ".$this->data['settings']['pvtcom'].$this->data['settings']['signal']." DeProtectMe <channel>");
+						#$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(DEPROTECTME)- Command Structure: ".$this->data['settings']['dcccom'].$this->data['settings']['signal']." DeProtectMe <channel>");
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(DEPROTECTME)- Command Structure: ".$this->data['settings']['chancom'].$this->data['settings']['signal']." DeProtectMe");
+					} else {
+						$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESSHELP');
+					}
+					break;
+				}
+				case 'MOP': {
+					if ($this->_core_get_access_logged($id,$user,$chan,'CHANNEL') >= 3) {
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(MOP)- This command will Op everyone in <channel>");
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(MOP)- Command Structure: ".$this->data['settings']['pvtcom'].$this->data['settings']['signal']." MOp <channel>");
+						#$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(MOP)- Command Structure: ".$this->data['settings']['dcccom'].$this->data['settings']['signal']." MOp <channel>");
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(MOP)- Command Structure: ".$this->data['settings']['chancom'].$this->data['settings']['signal']." MOp");
+					} else {
+						$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESSHELP');
+					}
+					break;
+				}
+				case 'OP': {
+					if ($this->_core_get_access_logged($id,$user,$chan,'CHANNEL') >= 3) {
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(OP)- This command will Op the <nicks> you pick on <channel>");
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(OP)- Command Structure: ".$this->data['settings']['pvtcom'].$this->data['settings']['signal']." Op <channel> <nick> [<nick> [<nick>]]");
+						#$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(OP)- Command Structure: ".$this->data['settings']['dcccom'].$this->data['settings']['signal']." Op <channel> <nick> [<nick> [<nick>]]");
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(OP)- Command Structure: ".$this->data['settings']['chancom'].$this->data['settings']['signal']." Op <nick> [<nick> [<nick>]]");
+					} else {
+						$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESSHELP');
+					}
+					break;
+				}
+				case 'MDEOP': {
+					if ($this->_core_get_access_logged($id,$user,$chan,'CHANNEL') >= 3) {
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(MDEOP)- This command will De-Op everyone in <channel> but the bot and you");
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(MDEOP)- Command Structure: ".$this->data['settings']['pvtcom'].$this->data['settings']['signal']." MDeOp <channel>");
+						#$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(MDEOP)- Command Structure: ".$this->data['settings']['dcccom'].$this->data['settings']['signal']." MDeOp <channel>");
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(MDEOP)- Command Structure: ".$this->data['settings']['chancom'].$this->data['settings']['signal']." MDeOp");
+					} else {
+						$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESSHELP');
+					}
+					break;
+				}
+				case 'DEOP': {
+					if ($this->_core_get_access_logged($id,$user,$chan,'CHANNEL') >= 3) {
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(DEOP)- This command will De-Op the <nicks> you pick on <channel>");
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(DEOP)- Command Structure: ".$this->data['settings']['pvtcom'].$this->data['settings']['signal']." DeOp <channel> <nick> [<nick> [<nick>]]");
+						#$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(DEOP)- Command Structure: ".$this->data['settings']['dcccom'].$this->data['settings']['signal']." DeOp <channel> <nick> [<nick> [<nick>]]");
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(DEOP)- Command Structure: ".$this->data['settings']['chancom'].$this->data['settings']['signal']." DeOp <nick> [<nick> [<nick>]]");
+					} else {
+						$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESSHELP');
+					}
+					break;
+				}
+				case 'OPME': {
+					if ($this->_core_get_access_logged($id,$user,$chan,'CHANNEL') >= 3) {
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(OPME)- This command will Op yourself on <channel>");
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(OPME)- Command Structure: ".$this->data['settings']['pvtcom'].$this->data['settings']['signal']." OpMe <channel>");
+						#$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(OPME)- Command Structure: ".$this->data['settings']['dcccom'].$this->data['settings']['signal']." OpMe <channel>");
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(OPME)- Command Structure: ".$this->data['settings']['chancom'].$this->data['settings']['signal']." OpMe");
+					} else {
+						$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESSHELP');
+					}
+					break;
+				}
+				case 'DEOPME': {
+					if ($this->_core_get_access_logged($id,$user,$chan,'CHANNEL') >= 3) {
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(DEOPME)- This command will de-Op yourself on <channel>");
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(DEOPME)- Command Structure: ".$this->data['settings']['pvtcom'].$this->data['settings']['signal']." DeOpMe <channel>");
+						#$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(DEOPME)- Command Structure: ".$this->data['settings']['dcccom'].$this->data['settings']['signal']." DeOpMe <channel>");
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(DEOPME)- Command Structure: ".$this->data['settings']['chancom'].$this->data['settings']['signal']." DeOpMe");
+					} else {
+						$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESSHELP');
+					}
+					break;
+				}
+				case 'MHALFOP': {
+					if ($this->_core_get_access_logged($id,$user,$chan,'CHANNEL') >= 3) {
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(MHALFOP)- This command will HalfOp everyone in <channel>");
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(MHALFOP)- Command Structure: ".$this->data['settings']['pvtcom'].$this->data['settings']['signal']." MHalfOp <channel>");
+						#$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(MHALFOP)- Command Structure: ".$this->data['settings']['dcccom'].$this->data['settings']['signal']." MHalfOp <channel>");
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(MHALFOP)- Command Structure: ".$this->data['settings']['chancom'].$this->data['settings']['signal']." MHalfOp");
+					} else {
+						$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESSHELP');
+					}
+					break;
+				}
+				case 'HALFOP': {
+					if ($this->_core_get_access_logged($id,$user,$chan,'CHANNEL') >= 3) {
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(HALFOP)- This command will HalfOp the <nicks> you pick on <channel>");
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(HALFOP)- Command Structure: ".$this->data['settings']['pvtcom'].$this->data['settings']['signal']." HalfOp <channel> <nick> [<nick> [<nick>]]");
+						#$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(HALFOP)- Command Structure: ".$this->data['settings']['dcccom'].$this->data['settings']['signal']." HalfOp <channel> <nick> [<nick> [<nick>]]");
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(HALFOP)- Command Structure: ".$this->data['settings']['chancom'].$this->data['settings']['signal']." HalfOp <nick> [<nick> [<nick>]]");
+					} else {
+						$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESSHELP');
+					}
+					break;
+				}
+				case 'MDEHALFOP': {
+					if ($this->_core_get_access_logged($id,$user,$chan,'CHANNEL') >= 3) {
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(MDEHALFOP)- This command will De-HalfOp everyone in <channel> but the bot and you");
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(MDEHALFOP)- Command Structure: ".$this->data['settings']['pvtcom'].$this->data['settings']['signal']." MDeHalfOp <channel>");
+						#$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(MDEHALFOP)- Command Structure: ".$this->data['settings']['dcccom'].$this->data['settings']['signal']." MDeHalfOp <channel>");
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(MDEHALFOP)- Command Structure: ".$this->data['settings']['chancom'].$this->data['settings']['signal']." MDeHalfOp");
+					} else {
+						$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESSHELP');
+					}
+					break;
+				}
+				case 'DEHALFOP': {
+					if ($this->_core_get_access_logged($id,$user,$chan,'CHANNEL') >= 3) {
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(DEHALFOP)- This command will de-HalfOp the <nicks> you pick on <channel>");
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(DEHALFOP)- Command Structure: ".$this->data['settings']['pvtcom'].$this->data['settings']['signal']." DeHalfOp <channel> <nick> [<nick> [<nick>]]");
+						#$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(DEHALFOP)- Command Structure: ".$this->data['settings']['dcccom'].$this->data['settings']['signal']." DeHalfOp <channel> <nick> [<nick> [<nick>]]");
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(DEHALFOP)- Command Structure: ".$this->data['settings']['chancom'].$this->data['settings']['signal']." DeHalfOp <nick> [<nick> [<nick>]]");
+					} else {
+						$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESSHELP');
+					}
+					break;
+				}
+				case 'HALFOPME': {
+					if ($this->_core_get_access_logged($id,$user,$chan,'CHANNEL') >= 2) {
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(HALFOPME)- This command will HalfOp yourself on <channel>");
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(HALFOPME)- Command Structure: ".$this->data['settings']['pvtcom'].$this->data['settings']['signal']." HalfOpMe <channel>");
+						#$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(HALFOPME)- Command Structure: ".$this->data['settings']['dcccom'].$this->data['settings']['signal']." HalfOpMe <channel>");
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(HALFOPME)- Command Structure: ".$this->data['settings']['chancom'].$this->data['settings']['signal']." HalfOpMe");
+					} else {
+						$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESSHELP');
+					}
+					break;
+				}
+				case 'DEHALFOPME': {
+					if ($this->_core_get_access_logged($id,$user,$chan,'CHANNEL') >= 2) {
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(DEHALFOPME)- This command will de-HalfOp yourself on <channel>");
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(DEHALFOPME)- Command Structure: ".$this->data['settings']['pvtcom'].$this->data['settings']['signal']." DeHalfOpMe <channel>");
+						#$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(DEHALFOPME)- Command Structure: ".$this->data['settings']['dcccom'].$this->data['settings']['signal']." DeHalfOpMe <channel>");
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(DEHALFOPME)- Command Structure: ".$this->data['settings']['chancom'].$this->data['settings']['signal']." DeHalfOpMe");
+					} else {
+						$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESSHELP');
+					}
+					break;
+				}
+				case 'MVOICE': {
+					if ($this->_core_get_access_logged($id,$user,$chan,'CHANNEL') >= 2) {
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(MVOICE)- This command will Voice everyone in <channel>");
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(MVOICE)- Command Structure: ".$this->data['settings']['pvtcom'].$this->data['settings']['signal']." MVoice <channel>");
+						#$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(MVOICE)- Command Structure: ".$this->data['settings']['dcccom'].$this->data['settings']['signal']." MVoice <channel>");
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(MVOICE)- Command Structure: ".$this->data['settings']['chancom'].$this->data['settings']['signal']." MVoice");
+					} else {
+						$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESSHELP');
+					}
+					break;
+				}
+				case 'VOICE': {
+					if ($this->_core_get_access_logged($id,$user,$chan,'CHANNEL') >= 2) {
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(VOICE)- This command will Voice the <nicks> you pick on <channel>");
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(VOICE)- Command Structure: ".$this->data['settings']['pvtcom'].$this->data['settings']['signal']." Voice <channel> <nick> [<nick> [<nick>]]");
+						#$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(VOICE)- Command Structure: ".$this->data['settings']['dcccom'].$this->data['settings']['signal']." Voice <channel> <nick> [<nick> [<nick>]]");
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(VOICE)- Command Structure: ".$this->data['settings']['chancom'].$this->data['settings']['signal']." Voice <nick> [<nick> [<nick>]]");
+					} else {
+						$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESSHELP');
+					}
+					break;
+				}
+				case 'MDEVOICE': {
+					if ($this->_core_get_access_logged($id,$user,$chan,'CHANNEL') >= 2) {
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(MDEVOICE)- This command will De-Voice everyone in <channel> but the bot and you");
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(MDEVOICE)- Command Structure: ".$this->data['settings']['pvtcom'].$this->data['settings']['signal']." MDeVoice <channel>");
+						#$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(MDEVOICE)- Command Structure: ".$this->data['settings']['dcccom'].$this->data['settings']['signal']." MDeVoice <channel>");
+						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(MDEVOICE)- Command Structure: ".$this->data['settings']['chancom'].$this->data['settings']['signal']." MDeVoice");
+					} else {
+						$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESSHELP');
+					}
+					break;
+				}
 				case 'DEVOICE': {
 					if ($this->_core_get_access_logged($id,$user,$chan,'CHANNEL') >= 2) {
 						$this->_core_buildmsg($id,'HELP',$user,$chan,'PRIV',"-(DEVOICE)- This command will de-voice the <nicks> you pick on <channel>");

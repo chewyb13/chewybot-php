@@ -80,7 +80,7 @@ else if ($OS == 'unix')
 }
 
 // Version Definition
-define('VERSION', '0.0.1.11');
+define('VERSION', '0.0.1.12');
 
 // Timer declarations
 define('NICK_CHECK_TIMEOUT', 120); //seconds
