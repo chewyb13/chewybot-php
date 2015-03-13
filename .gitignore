@@ -1,4 +1,8 @@
-/logfile.txt
-*.bat
 *.bak
-*.pid
+/logfile.txt
+/*.bat
+/*.lst
+/*.pui
+/*.prj
+/*.pid
+/database
