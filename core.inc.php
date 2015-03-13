@@ -311,7 +311,7 @@ class ChewyBot {
 						}
 						case 'CHANNEL': {
 							if (($type == 'PMSG') or ($type == 'PNOTE')) {
-								if ($this->_core_get_access_logged($id,$user,$chan,'GLOBAL') >= 6) {
+								if ($this->_core_get_access_logged($id,$user,$chan,'SERVER') >= 6) {
 									if (count($indata) >= 6) {
 										switch(strtoupper($indata[5])) {
 											case 'ADD': {
@@ -354,8 +354,12 @@ class ChewyBot {
 													#buildmsg(sock,'ERROR',user,chan,'PRIV',"Missing Setting Name")
 													*/
 											} 
+											case 'DEL': {
+												
+												break;
+											}
 											case 'LIST': {
-												$records = $this->sql->sql('select',"SELECT * FROM channels");
+												$records = $this->sql->sql('select',"SELECT * FROM channels where server = '".$id."'");
 												while ($row = $records->fetchArray()) {
 													if ($row['enabled'] == 'enabled') {
 														$this->_core_buildmsg($id,'NORMAL',$user,$chan,'PRIV',"\x033CID: ".$row['id']." Server: ".$row['server']." Channel: ".$row['channel']." Pass: ".$row['chanpass']." Channel Modes: ".$row['chanmodes']." Chan Options: ".$row['options']."\x03");
@@ -369,12 +373,12 @@ class ChewyBot {
 												break;
 											}
 											default: {
-												$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"Error, Use Either List, Add, or Chg");
+												$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"Error, Use Either List, Add, Chg, or Del");
 												break;
 											}
 										}
 									} else {
-										$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"Error, Use Either List, Add, or Chg");
+										$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"Error, Use Either List, Add, Chg, or Del");
 									}
 								} else {
 									$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV','NOACCESS');
@@ -390,58 +394,66 @@ class ChewyBot {
 									if (count($indata) >= 6) {
 										switch(strtoupper($indata[5])) {
 											case 'ADD': {
-												/*
-												if (len(incom) >= 7):
-													if (len(incom) >=8):
-														tmpudata = pulluser(rl(incom[6]))
-														if (tmpudata == 'FALSE'):
-															tmppass = hashlib.md5()
-															tmppass.update(incom[7])
-															sql = "INSERT INTO users (username, password, global, server, channel, msgtype) VALUES ('{0}', '{1}', '{2}', '{3}', '{4}', '{5}')".format(rl(incom[6]),tmppass.hexdigest(),'NULL','NULL','NULL','msg')
-															blarg = db.insert(sql)
-															buildmsg(sock,'NORMAL',user,chan,'PRIV',"You have successfully created '{0}' with the password '{1}'".format(rl(incom[6]),incom[7]))
-														else:
-															buildmsg(sock,'ERROR',user,chan,'PRIV',"The username you entered already exists")
-													else:
-														buildmsg(sock,'ERROR',user,chan,'PRIV',"You only entered a username, please enter a password as well")
-												else:
-													buildmsg(sock,'ERROR',user,chan,'PRIV',"You are missing <username> <password>")
-												*/
+												if (count($indata) >= 7) {
+													if (count($indata) >= 8) {
+														$tmpudata = $this->_core_pulluser(strtolower($indata[6]));
+														if ($tmpudata == 'FALSE') {
+															$tmppass = md5($indata[7]);
+															$this->sql->sql('insert',"INSERT INTO users (username, password, global, server, channel, msgtype) VALUES (".strtolower($indata[6]).", ".$tmppass.", NULL, NULL, NULL, msg)");
+															$this->_core_buildmsg($id,'NORMAL',$user,$chan,'PRIV',"You have successfully created '".strtolower($indata[6])."' with the password '".$incom[7]."'");
+														} else {
+															$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"The username you entered already exists");
+														}
+													} else {
+														$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You only entered a username, please enter a password as well");
+													}
+												} else {
+													$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You are missing <username> <password>");
+												}
 												break;
 											}
 											case 'CHG': {
-												/*
-												if (len(incom) >= 7):
-													if (len(incom) >= 8):
-														if (incom[7].upper() == 'PASS'):
-															if (len(incom) >= 9):
-																tmppass = hashlib.md5()
-																tmppass.update(incom[8])
-																sql = "UPDATE users SET password = '{0}' where username = '{1}'".format(tmppass.hexdigest(),rl(incom[6]))
-																vals = db.execute(sql)
-																buildmsg(sock,'NORMAL',user,chan,'PRIV',"You have successfully changed the password for '{0}'".format(rl(incom[6])))													
-															else:
-																buildmsg(sock,'ERROR',user,chan,'PRIV',"Error, Use format <username> PASS <newpass>")
-														elif (incom[7].upper() == 'MSGTYPE'):
-															if (len(incom) >= 9):
-																if (incom[8].lower() == 'notice'):
-																	newtype = 'notice'
-																else:
-																	newtype = 'msg'
-																sql = "UPDATE users SET msgtype = '{0}' where username = '{1}'".format(newtype,rl(incom[6]))
-																vals = db.execute(sql)
-																if (islogged(sock,rl(incom[6])) == 'TRUE'):
-																	loggedin[sock][rl(incom[6])]['msgtype'] = newtype
-																buildmsg(sock,'NORMAL',user,chan,'PRIV',"You have successfully changed the message type for '{0}' to '{1}'".format(rl(incom[6]),newtype))
-															else:
-																buildmsg(sock,'ERROR',user,chan,'PRIV',"Error, Use format <username> MSGTYPE <notice/msg>")
-														else:
-															buildmsg(sock,'ERROR',user,chan,'PRIV',"Error, Use Either Pass, Msgtype")
-													else:
-														buildmsg(sock,'ERROR',user,chan,'PRIV',"Error, Use Either Pass, Msgtype")
-												else:
-													buildmsg(sock,'ERROR',user,chan,'PRIV',"Missing Username")
-												*/
+												if (count($indata) >= 7) {
+													if (count($indata) >= 8) {
+														switch (strtoupper($indata[7]) {
+															case 'PASS': {
+																if (count($indata) >= 9) {
+																	$tmppass = md5($indata[8]);
+																	$this->sql->sql('update',"UPDATE users SET password = '".$tmppass2."' where id = '".strtolower($indata[6])."'");
+																	$this->_core_buildmsg($id,'NORMAL',$user,$chan,'PRIV',"You have successfully changed the password for '".strtolower($indata[6])."'");
+																} else {
+																	$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"Error, Use format <username> PASS <newpass>");
+																}
+																break;
+															}
+															case 'MSGTYPE': {
+																if (count($indata) >= 9) {
+																	if (strtolower($indata[8]) == 'notice') {
+																		$newtype = 'notice';
+																	} else {
+																		$newtype = 'msg';
+																	}
+																	$this->sql->sql('update',"UPDATE users SET msgtype = '".$newtype."' where id = '".strtolower($indata[6])."'");
+																	if ($this->_core_islogged($id,strtolower($indata[6])) == true) {
+																		$this->sdata['cons'][$id]['loggedin'][strtolower($indata[6])]['msgtype'] = $newtype;
+																	}
+																	$this->_core_buildmsg($id,'NORMAL',$user,$chan,'PRIV',"You have successfully changed the message type for '".strtolower($indata[6])."' to '".$newtype."'");
+																} else {
+																	$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"Error, Use format <username> MSGTYPE <notice/msg>");
+																}
+																break;
+															}
+															default: {
+																$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"Error, Use Either Pass, MsgType");
+																break;
+															}
+														}
+													} else {
+														$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"Error, Use Either Pass, MsgType");
+													}
+												} else {
+													$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"Missing Username");
+												}
 												break;
 											} 
 											case 'DEL': {
@@ -487,7 +499,7 @@ class ChewyBot {
 												if (count($indata) >= 8) {
 													$tmppass = md5($indata[6]);
 													if ($userdetail['password'] == $tmppass) {
-														$tmppass2 = $indata[7];
+														$tmppass2 = md5($indata[7]);
 														$this->sql->sql('update',"UPDATE users SET password = '".$tmppass2."' where id = '".$userdetail['id']."'");
 														$this->sdata['cons'][$id]['loggedin'][$user]['password'] = $tmppass2;
 														$this->_core_buildmsg($id,'NORMAL',$user,$chan,'PRIV',"You have successfully changed your password.");
