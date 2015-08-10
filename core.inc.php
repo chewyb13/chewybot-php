@@ -315,47 +315,88 @@ class ChewyBot {
 									if (count($indata) >= 6) {
 										switch(strtoupper($indata[5])) {
 											case 'ADD': {
-												
+												if (count($indata) >= 7) {
+													$this->sql->sql('insert',"INSERT INTO channels (server, channel, chanpass, chanmodes, chantopic, options, enabled) VALUES (".$id.", ".$indata[6].", NULL, NULL, NULL, NULL, enabled)");
+													$this->_core_buildmsg($id,'NORMAL',$user,$chan,'PRIV',"You have successfully created channel '".$indata[6]."'");
+													$this->_core_cmd_rehash(); 
+													$this->_core_joinchan($id,$indata[6]);
+												} else {
+													$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You are missing <channel>");
+												}												
 												break;
 											}
 											case 'CHG': {
-												/*
-												if (len(incom) >= 7):
-													if (len(incom) >= 8):
-														if (incom[7].upper() == 'SERVER'):
-															blarg = 1
-														elif (incom[7].upper() == 'CHANNEL'):
-															blarg = 1
-														elif (incom[7].upper() == 'CHANPASS'):
-															blarg = 1
-														elif (incom[7].upper() == 'CHANMODES'):
-															blarg = 1
-														elif (incom[7].upper() == 'CHANTOPIC'):
-															blarg = 1
-														elif (incom[7].upper() == 'OPTIONS'):
-															blarg = 1
-														elif (incom[7].upper() == 'ENABLED'):
-															blarg = 1
-														else:
-															buildmsg(sock,'ERROR',user,chan,'PRIV',"Error, You must choose from Server, Channel, Chanpass, Chanmodes, Chantopic, Options, Enabled")
-													else:
-														buildmsg(sock,'ERROR',user,chan,'PRIV',"Error, You must choose from Server, Channel, Chanpass, Chanmodes, Chantopic, Options, Enabled")
-												else:
-													buildmsg(sock,'ERROR',user,chan,'PRIV',"Error, Missing CID number, please check channel list again")
-												#if (len(incom) >= 7):
-													#if (len(incom) >= 8):
-														#sql = "UPDATE settings SET setting = '{0}', value = '{1}' WHERE setting = '{0}'".format(rl(incom[6]),incom[7])
-														#vals = db.execute(sql)
-														#settings[rl(incom[6])] = incom[7]
-														#buildmsg(sock,'NORMAL',user,chan,'PRIV',"You have successfully changed {0} to {1}".format(rl(incom[6]),incom[7]))
-													#else:
-														#buildmsg(sock,'ERROR',user,chan,'PRIV',"Missing Setting Value")
-												#else:
-													#buildmsg(sock,'ERROR',user,chan,'PRIV',"Missing Setting Name")
-													*/
+											  if (count($indata) >= 7) {
+											  	if (count($indata) >= 8) {
+											  	  switch(strtoupper($indata[7])) {
+											  		  case 'SERVER': {
+											  		  	
+											  		  	break;
+											  		  }
+											  		  case 'CHANNEL': {
+											  		  	
+											  		  	break;
+											  		  }
+											  		  case 'CHANPASS': {
+											  		  	
+											  		  	break;
+											  		  }
+											  		  case 'CHANMODES': {
+											  		  	
+											  		  	break;
+											  		  }
+											  		  case 'CHANTOPIC': {
+											  		  	
+											  		  	break;
+											  		  }
+											  		  case 'OPTIONS': {
+											  		  	
+											  		  	break;
+											  		  }
+											  		  case 'ENABLED': {
+																if (count($indata) >= 9) {
+																	$this->sql->sql('update',"UPDATE channels SET enabled = '".strtolower($indata[8])."' where id = '".$indata[6]."'");
+																	$this->_core_buildmsg($id,'NORMAL',$user,$chan,'PRIV',"You have successfully changed the enabled status for CID '".$indata[6]."' to '".strtolower($indata[8])."'");
+																	if ($indata[8] == 'enabled') {
+																		$this->_core_cmd_rehash();
+																		$records = $this->sql->sql('select',"SELECT * FROM channels where id = '".$indata[6]."'");
+																		while ($row = $records->fetchArray()) {
+																			$this->_core_joinchan($id,$row['channel']);
+																		}
+																	}
+																} else {
+																	$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"Error, Choose either enabled or disabled");
+																}
+											  		  	break;
+											  		  }											  		
+											  		  default: {
+											  			  $this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You must choose from Server, Channel, Chanpass, Chanmodes, Chantopic, Options, Enabled");
+											  			  break;
+											  		  }
+											  	  }
+											  	
+											    }
+											    else {
+											    	$this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"You must choose from Server, Channel, Chanpass, Chanmodes, Chantopic, Options, Enabled");
+											    }
+											  	
+											  }
+											  else {
+											    $this->_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"Error, Missing CID number, please check channel list again");
+											  }
 											} 
 											case 'DEL': {
-												
+												if (count($indata) >= 7) {
+													$this->sql->sql('update',"UPDATE channels SET enabled = 'disabled' where id = '".$indata[6]."'");
+													$this->_core_cmd_rehash();
+													$records = $this->sql->sql('select',"SELECT * FROM channels where id = '".$indata[6]."'");
+													while ($row = $records->fetchArray()) {
+														$this->_core_sts($id,"PART :".$row['channel']);
+													}
+												}
+												else {
+													$this-_core_buildmsg($id,'ERROR',$user,$chan,'PRIV',"Error, Missing CID number, please check channel list again");
+												}
 												break;
 											}
 											case 'LIST': {
@@ -363,11 +404,11 @@ class ChewyBot {
 												while ($row = $records->fetchArray()) {
 													if ($row['enabled'] == 'enabled') {
 														$this->_core_buildmsg($id,'NORMAL',$user,$chan,'PRIV',"\x033CID: ".$row['id']." Server: ".$row['server']." Channel: ".$row['channel']." Pass: ".$row['chanpass']." Channel Modes: ".$row['chanmodes']." Chan Options: ".$row['options']."\x03");
-														$this->_core_buildmsg($id,'NORMAL',$user,$chan,'PRIV',"\x033CID: ".$row['id']." Topic: ".$row['chantopic']."\x03");
+														$this->_core_buildmsg($id,'NORMAL',$user,$chan,'PRIV',"\x033CID: ".$row['id']." Topic: ".$row['chantopic']."\x03"); 
 													} else {
 														$this->_core_buildmsg($id,'NORMAL',$user,$chan,'PRIV',"\x034CID: ".$row['id']." Server: ".$row['server']." Channel: ".$row['channel']." Pass: ".$row['chanpass']." Channel Modes: ".$row['chanmodes']." Chan Options: ".$row['options']."\x03");
 														$this->_core_buildmsg($id,'NORMAL',$user,$chan,'PRIV',"\x034CID: ".$row['id']." Topic: ".$row['chantopic']."\x03");
-													}
+													} 
 												}
 												$this->_core_buildmsg($id,'NORMAL',$user,$chan,'PRIV',"Color \x033Green\x03 is enabled, Color \x034Red\x03 is disabled");
 												break;
@@ -415,7 +456,7 @@ class ChewyBot {
 											case 'CHG': {
 												if (count($indata) >= 7) {
 													if (count($indata) >= 8) {
-														switch (strtoupper($indata[7]) {
+														switch (strtoupper($indata[7])) {
 															case 'PASS': {
 																if (count($indata) >= 9) {
 																	$tmppass = md5($indata[8]);
@@ -4284,11 +4325,15 @@ def chanmodes(sock,chan):
 		}
 		socket_set_nonblock($this->sdata['cons'][$id]['socket']);
 		//timeout setting here
+		$this->_core_sts($id,"CAP LS");
+		
 		if ($this->data['data'][$id]['server']['serverpass'] != 'NULL') {
 			$this->_core_sts($id,"PASS ".$this->data['data'][$id]['server']['serverpass']);
 		}
 		$this->_core_sts($id,"NICK ".$this->sdata['cons'][$id]['nick']);
 		$this->_core_sts($id,"USER ".$this->data['settings']['botname']." 0 ".$this->data['data'][$id]['server']['address']." :Ch3wyB0t Version ".$CORE['info']['version']);
+		//$this->_core_sts($id,"CAP REQ :userhost-in-names");
+		$this->_core_sts($id,"CAP END");
 		return;
 	}
 

@@ -15,12 +15,18 @@ $CORE['conf']['bindedip'] = '192.168.2.16';
 $CORE['conf']['console_colorize'] = true;
 $CORE['debug'] = true;
 // You shouldn't need to edit anything below this point what so ever
-$CORE['info']['botauthor'] = "chewyb_13 @ Servers irc.chewynet.co.uk:6667 & HellRisingSun.BounceMe.Net:7202";
-$CORE['info']['helpchans'] = "#chewybot @ Servers irc.chewynet.co.uk:6667 & HellRisingSun.BounceMe.Net:7202";
+$CORE['info']['botauthor'] = "chewyb_13 @ Server irc.exchat.net";
+$CORE['info']['helpchans'] = "#chewybot @ Server irc.exchat.net";
 $CORE['info']['botauthoremail'] = "chewyb13@gmail.com";
 $CORE['info']['bugtracker'] = "https://github.com/chewyb13/chewybot-php/issues";
 $CORE['info']['sourcecode'] = "https://github.com/chewyb13/chewybot-php.git";
-$CORE['info']['version'] = "0.0.1.14";
+$CORE['info']['longversion']['major'] = 0;
+$CORE['info']['longversion']['minor'] = 0;
+$CORE['info']['longversion']['revision'] = 1;
+$CORE['info']['longversion']['build'] = 15;
+$CORE['info']['version'] = '"'.$CORE['info']['longversion']['major'].'.'.$CORE['info']['longversion']['minor'].'.'.$CORE['info']['longversion']['revision'].'.'.$CORE['info']['longversion']['build'].'"';
+//$CORE['info']['version'] = "0.0.1.15";
+
 require ("./module/core/defines.inc.php");
 // You really shouldn't need to edit anything below this point unless you are wanting to help with development
 if (php_uname('s') === "Windows NT") {
