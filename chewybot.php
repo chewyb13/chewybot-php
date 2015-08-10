@@ -9,36 +9,26 @@
 	extension=php_sqlite3.dll
 	extension=php_sockets.dll
 */
+// Debug Mode
+define('BOT_DEBUG', true);
+// PID file
+define('BOT_PID', "./chewybot.pid");
+// OS Type (windows/unix/linux/freebsd/unknown/auto)
+define('OS', 'auto');
+
 $CORE['conf']['db'] = './database/chewydb.db';
 $CORE['conf']['bindip'] = false;
 $CORE['conf']['bindedip'] = '192.168.2.16';
 $CORE['conf']['console_colorize'] = true;
-$CORE['debug'] = true;
 // You shouldn't need to edit anything below this point what so ever
-$CORE['info']['botauthor'] = "chewyb_13 @ Server irc.exchat.net";
-$CORE['info']['helpchans'] = "#chewybot @ Server irc.exchat.net";
-$CORE['info']['botauthoremail'] = "chewyb13@gmail.com";
-$CORE['info']['bugtracker'] = "https://github.com/chewyb13/chewybot-php/issues";
-$CORE['info']['sourcecode'] = "https://github.com/chewyb13/chewybot-php.git";
-$CORE['info']['longversion']['major'] = 0;
-$CORE['info']['longversion']['minor'] = 0;
-$CORE['info']['longversion']['revision'] = 1;
-$CORE['info']['longversion']['build'] = 15;
-$CORE['info']['version'] = '"'.$CORE['info']['longversion']['major'].'.'.$CORE['info']['longversion']['minor'].'.'.$CORE['info']['longversion']['revision'].'.'.$CORE['info']['longversion']['build'].'"';
-//$CORE['info']['version'] = "0.0.1.15";
 
 require ("./module/core/defines.inc.php");
 // You really shouldn't need to edit anything below this point unless you are wanting to help with development
-if (php_uname('s') === "Windows NT") {
-	$CORE['OS'] = 'WINDOWS';
-} else {
-	$CORE['OS'] = php_uname('s');
-}
-if (file_exists('./chewybot.pid')) {
+if (file_exists(BOT_PID)) {
 	$pid = getmypid();
-	$old = file_get_contents('./chewybot.pid');
-	$fp = fopen('./chewybot.pid','w');
-	if ($CORE['OS'] != 'WINDOWS') {
+	$old = file_get_contents(BOT_PID);
+	$fp = fopen(BOT_PID,'w');
+	if (CORE_OS != 'windows') {
 		if (exec('ps -p '.$old)) {
 			exec('kill -9 '.$old);
 			fwrite($fp,$pid);
@@ -48,10 +38,10 @@ if (file_exists('./chewybot.pid')) {
 	}
 } else {
 	$pid = getmypid();
-	$fp = fopen('./chewybot.pid','w');
+	$fp = fopen(BOT_PID,'w');
 	fwrite($fp,$pid);
 }
-if ($CORE['debug'] == true) { error_reporting(E_ALL); }
+if (BOT_DEBUG == true) { error_reporting(E_ALL); }
 // | E_STRICT
 require ('core.inc.php');
 $ch3wyb0t = new ChewyBot();

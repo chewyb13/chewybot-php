@@ -7,7 +7,7 @@ class sql extends ChewyBot {
 		switch ($type) {
 			case 'init':
 				$return = false;
-				//$this-> log = new log("Init of Logging system for sql",null,false);
+				$ch3wyb0t->_log->_sprint("Init of sql system",null,false);
 				break;
 			case 'database_check_structure':
 				$return = $this->_db_structure();
@@ -19,13 +19,13 @@ class sql extends ChewyBot {
 				$return = $this->_db_Connect();
 				break;
 			case 'select':
-				$return = $this->db->query($sqlstmt);
+				$return = $ch3wyb0t->db->query($sqlstmt);
 				break;
 			case 'insert':
 				//$stmt = $this->db->prepare($sqlstmt);
 				//$stmt
 				$return = $this->sql('execute',$sqlstmt);
-				$return = $this->db->lastInsertRowID();
+				$return = $ch3wyb0t->db->lastInsertRowID();
 				break;
 			case 'update':
 				//Gonna need coding to process the stmts, lol
@@ -36,10 +36,10 @@ class sql extends ChewyBot {
 				$return = $this->sql('execute',$sqlstmt);
 				break;
 			case 'execute':
-				$return = $this->db->exec($sqlstmt);
+				$return = $ch3wyb0t->db->exec($sqlstmt);
 				break;
 			default:
-				$ch3wyb0t->_sprint("Database command Error",'error',false);
+				$ch3wyb0t->_log->_sprint("Database command Error",'error',false);
 				$return = false;
 				break;
 		}
@@ -57,7 +57,7 @@ class sql extends ChewyBot {
 		//otherwise we could have a problem with the pre-built sql statements when they are called, gonna so have to
 		//use a seperate table in the database to keep track of all insert and updates, not like I'm gonna be programming
 		//any delete sql statements into the script for this bot.
-		$ch3wyb0t->_sprint("Database Structure Check complete, gonna check if database needs to update",'regular',false);
+		$ch3wyb0t->_log->_sprint("Database Structure Check complete, gonna check if database needs to update",'regular',false);
 		$return = $this->_db_update();
 		return $return;
 	}
@@ -69,7 +69,7 @@ class sql extends ChewyBot {
 			$this->_db_Connect();
 		}*/
 		//function for when the database structure changes, if there is ever gonna be any that is!!!
-		$ch3wyb0t->_sprint("Database update chekc complete, Continuing to loading the bot system",'regular',false);
+		$ch3wyb0t->_log->_sprint("Database update check complete, Continuing to loading the bot system",'regular',false);
 		$return = true;
 		return $return;
 	}
@@ -104,12 +104,12 @@ class sql extends ChewyBot {
 			$this->_db_Connect();
 		}*/
 		//Long process of building the database from scratch which will take a good while to do as it's gonna make me go crazy with the stupid amount of lines it will need, gonna paste the rough structure here into the file so i can more easily convert it over
-		$ch3wyb0t->_sprint("Okay since we gotta build the database from scratch",'regular',false);
-		$ch3wyb0t->_sprint("I have to ask you a few questions to be able to",'regular',false);
-		$ch3wyb0t->_sprint("generate the database",'regular',false);
-		$ch3wyb0t->_sprint("Questions with a * can't be empty, otherwise",'regular',false);
-		$ch3wyb0t->_sprint("they can be a empty response as the field can be",'regular',false);
-		$ch3wyb0t->_sprint("a NULL value in the database",'regular',false);
+		$ch3wyb0t->_log->_sprint("Okay since we gotta build the database from scratch",'regular',false);
+		$ch3wyb0t->_log->_sprint("I have to ask you a few questions to be able to",'regular',false);
+		$ch3wyb0t->_log->_sprint("generate the database",'regular',false);
+		$ch3wyb0t->_log->_sprint("Questions with a * can't be empty, otherwise",'regular',false);
+		$ch3wyb0t->_log->_sprint("they can be a empty response as the field can be",'regular',false);
+		$ch3wyb0t->_log->_sprint("a NULL value in the database",'regular',false);
 		//prefill some default values for the temp array for settings
 		$tempvals = ['settings' => ['botname' => 'NULL', 'chancom' => 'NULL', 'pvtcom' => 'NULL', 'dcccom' => 'NULL'], 'server' => ['name' => 'NULL', 'address' => 'NULL', 'port' => 'NULL', 'pass' => 'NULL', 'nick' => 'NULL', 'bnick' => 'NULL'], 'channel' => ['server' => 'NULL',	'channel' => 'NULL', 'chanmods' => '+nt'], 'user' => ['username' => 'NULL',	'password' => 'NULL']];
 		$tempvals['settings']['botname'] = $this->_cmdpromptask("Enter The Bot's Name *:",true);
@@ -139,7 +139,7 @@ class sql extends ChewyBot {
 		$tempvals['user']['username'] = $this->_cmdpromptask("Enter your username *:",true);
 		$temppass = $this->_cmdpromptask("Enter your password *:",true);
 		$tempvals['user']['password'] = md5($temppass);
-		/*
+		
 		$this->sql('execute',"CREATE TABLE IF NOT EXISTS settings (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, setting TEXT, value TEXT)");
 		$this->sql('execute',"CREATE TABLE IF NOT EXISTS servers (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, servername TEXT, address TEXT, serverport TEXT, serverpass TEXT, nick TEXT, bnick TEXT, nickservpass TEXT, botoper TEXT, botoperpass TEXT, enabled TEXT)");
 		$this->sql('execute',"CREATE TABLE IF NOT EXISTS channels (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, server TEXT, channel TEXT, chanpass TEXT, chanmodes TEXT, options TEXT, enabled TEXT)");
@@ -159,14 +159,14 @@ class sql extends ChewyBot {
 		$this->sql('insert',"INSERT INTO server (servername, address, serverport, serverpass, nick, bnick, nickservpass, botoper, botoperpass, enabled) VALUES (".$tempvals['server']['name'].", ".$tempvals['server']['address'].", ".$tempvals['server']['port'].", ".$tempvals['server']['pass'].", ".$tempvals['server']['nick'].", ".$tempvals['server']['bnick'].", ".$tempvals['server']['nickservpass'].", ".$tempvals['server']['botoper'].", ".$tempvals['server']['botoperpass'].", enabled)");
 		$this->sql('insert',"INSERT INTO channels (server, channel, chanpass, chanmodes, options, enabled) VALUES (".$tempvals['server']['name'].", ".$tempvals['channel']['channel'].", ".$tempvals['channel']['chanpass'].", ".$tempvals['channel']['chanmodes'].", NULL, enabled)");
 		$this->sql('insert',"INSERT INTO users (username, password, global, server, channel, msgtype) VALUES (".$tempvals['user']['username'].", ".$tempvals['user']['password'].", 6, NULL, NULL, msg)");
-		*/
-		var_dump($tempvals);
+		
+		//var_dump($tempvals);
 	}
 	
 	private function _db_Connect() {
 		global $CORE;
 		global $ch3wyb0t;
-		$this->db = new SQLite3($CORE['conf']['db']);
+		$ch3wyb0t->db = new SQLite3($CORE['conf']['db']);
 	}
 }
 ?>

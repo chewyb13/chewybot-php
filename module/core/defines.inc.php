@@ -1,10 +1,10 @@
 <?php
 // Debug Mode
-define('DEBUG', 1);
+//define('CORE_DEBUG', $true);
 // PID file
-define('PID', "chewybot.pid");
+//define('PID', "chewybot.pid");
 // OS Type (windows/unix/linux/freebsd/unknown/auto)
-define('OS', 'auto');
+//define('OS', 'auto');
 
 //YOU SHOULD NOT HAVE TO EDIT BELOW THIS POINT UNLESS YOU SPECIFY "unknown" AS OS!
 
@@ -40,6 +40,7 @@ else
 
 if ($OS == 'unknown')
 {
+	define('CORE_OS', 'unknown');
 	define('EAGAIN', 		0); /* Try again */
 	define('EISCONN', 		0);	/* Transport endpoint is already connected */
 	define('EALREADY',		0);	/* Operation already in progress */
@@ -48,6 +49,7 @@ if ($OS == 'unknown')
 else if ($OS == 'windows')
 {
 	//http://developer.novell.com/support/winsock/doc/appenda.htm
+	define('CORE_OS', 'windows');
 	define('EAGAIN', 		10035);	/* EWOULDBLOCK.. kinda like EAGAIN in windows? */
 	define('EISCONN', 		10056);	/* Transport endpoint is already connected */
 	define('EALREADY',		10037);	/* Operation already in progress */
@@ -57,6 +59,7 @@ else if ($OS == 'freebsd')
 {
 	//Thanks to ryguy@efnet
 	///usr/include/errno.h (freebsd)
+	define('CORE_OS', 'freebsd');
 	define('EAGAIN', 		35); 	/* Try again */
 	define('EISCONN', 		56); 	/* Transport endpoint is already connected */
 	define('EALREADY', 		37); 	/* Operation already in progress */
@@ -65,6 +68,7 @@ else if ($OS == 'freebsd')
 else if ($OS == 'linux')
 {
 	///usr/include/sys/errno.h (sparc)
+	define('CORE_OS', 'linux');
 	define('EAGAIN', 		11);	/* Try again */
 	define('EISCONN', 		106);	/* Transport endpoint is already connected */
 	define('EALREADY',		114);	/* Operation already in progress */
@@ -73,6 +77,7 @@ else if ($OS == 'linux')
 else if ($OS == 'unix')
 {
 	///usr/include/asm/errno.h (mandrake 9.0)
+	define('CORE_OS', 'unix');
 	define('EAGAIN', 		11);	/* Try again */
 	define('EISCONN', 		133);	/* Transport endpoint is already connected */
 	define('EALREADY',		149);	/* Operation already in progress */
@@ -80,11 +85,27 @@ else if ($OS == 'unix')
 }
 
 // Version Definition
-define('VERSION_MAJOR', 0);
+define('VERSION_MAJOR', 1);
 define('VERSION_MINOR', 0);
 define('VERSION_REVISION', 1);
-define('VERSION_BUILD', 15);
-define('VERSION', '0.0.1.15');
+define('VERSION_BUILD', 16);
+define('INFO_botauthor', "chewyb_13 @ Server irc.exchat.net");
+define('INFO_helpchans', "#chewyb_13 @ Server irc.exchat.net");
+define('INFO_botauthoremail', "chewyb13@gmail.com");
+define('INFO_bugtracker', "https://github.com/chewyb13/chewybot-php/issues");
+define('INFO_sourcecode', "https://github.com/chewyb13/chewybot-php.git");
+
+
+
+
+
+
+
+
+
+
+
+
 
 // Timer declarations
 define('NICK_CHECK_TIMEOUT', 120); //seconds
@@ -172,6 +193,10 @@ define('EXACT_MATCH', 0);
 define('AND_MATCH', 1);
 define('OR_MATCH', 2);
 define('CONTAINS_MATCH', 3);
+
+
+
+
 
 //Used in socket class to keep track of sockets
 
