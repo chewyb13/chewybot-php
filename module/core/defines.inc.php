@@ -88,7 +88,7 @@ else if ($OS == 'unix')
 define('VERSION_MAJOR', 1);
 define('VERSION_MINOR', 0);
 define('VERSION_REVISION', 1);
-define('VERSION_BUILD', 16);
+define('VERSION_BUILD', 18);
 define('INFO_botauthor', "chewyb_13 @ Server irc.exchat.net");
 define('INFO_helpchans', "#chewyb_13 @ Server irc.exchat.net");
 define('INFO_botauthoremail', "chewyb13@gmail.com");
