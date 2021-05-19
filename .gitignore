@@ -7,3 +7,4 @@
 /*.pid
 /database
 config.php
+*.code-wordspace
