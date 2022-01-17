@@ -8,3 +8,4 @@
 /database
 config.php
 *.code-workspace
+ColorCli.php
